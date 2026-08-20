@@ -1,0 +1,43 @@
+# ════════════════════════════════════════════════════════
+# OSSInt 2026 · 堰塞湖快速評估系統
+#
+# 安裝：
+#     python -m venv .venv && source .venv/bin/activate
+#     pip install -r requirements.txt
+#     cd code && pip install -e .
+#
+# 影像處理階段的套件先註解著——SNAP 與 GDAL 的安裝較麻煩，
+# 等真的開始處理 Sentinel-1 再解開，避免現在就卡住新成員的環境。
+# ════════════════════════════════════════════════════════
+
+# ── 核心（目前用到的）─────────────────────────────────
+pyproj>=3.6           # TWD97 TM2 (EPSG:3826) → WGS84 座標轉換
+PyYAML>=6.0           # attribution 句型庫
+
+# ── 開發 ──────────────────────────────────────────────
+pytest>=8.0
+
+# ── 資料處理 ───────────────────────────────────────────
+requests>=2.31        # CWA 即時雨量（pipeline.ingest.cwa / risk_live），已接
+# pandas>=2.2         # 雨量與地震時序整理（CDSE/SAR 階段再解開）；exposure.py
+                       # 讀 SEGIS 人口表也會用到，開工時解開
+
+# ── 空間分析（pipeline.assess，已實作 hypsometry/inundation/exposure）─
+numpy>=1.26            # 三支模組的核心運算（DEM 陣列、遮罩）都要用
+scipy>=1.11            # ndimage.label 做連通分量分析（填洼演算法的核心，
+                        # 取代原規劃的 richdem——richdem 目前主要維護心力在
+                        # 集水區劃分/流向這類更複雜的水文地形分析，這裡只需要
+                        # 「淹沒範圍是否連通」，用 scipy 的連通元件分析就夠，
+                        # 且不用額外裝 C++ 編譯依賴，對新成員環境比較友善）
+shapely>=2.0            # 幾何運算、淹沒範圍轉多邊形
+geopandas>=0.14         # exposure.py 疊合村里界線圖用
+# rasterio>=1.3         # 讀真實 DEM GeoTIFF（load_dem_geotiff）才需要；
+                         # 核心演算法本身只吃 numpy 陣列，還沒有真實 DEM 檔案
+                         # 前可以先不裝，等 B1 SAR/DEM 資料到位再解開
+
+# ── 影像處理（開始處理 SAR 時解開）────────────────────
+# esa-snappy          # SNAP 的 Python 介面，需先裝 SNAP 本體
+# scikit-image>=0.22  # Otsu 門檻、形態學運算
+#
+# 注意：SNAP 與 GDAL 建議用 conda 裝，pip 版本相依常出問題：
+#     conda install -c conda-forge esa_snappy gdal
