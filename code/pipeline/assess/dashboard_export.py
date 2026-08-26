@@ -43,16 +43,31 @@ def _synthetic_dem_around(radius_cells: int = 40, cell_size_m: float = 10.0,
                            floor_elevation: float = 600.0,
                            rim_height: float = 45.0) -> tuple:
     """
-    合成一個以壩址為中心的碗形山谷 DEM，純供示範前端管線用
-    （沿用 hypsometry.py / inundation.py 示範一致的碗形寫法）。
+    合成一個以壩址為中心的**狹長河谷型** DEM，純供示範前端管線用。
+
+    刻意不用對稱碗形：真實堰塞湖是沿河道分布的狹長水體，不是同心圓；
+    早期版本用對稱碗形合成地形，跑出來的淹沒多邊形在地圖上看起來就是
+    一個圓，跟原本要取代的「3km 固定半徑圓」示意圈幾乎分不出來，
+    容易讓人誤以為多邊形圖層沒有真的接上。這裡改用「垂直河道方向陡升
+    （狹窄河谷）、沿河道方向緩升（狹長水體）＋緩和彎曲（模擬河道蜿蜒）」
+    的地形，讓淹沒範圍明顯是長條彎曲形狀，一眼就能跟圓形示意圈區分開。
 
     回傳 (dem, pour_point, cell_size_m, floor_elevation, crest_elevation)。
     """
     size = radius_cells * 2 + 1
     yy, xx = np.mgrid[0:size, 0:size]
     center = radius_cells
-    dist = np.sqrt((yy - center) ** 2 + (xx - center) ** 2)
-    dem = floor_elevation + dist * (rim_height / radius_cells)
+    dx = xx - center
+    dy = yy - center
+
+    # 河道中心線隨 dx 做正弦彎曲，模擬河道蜿蜒
+    channel_center_y = 0.35 * radius_cells * np.sin(dx / (radius_cells * 0.9))
+    dist_from_channel = np.abs(dy - channel_center_y)
+    along_channel = np.abs(dx)
+
+    dem = (floor_elevation
+           + dist_from_channel * (rim_height / (radius_cells * 0.35))   # 垂直河道：陡升
+           + along_channel * (rim_height / (radius_cells * 2.2)))       # 沿河道：緩升
     pour_point = (center, center)
     crest_elevation = floor_elevation + rim_height
     return dem, pour_point, cell_size_m, floor_elevation, crest_elevation
