@@ -3,9 +3,13 @@
 test_detect.py — pipeline.detect 單元測試（water.py，B1 NDWI 光學半）
 
 只測不需要真實 Sentinel-2 GeoTIFF 的部分：NDWI 公式、Otsu 門檻、
-二值化、變化偵測，全部用合成資料驗證。真實影像讀取
-（load_sentinel2_bands）不在本檔測試範圍內——那需要真的影像檔案，
-等資料到位後另外用整合測試涵蓋。
+二值化、變化偵測，全部用合成資料驗證。`load_ndwi_geotiff()` 讀檔邏輯
+用臨時合成的小張 GeoTIFF 測（rasterio 現在是必要依賴，見
+requirements.txt），不需要真的衛星影像；`load_sentinel2_bands` 沒有
+對應測試——那需要真的 Green/NIR 兩個波段檔案。
+
+馬太鞍溪真實 NDWI 影像（Google Earth Engine 匯出）的分析結果不在這裡，
+見 `data/derived/real_water_bl071.json` 與對應的一次性分析 script。
 
 執行（於 code/ 目錄下）：
     pytest tests/test_detect.py -v
@@ -153,6 +157,40 @@ class TestSaveExtentSummary(unittest.TestCase):
         self.assertEqual(data["method"], "otsu")
         self.assertEqual(data["pixel_count"], 2)
         self.assertEqual(data["area_m2"], 200.0)
+
+
+class TestLoadNdwiGeotiff(unittest.TestCase):
+    """用臨時合成的小張 GeoTIFF 測讀檔邏輯，不需要真的衛星影像。"""
+
+    def _write_tiny_geotiff(self, path, arr, nodata=None):
+        import rasterio
+        from rasterio.transform import from_origin
+
+        transform = from_origin(121.0, 24.0, 0.001, 0.001)  # 左上角、像元邊長 0.001 度
+        with rasterio.open(
+            path, "w", driver="GTiff", height=arr.shape[0], width=arr.shape[1],
+            count=1, dtype=arr.dtype, crs="EPSG:4326", transform=transform, nodata=nodata,
+        ) as dst:
+            dst.write(arr, 1)
+
+    def test_round_trip_values_and_cell_size(self):
+        arr = np.array([[0.5, -0.3], [0.1, 0.9]], dtype="float32")
+        with tempfile.TemporaryDirectory() as tmpdir:
+            path = os.path.join(tmpdir, "ndwi.tif")
+            self._write_tiny_geotiff(path, arr)
+            data = W.load_ndwi_geotiff(path)
+        np.testing.assert_allclose(data["ndwi"], arr, rtol=1e-5)
+        self.assertAlmostEqual(data["cell_size_m"], 0.001, places=6)
+        self.assertEqual(data["crs"], "EPSG:4326")
+
+    def test_nodata_becomes_nan(self):
+        arr = np.array([[0.5, -9999.0], [0.1, 0.9]], dtype="float32")
+        with tempfile.TemporaryDirectory() as tmpdir:
+            path = os.path.join(tmpdir, "ndwi.tif")
+            self._write_tiny_geotiff(path, arr, nodata=-9999.0)
+            data = W.load_ndwi_geotiff(path)
+        self.assertTrue(np.isnan(data["ndwi"][0, 1]))
+        self.assertEqual(data["ndwi"][0, 0], 0.5)
 
 
 if __name__ == "__main__":

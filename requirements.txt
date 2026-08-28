@@ -31,9 +31,9 @@ scipy>=1.11            # ndimage.label 做連通分量分析（填洼演算法�
                         # 且不用額外裝 C++ 編譯依賴，對新成員環境比較友善）
 shapely>=2.0            # 幾何運算、淹沒範圍轉多邊形
 geopandas>=0.14         # exposure.py 疊合村里界線圖用
-# rasterio>=1.3         # 讀真實 DEM GeoTIFF（load_dem_geotiff）才需要；
-                         # 核心演算法本身只吃 numpy 陣列，還沒有真實 DEM 檔案
-                         # 前可以先不裝，等 B1 SAR/DEM 資料到位再解開
+rasterio>=1.3           # 讀真實 GeoTIFF（load_dem_geotiff / load_ndwi_geotiff）；
+                         # B1 已接上真實 Sentinel-2 NDWI 影像（Google Earth Engine
+                         # 匯出），這行從此解開；真實 DEM 到位後同一顆套件直接沿用
 
 # ── 影像處理（開始處理 SAR 時解開）────────────────────
 # esa-snappy          # SNAP 的 Python 介面，需先裝 SNAP 本體

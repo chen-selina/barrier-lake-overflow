@@ -86,6 +86,40 @@ def load_sentinel2_bands(green_path: str, nir_path: str) -> tuple:
         return green, nir, cell_size
 
 
+def load_ndwi_geotiff(path: str) -> dict:
+    """
+    讀取**已經算好 NDWI** 的單波段 GeoTIFF（例如從 Google Earth Engine
+    直接匯出 `normalizedDifference` 的結果），跟 `load_sentinel2_bands()`
+    不同——這裡不用再呼叫 `ndwi()` 重算一次，直接可以送進
+    `water_mask()` / `extract_water()`（threshold 已知時）。
+
+    回傳 dict：`{"ndwi": array, "cell_size_m": float, "transform": affine
+    六元組, "crs": str, "bounds": (west, south, east, north)}`，
+    transform/bounds 是為了跟其他來源的 raster（例如另一期 NDWI）做
+    地理對齊檢查用。
+    """
+    try:
+        import rasterio
+    except ImportError as e:  # pragma: no cover
+        raise ImportError(
+            "讀取 NDWI GeoTIFF 需要 rasterio："
+            "把 requirements.txt 裡 `# rasterio>=1.3` 這行解開後重新安裝。"
+        ) from e
+
+    with rasterio.open(path) as src:
+        arr = src.read(1).astype("float64")
+        if src.nodata is not None:
+            arr = np.where(arr == src.nodata, np.nan, arr)
+        t = src.transform
+        return {
+            "ndwi": arr,
+            "cell_size_m": abs(t.a),
+            "transform": (t.a, t.b, t.c, t.d, t.e, t.f),
+            "crs": str(src.crs) if src.crs else None,
+            "bounds": (src.bounds.left, src.bounds.bottom, src.bounds.right, src.bounds.top),
+        }
+
+
 # ══════════════════════════════════════════
 # NDWI 計算
 # ══════════════════════════════════════════

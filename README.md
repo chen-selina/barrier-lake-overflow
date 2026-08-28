@@ -20,7 +20,7 @@
 | 風險模型（ERA5-Land + 邏輯迴歸，係數與雨量來源採用 package 版本） | ✅ 71/75 筆有評估，CWA 即時／offline 佔位皆可 |
 | CAP 示警輸出 | ✅ demo（`status=Test`），area 暫用 circle 頂著 |
 | CWA API 介接 | ✅ 已接（見 `pipeline.ingest.cwa` / `risk`），僅即時觀測，歷史資料查詢仍待 |
-| 水體萃取（NDWI，光學半） | ✅ 演算法完成，24 項測試，尚未接真實 Sentinel-2 影像 |
+| 水體萃取（NDWI，光學半） | ✅ 演算法完成（26 項測試）**且已對馬太鞍溪真實 Sentinel-2 NDWI 影像跑過一次**（Google Earth Engine 匯出，見 `code/scripts/analyze_ndwi_change.py` 與 `data/derived/real_water_bl071.json`）；SAR 半仍未實作 |
 | SAR 前處理與偵測（振幅比值/相干性/雷達陰影遮罩） | ⬜ 高風險項目，列輔導期目標 |
 | DEM 蓄水量／壩高反演（hypsometry） | ✅ 演算法完成，20 項測試，尚未接真實 DEM |
 | 淹沒模擬＋人口暴露（inundation / exposure） | ✅ 核心功能完成，尚未接真實村里界線圖／SEGIS 人口表 |
@@ -51,7 +51,7 @@ cd code && pip install -e .
 裝好之後，全部在 `code/` 目錄下執行：
 
 ```bash
-# 測試（84 項）
+# 測試（102 項）
 pytest
 
 # 一鍵重建所有前端資料：清冊 → lakes.js、風險模型 → risk.js、成因敘述加註
