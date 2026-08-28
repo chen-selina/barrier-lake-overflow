@@ -117,9 +117,10 @@ window.BARRIER_LAKES = [
   "setting": "林班地",
   "lon": 121.29752,
   "lat": 23.70061,
-  "narrative": "本堰塞湖形成於薇帕颱風影響期間，觸發林田山第118林班崩塌，堵塞馬太鞍溪，形成蓄水量約 9,100 萬立方公尺之極大型堰塞湖，自形成迄今 64 日（約 2.1 個月），現況列為監測中。",
+  "narrative": "本堰塞湖形成於薇帕颱風影響期間，形成期間之雨量資料不足，未納入判定，觸發林田山第118林班崩塌，堵塞馬太鞍溪，形成蓄水量約 9,100 萬立方公尺之極大型堰塞湖，自形成迄今 64 日（約 2.1 個月），現況列為監測中。",
   "rulesFired": [
    "trigger.typhoon.text",
+   "rainfall.no_data.text",
    "slide.blockage.text",
    "formation.volume.with_scale",
    "fate.monitoring.with_duration"

@@ -27,10 +27,15 @@ CSV 欄位：
     lake_id, rain_24h_mm, rain_window_hours, rain_max_hourly_mm,
     rain_percentile, typhoon_name, typhoon_distance_km, southwest_flow,
     quake_name, quake_time, quake_magnitude, pga_gal, formed_time,
-    frontal_system
-（除 lake_id 外全部選填，跟 `Observations` 的「全部選填、沒有就不輸出
-對應句子」原則一致；布林欄位填 true/false/1/0，時間欄位用 ISO 8601，
-例如 2025-07-21T08:00:00+08:00）
+    frontal_system, source
+
+除 lake_id 外全部選填，跟 `Observations` 的「全部選填、沒有就不輸出
+對應句子」原則一致；布林欄位填 true/false/1/0，時間欄位用 ISO 8601
+（例如 2025-07-21T17:54:00+08:00）。
+
+`source` 是每一列的依據來源（網址／文獻／查詢方式），只供人工核對用，
+不會被讀進 `Observations`——跟 `rules_fired` 一樣，這裡也不接受「只給
+數字不給依據」：只要這一列填了任何觀測值，就要填 source。
 
 執行方式：python -m pipeline.ingest.observations（僅供除錯，印出目前
 表格裡已經有觀測值的湖數量）
@@ -53,7 +58,7 @@ _CSV_FIELDS = [
     "lake_id", "rain_24h_mm", "rain_window_hours", "rain_max_hourly_mm",
     "rain_percentile", "typhoon_name", "typhoon_distance_km", "southwest_flow",
     "quake_name", "quake_time", "quake_magnitude", "pga_gal", "formed_time",
-    "frontal_system",
+    "frontal_system", "source",
 ]
 
 

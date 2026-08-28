@@ -11,8 +11,10 @@ data/
 | 檔案 | 來源 | 說明 |
 |---|---|---|
 | `taiwan-barrier-lakes.csv` | 農業部農村發展及水土保持署 | 堰塞湖清冊，75 筆、1979–2026 |
-| `observations.csv` | 團隊人工彙整 | 每個湖 id 一列的歷史觀測資料（雨量／颱風／地震），供 `attribution.annotate` 產生更詳細的敘述。目前只有表頭，欄位說明見 `pipeline/ingest/observations.py` 檔頭；為什麼不直接呼叫 CWA API 自動查詢，也寫在同一份說明裡 |
 | `sentinel2/*.tif` | 使用者自行從 Google Earth Engine 匯出，**已 gitignore 不進版控** | 事件前後 NDWI GeoTIFF（`NDWI_before_matai_an.tif` / `NDWI_after_matai_an.tif`），供 `code/scripts/analyze_ndwi_change.py` 做真實水體變化偵測用。匯出腳本見該檔案開頭說明 |
+| `boundaries/*.shp` 等 | 內政部國土測繪中心「村里界圖(TWD97經緯度)」（`data.gov.tw/dataset/7438`，免費直接下載，不用註冊），**已 gitignore 不進版控** | 全台 7,986 個村里界線，含 `VILLCODE` 代碼欄位，供 `code/scripts/run_exposure_real.py` 疊合真實水體範圍算暴露人口 |
+| `population/` | SEGIS 社會經濟資料服務平台（`segis.moi.gov.tw`，開放資料、免登入即可下載，路徑：資料集查詢下載 → 類別選人口 → 空間範圍選縣市 → 空間統計單元選村里別），**已 gitignore 不進版控** | 114年12月（最新）花蓮縣村里級人口統計，`V_ID` 欄位格式是「鄉鎮碼-村里序」（例如 `10015120-004`），需去掉連字號才能對上村里界線圖的 `VILLCODE`——這個轉換已經寫在 `run_exposure_real.py` 的 `load_population()` 裡 |
+| `observations.csv` | 團隊人工彙整（部分欄位已用公開新聞/官方資料查證填入，見檔案 `source` 欄） | 每個湖 id 一列的歷史觀測資料（雨量／颱風／地震），供 `code/pipeline/attribution/annotate.py` 產生更詳細的敘述；欄位說明見 `code/pipeline/ingest/observations.py` 檔頭 |
 | `risk/lake_risk_predictions.csv` | 外部建模流程輸出快照（**已停用**） | 舊版 ERA5-Land 批次預測，`pipeline.ingest.risk` 已改用 package 版模型，不再讀取；保留供對照 |
 | `risk/risk_formula_coefs.csv` | 同上（**已停用**） | 邏輯迴歸係數；係數本身跟 package 版一致，但已改為寫死在 `pipeline/ingest/risk.py`，不再讀此檔 |
 | `risk/feature_importance.csv` | 同上（**已停用**） | 決策樹特徵重要性；package 版模型沒有對應的決策樹，目前無人讀取 |
@@ -52,3 +54,9 @@ python -m pipeline.ingest.risk         # 沒設金鑰會自動退回 offline 佔
 
 衛星影像、DEM、中繼運算結果、風險模型的逐日特徵矩陣。**一律不進版控**
 ——單景 Sentinel-1 動輒數 GB，GitHub 單檔上限 100 MB。
+
+其中 `real_water_bl071.json`（`scripts/analyze_ndwi_change.py` 產生）、
+`real_exposure_bl071.json`（`scripts/run_exposure_real.py` 產生）、
+`cap-bl071.xml`（儀表板手動匯出）都是可以重新產生的中繼產物，內容是
+馬太鞍溪的真實分析結果（非合成示範），對應的原始輸入檔案在
+`data/raw/sentinel2/`、`data/raw/boundaries/`、`data/raw/population/`。

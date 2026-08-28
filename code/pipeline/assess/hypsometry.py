@@ -195,6 +195,41 @@ class HypsometricCurve:
         t = (elevation - e0) / (e1 - e0)
         return a0 + t * (a1 - a0)
 
+    def elevation_at_area(self, target_area_m2: float) -> float:
+        """
+        反查：給定水面面積，內插查對應水位（公尺）。面積–水位關係單調
+        不減（bathtub 填洼的物理特性本來就保證：水位越高，連通淹沒範圍
+        只會擴大或持平，不會縮小），邊界外一樣夾住到端點值。
+
+        用途：拿真實遙測（例如 NDWI）偵測到的湖面面積，反推對應水位，
+        藉此在沒有「事件後 DEM」可以直接讀出壩頂高程時，仍能用真實水體
+        範圍校準出一個蓄水量估計值——比直接採信新聞報導、來源常常不一
+        的壩高數字更站得住腳。
+
+        >>> dem = np.array([[10., 10., 10., 10., 10.],
+        ...                 [10.,  2.,  1.,  2., 10.],
+        ...                 [10.,  3.,  0.,  3., 10.],
+        ...                 [10.,  2.,  1.,  2., 10.],
+        ...                 [10., 10., 10., 10., 10.]])
+        >>> curve = build_hypsometric_curve(dem, pour_point=(2, 2), cell_area_m2=100.0,
+        ...                                  floor_elevation=0.0, crest_elevation=4.0, elevation_step=1.0)
+        >>> round(curve.elevation_at_area(curve.area_at(2.0)), 6)
+        2.0
+        """
+        els = [p[0] for p in self.points]
+        areas = [p[1] for p in self.points]
+        if target_area_m2 <= areas[0]:
+            return els[0]
+        if target_area_m2 >= areas[-1]:
+            return els[-1]
+        import bisect
+        i = bisect.bisect_right(areas, target_area_m2) - 1
+        e0, e1, a0, a1 = els[i], els[i + 1], areas[i], areas[i + 1]
+        if a1 == a0:
+            return e0
+        t = (target_area_m2 - a0) / (a1 - a0)
+        return e0 + t * (e1 - e0)
+
     def to_json(self) -> str:
         return json.dumps({
             "pour_point": self.pour_point,

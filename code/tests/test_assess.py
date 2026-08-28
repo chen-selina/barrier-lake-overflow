@@ -104,6 +104,38 @@ class TestHypsometricCurve(unittest.TestCase):
                                        floor_elevation=650.0, crest_elevation=640.0)
 
 
+class TestElevationAtArea(unittest.TestCase):
+    """反查：拿真實遙測偵測到的湖面面積回推水位（B2 用真實 NDWI 面積校準）。"""
+
+    def test_interpolates_between_levels(self):
+        curve = H.HypsometricCurve(points=[(640.0, 0.0, 0.0), (660.0, 900.0, 100.0)])
+        self.assertAlmostEqual(curve.elevation_at_area(450.0), 650.0)
+
+    def test_below_range_clamps_to_floor(self):
+        curve = H.HypsometricCurve(points=[(640.0, 0.0, 0.0), (660.0, 900.0, 100.0)])
+        self.assertAlmostEqual(curve.elevation_at_area(-10.0), 640.0)
+
+    def test_above_range_clamps_to_crest(self):
+        curve = H.HypsometricCurve(points=[(640.0, 0.0, 0.0), (660.0, 900.0, 100.0)])
+        self.assertAlmostEqual(curve.elevation_at_area(5000.0), 660.0)
+
+    def test_round_trip_with_area_at(self):
+        dem, pour = _bowl_dem()
+        curve = H.build_hypsometric_curve(
+            dem, pour_point=pour, cell_area_m2=900.0,
+            floor_elevation=640.0, crest_elevation=660.0, elevation_step=1.0,
+        )
+        for el in (644.0, 650.0, 655.0):
+            area = curve.area_at(el)
+            self.assertAlmostEqual(curve.elevation_at_area(area), el, delta=1.0)
+
+    def test_flat_plateau_does_not_divide_by_zero(self):
+        # 同一水位區間面積沒有變化（例如垂直峭壁），不該噴 ZeroDivisionError
+        curve = H.HypsometricCurve(points=[(640.0, 100.0, 0.0), (641.0, 100.0, 10.0), (660.0, 900.0, 100.0)])
+        el = curve.elevation_at_area(100.0)
+        self.assertIn(el, (640.0, 641.0))
+
+
 class TestVolumeErrorRate(unittest.TestCase):
     def test_matches_matai_an_official_figure(self):
         # 官方數字見 data/raw/taiwan-barrier-lakes.csv 第 71 列（花蓮馬太鞍溪，9100.00）
