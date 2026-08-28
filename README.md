@@ -24,7 +24,7 @@
 | 水體萃取（NDWI，光學半） | ✅ 演算法完成（26 項測試）**且已對馬太鞍溪真實 Sentinel-2 NDWI 影像跑過一次**（Google Earth Engine 匯出，見 `code/scripts/analyze_ndwi_change.py` 與 `data/derived/real_water_bl071.json`）；SAR 半仍未實作 |
 | 儀表板／CAP XML 淹沒圖層 | ✅ 馬太鞍溪的地圖示警範圍與 CAP XML 的 `<area>` 都已改成上面真實偵測到的水體多邊形（`synthetic:false`），不是固定 3km 圓也不是合成地形；`cap.js` 只在資料明確標示非合成時才會替換，其餘湖泊仍用圓形示意 |
 | SAR 前處理與偵測（振幅比值/相干性/雷達陰影遮罩） | ⬜ 高風險項目，列輔導期目標 |
-| DEM 蓄水量／壩高反演（hypsometry） | ✅ 演算法完成，20 項測試，尚未接真實 DEM |
+| DEM 蓄水量／壩高反演（hypsometry） | ✅ 演算法完成（20+ 項測試）**且已對馬太鞍溪真實 NASADEM 跑過一次**（見 `code/scripts/run_hypsometry_real.py`）：用真實 NDWI 偵測面積反推水位，估算蓄水量 12,716 萬m³，跟官方 9,100 萬m³ 誤差率 39.7%（C2 完成）。過程中抓到一個真實地形上的重要問題：事件前 DEM 沒有崩塌堆積體，連通填洼一度溢出下游河道算出離譜數字，已用崩塌源頭座標把下游像元遮罩排除，細節見該腳本開頭說明 |
 | 淹沒模擬＋人口暴露（inundation / exposure） | ✅ 核心功能完成，**已接上真實村里界線圖（data.gov.tw/dataset/7438）+ 真實 SEGIS 村里人口**（見 `code/scripts/run_exposure_real.py`、`data/derived/real_exposure_bl071.json`）；⚠️ 目前疊合的是 B1 真實偵測到的「湖體本身」範圍，**不是下游潰壩淹沒範圍**——後者需要簡化一維水動力模擬（輔導期項目），目前系統算不出光復鄉這類下游聚落的暴露人口，這點務必在提案書誠實揭露，不能只看「暴露人數 9.5 人」就以為風險很低 |
 
 ---
@@ -103,6 +103,15 @@ python scripts/analyze_ndwi_change.py \
     --lon 121.29752 --lat 23.70061 --lake-id bl071 --threshold 0.0 \
     --out ../data/derived/real_water_bl071.json \
     --dashboard-out dashboard/data/inundation.js
+
+# 對真實 DEM 跑 B2（需要自己準備事件前 DEM，例如從 GEE 匯出 NASADEM，
+# 見 scripts/run_hypsometry_real.py 檔頭的 GEE 匯出腳本說明），
+# 用上面 B1 真實偵測到的湖面面積反推水位、算蓄水量誤差率（C2）
+python scripts/run_hypsometry_real.py
+
+# 對真實村里界線圖 + SEGIS 人口跑 B3（見 scripts/run_exposure_real.py
+# 檔頭的下載步驟說明）
+python scripts/run_exposure_real.py
 ```
 
 跑完後，`code/dashboard/data/*.js` 就是最新資料，直接雙擊

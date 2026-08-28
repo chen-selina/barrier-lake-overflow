@@ -12,6 +12,7 @@ data/
 |---|---|---|
 | `taiwan-barrier-lakes.csv` | 農業部農村發展及水土保持署 | 堰塞湖清冊，75 筆、1979–2026 |
 | `sentinel2/*.tif` | 使用者自行從 Google Earth Engine 匯出，**已 gitignore 不進版控** | 事件前後 NDWI GeoTIFF（`NDWI_before_matai_an.tif` / `NDWI_after_matai_an.tif`），供 `code/scripts/analyze_ndwi_change.py` 做真實水體變化偵測用。匯出腳本見該檔案開頭說明 |
+| `dem/DEM_matai_an.tif` | 使用者自行從 Google Earth Engine 匯出 NASADEM，**已 gitignore 不進版控** | 事件前地形（基於 SRTM），供 `code/scripts/run_hypsometry_real.py` 做真實蓄水量反演。匯出腳本見該檔案開頭說明 |
 | `boundaries/*.shp` 等 | 內政部國土測繪中心「村里界圖(TWD97經緯度)」（`data.gov.tw/dataset/7438`，免費直接下載，不用註冊），**已 gitignore 不進版控** | 全台 7,986 個村里界線，含 `VILLCODE` 代碼欄位，供 `code/scripts/run_exposure_real.py` 疊合真實水體範圍算暴露人口 |
 | `population/` | SEGIS 社會經濟資料服務平台（`segis.moi.gov.tw`，開放資料、免登入即可下載，路徑：資料集查詢下載 → 類別選人口 → 空間範圍選縣市 → 空間統計單元選村里別），**已 gitignore 不進版控** | 114年12月（最新）花蓮縣村里級人口統計，`V_ID` 欄位格式是「鄉鎮碼-村里序」（例如 `10015120-004`），需去掉連字號才能對上村里界線圖的 `VILLCODE`——這個轉換已經寫在 `run_exposure_real.py` 的 `load_population()` 裡 |
 | `observations.csv` | 團隊人工彙整（部分欄位已用公開新聞/官方資料查證填入，見檔案 `source` 欄） | 每個湖 id 一列的歷史觀測資料（雨量／颱風／地震），供 `code/pipeline/attribution/annotate.py` 產生更詳細的敘述；欄位說明見 `code/pipeline/ingest/observations.py` 檔頭 |
@@ -57,6 +58,9 @@ python -m pipeline.ingest.risk         # 沒設金鑰會自動退回 offline 佔
 
 其中 `real_water_bl071.json`（`scripts/analyze_ndwi_change.py` 產生）、
 `real_exposure_bl071.json`（`scripts/run_exposure_real.py` 產生）、
+`real_hypsometry_bl071.json` / `real_backtest_bl071.md`
+（`scripts/run_hypsometry_real.py` 產生，B2/C2 真實蓄水量與誤差率）、
 `cap-bl071.xml`（儀表板手動匯出）都是可以重新產生的中繼產物，內容是
 馬太鞍溪的真實分析結果（非合成示範），對應的原始輸入檔案在
-`data/raw/sentinel2/`、`data/raw/boundaries/`、`data/raw/population/`。
+`data/raw/sentinel2/`、`data/raw/boundaries/`、`data/raw/population/`、
+`data/raw/dem/`。
