@@ -16,9 +16,11 @@
        且 risk_formula.txt 附的 0.927 AUC 是全資料擬合、非留出驗證，
        容易高估。因此 certainty 最高只給到 "Possible"，
        不給 "Likely" 或 "Observed"。
-     · 目前沒有淹沒範圍模擬（DEM 量化模組尚未完成），area 一律用
-       <circle> 以壩址座標＋保守半徑頂著，等 assess/ 模組做出多邊形
-       後再替換。
+     · 大部分湖泊仍沒有淹沒範圍資料，area 用 <circle> 以壩址座標＋保守
+       半徑頂著。有真實偵測多邊形的湖（目前是馬太鞍溪，見
+       dashboard/data/inundation.js，synthetic:false）改用 <polygon>；
+       只在資料明確標示「非合成」時才會替換，避免把示範用合成資料
+       誤植進 CAP 輸出裡。
    ════════════════════════════════════════ */
 
 'use strict';
@@ -180,6 +182,33 @@ const CAP = (() => {
     return '目前風險判定為低，維持例行監測即可，暴雨期間仍建議留意當地雨量與官方公告。';
   }
 
+  /* CAP 1.2 的 <polygon> 格式是「lat,lon lat,lon ...」空白分隔、首尾點
+     相同的閉環，跟本專案內部（inundation.js／map3d.js）慣用的
+     [lon, lat] 順序相反，這裡負責轉換。
+     只有 inundation 資料明確標示 synthetic:false（真實偵測結果）才會
+     採用多邊形；沒有資料、或資料是合成示範，一律退回原本的圓形示意，
+     不能讓 CAP 這種對外格式輸出示範用的假資料。 */
+  function buildArea(lake, inundation) {
+    const areaDesc = `${lake.county}${lake.town}${lake.village}`;
+    const hasRealPolygon = inundation && inundation.synthetic === false &&
+      Array.isArray(inundation.polygonLonLat) && inundation.polygonLonLat.length >= 3;
+
+    if (hasRealPolygon) {
+      const polygon = inundation.polygonLonLat
+        .map(([lon, lat]) => `${lat},${lon}`)
+        .join(' ');
+      return { areaDesc, circle: null, polygon };
+    }
+
+    return {
+      areaDesc,
+      circle: (lake.lat != null && lake.lon != null)
+        ? `${lake.lat},${lake.lon} ${DEFAULT_CIRCLE_RADIUS_KM}`
+        : null,
+      polygon: null,
+    };
+  }
+
   // ── 組裝 CAP 物件（供 UI 與 XML 共用）──────────
 
   function build(lake, risk, meta, opts = {}) {
@@ -209,12 +238,7 @@ const CAP = (() => {
         description: description(lake, risk, meta),
         instruction: instructionFor(lake, risk, severity, urgency),
         effective, expires,
-        area: {
-          areaDesc: `${lake.county}${lake.town}${lake.village}`,
-          circle: (lake.lat != null && lake.lon != null)
-            ? `${lake.lat},${lake.lon} ${DEFAULT_CIRCLE_RADIUS_KM}`
-            : null,
-        },
+        area: buildArea(lake, opts.inundation),
         parameters: buildParameters(lake, risk, meta, severity, urgency, certainty),
       },
     };
@@ -249,6 +273,7 @@ const CAP = (() => {
 
     const areaLines = [
       `    <areaDesc>${esc(info.area.areaDesc)}</areaDesc>`,
+      info.area.polygon ? `    <polygon>${esc(info.area.polygon)}</polygon>` : '',
       info.area.circle ? `    <circle>${esc(info.area.circle)}</circle>` : '',
     ].filter(Boolean).join('\n');
 

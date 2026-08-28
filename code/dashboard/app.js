@@ -14,10 +14,12 @@ const LAKES = (window.BARRIER_LAKES || []).slice();
 const RISK = window.LAKE_RISK || {};
 const RISK_META = window.RISK_MODEL_META || null;
 
+const INUNDATION_DEMO = window.INUNDATION_DEMO || {};
+
 LAKES.forEach(lake => {
   lake.risk = RISK[(lake.name || '').trim()] || null;
   lake.cap = (typeof CAP !== 'undefined')
-    ? CAP.build(lake, lake.risk, RISK_META)
+    ? CAP.build(lake, lake.risk, RISK_META, { inundation: INUNDATION_DEMO[lake.id] })
     : null;
 });
 
@@ -165,16 +167,18 @@ function syncMarkers() {
   const highRiskIds = new Set(LAKES.filter(l => CAP.shouldAlert(l)).map(l => l.id));
 
   const selectedLake = LAKES.find(l => l.id === state.selected);
-  // 有 inundation.js 示範多邊形（目前僅 bl071／馬太鞍溪）就優先用多邊形，
-  // 否則沿用原本 cap.js 的固定半徑圓——兩者都只是「示警範圍示意」，
-  // 差別只在多邊形版本是接了 assess/inundation.py 的演算法輸出（仍為合成
-  // 地形示範，非真實 DEM 模擬），不是新的地理判斷。
-  const inundationDemo = (typeof window !== 'undefined' && window.INUNDATION_DEMO) || {};
-  const demoLayer = selectedLake ? inundationDemo[selectedLake.id] : null;
-  const capArea = (selectedLake && selectedLake.risk && selectedLake.cap && selectedLake.cap.info.area.circle)
+  // 有 inundation.js 圖層資料（目前僅 bl071／馬太鞍溪，且是真實 NDWI
+  // 偵測結果，見 cap.js 的 buildArea）就優先用多邊形，否則沿用固定半徑圓
+  // ——地圖上這圈本來就只是「示警範圍示意」，多邊形版本只是把示意的形狀
+  // 換成真的偵測結果，不是新的地理判斷。cap.js 算 CAP XML 的 <area> 時
+  // 用同一份 demoLayer 資料做一樣的取捨，兩邊邏輯保持一致。
+  const demoLayer = selectedLake ? INUNDATION_DEMO[selectedLake.id] : null;
+  const capArea = (selectedLake && selectedLake.risk && selectedLake.cap)
     ? {
         lakeId: selectedLake.id,
-        radiusKm: parseFloat(selectedLake.cap.info.area.circle.split(' ')[1]),
+        radiusKm: selectedLake.cap.info.area.circle
+          ? parseFloat(selectedLake.cap.info.area.circle.split(' ')[1])
+          : 3,
         polygonLonLat: demoLayer ? demoLayer.polygonLonLat : null,
       }
     : null;
@@ -619,7 +623,11 @@ function renderCapDraft(lake) {
           <div class="cap-field"><dt>Urgency</dt><dd>${info.urgency.value}（${URGENCY_TEXT[info.urgency.value] || info.urgency.value}）</dd></div>
           <div class="cap-field"><dt>Severity</dt><dd>${info.severity.value}（${SEVERITY_TEXT[info.severity.value] || info.severity.value}）</dd></div>
           <div class="cap-field"><dt>Certainty</dt><dd>${info.certainty.value}（${CERTAINTY_TEXT[info.certainty.value] || info.certainty.value}）</dd></div>
-          <div class="cap-field"><dt>Area</dt><dd>${info.area.areaDesc}${info.area.circle ? `（半徑範圍：${info.area.circle.split(' ')[1]} km，暫用圓形頂著，待 DEM 淹沒模擬完成後換成多邊形）` : ''}</dd></div>
+          <div class="cap-field"><dt>Area</dt><dd>${info.area.areaDesc}${
+            info.area.polygon
+              ? `（多邊形範圍：Sentinel-2 NDWI 真實偵測到的新增水體形狀，非模擬結果，見淹沒範圍圖層）`
+              : (info.area.circle ? `（半徑範圍：${info.area.circle.split(' ')[1]} km，暫用圓形頂著，待 DEM 淹沒模擬完成後換成多邊形）` : '')
+          }</dd></div>
           <div class="cap-field"><dt>Effective / Expires</dt><dd>${fmtDateTime(info.effective)} → ${fmtDateTime(info.expires)}</dd></div>
         </dl>
         <div class="cap-text-block">

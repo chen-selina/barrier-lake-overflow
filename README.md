@@ -18,11 +18,11 @@
 | 成因歸因與敘述生成 | ✅ 39 項測試 |
 | 溢流預報（水量平衡） | ✅ 核心完成，待接 QPF |
 | 風險模型（ERA5-Land + 邏輯迴歸，係數與雨量來源採用 package 版本） | ✅ 71/75 筆有評估，CWA 即時／offline 佔位皆可 |
-| CAP 示警輸出 | ✅ demo（`status=Test`），area 暫用 circle 頂著（馬太鞍溪已改用真實偵測多邊形，見下） |
+| CAP 示警輸出 | ✅ demo（`status=Test`）；area 多數湖泊仍用 circle 頂著，馬太鞍溪已改用 `<polygon>`（真實 NDWI 偵測結果，見下） |
 | CWA API 介接（即時） | ✅ 已接（見 `pipeline.ingest.cwa` / `risk`），僅即時觀測 |
 | 成因敘述觀測資料（B6） | ✅ 改用人工彙整（`data/raw/observations.csv` + `pipeline.ingest.observations`），而非直接呼叫未經驗證的 CWA 歷史 API；表格目前是空的，待團隊查證後填入 |
 | 水體萃取（NDWI，光學半） | ✅ 演算法完成（26 項測試）**且已對馬太鞍溪真實 Sentinel-2 NDWI 影像跑過一次**（Google Earth Engine 匯出，見 `code/scripts/analyze_ndwi_change.py` 與 `data/derived/real_water_bl071.json`）；SAR 半仍未實作 |
-| 儀表板淹沒圖層 | ✅ 馬太鞍溪的 CAP 示警範圍已改成上面真實偵測到的水體多邊形（`synthetic:false`），不是固定 3km 圓也不是合成地形；其餘湖泊仍用圓形示意 |
+| 儀表板／CAP XML 淹沒圖層 | ✅ 馬太鞍溪的地圖示警範圍與 CAP XML 的 `<area>` 都已改成上面真實偵測到的水體多邊形（`synthetic:false`），不是固定 3km 圓也不是合成地形；`cap.js` 只在資料明確標示非合成時才會替換，其餘湖泊仍用圓形示意 |
 | SAR 前處理與偵測（振幅比值/相干性/雷達陰影遮罩） | ⬜ 高風險項目，列輔導期目標 |
 | DEM 蓄水量／壩高反演（hypsometry） | ✅ 演算法完成，20 項測試，尚未接真實 DEM |
 | 淹沒模擬＋人口暴露（inundation / exposure） | ✅ 核心功能完成，尚未接真實村里界線圖／SEGIS 人口表 |
