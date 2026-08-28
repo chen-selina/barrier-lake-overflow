@@ -8,9 +8,11 @@ data/lakes.js（新增 narrative 與 rulesFired 欄位），供前端顯示。
 用法：
     python -m pipeline.attribution.annotate
 
-觀測資料（雨量、颱風距離、地震規模）目前尚未介接，因此多數紀錄
-只會產出不依賴觀測的句子。介接 CWA API 後，把觀測值填進
-load_observations() 即可自動變詳細——敘述邏輯完全不用改。
+觀測資料（雨量、颱風距離、地震規模）目前靠人工彙整到
+`data/raw/observations.csv`（見 `pipeline.ingest.observations`），
+還沒填的湖只會產出不依賴觀測的句子。把觀測值填進那張表後，
+對應的敘述會自動變詳細——敘述邏輯（rules.py／templates.yaml）
+完全不用改。
 """
 
 from __future__ import annotations
@@ -21,6 +23,7 @@ from typing import Optional
 
 from .compose import Composer
 from .rules import LakeRecord, Observations, attribute
+from ..ingest.observations import load_observations_table
 
 # code/pipeline/attribution/annotate.py → code/
 CODE_ROOT = Path(__file__).resolve().parents[2]
@@ -71,20 +74,23 @@ def to_record(row: dict) -> LakeRecord:
     )
 
 
+_OBS_TABLE: Optional[dict] = None
+
+
 def load_observations(row: dict) -> Optional[Observations]:
     """
     取得該筆紀錄形成期間的氣象／地震觀測。
 
-    目前回傳 None——尚未介接 CWA API。介接後在此依 formed 時間與
-    壩體座標查詢對應測站，填入 Observations 即可；敘述會自動變詳細，
+    改用人工彙整（見 `pipeline.ingest.observations` 模組開頭說明，為什麼
+    不直接呼叫 CWA 即時 API）：從 `data/raw/observations.csv` 依湖 id
+    查表，查不到就回傳 None（目前該表大多是空的，行為等同以前的
+    「尚未介接」狀態）。有人補進真實觀測值後，敘述會自動變詳細，
     不需要動 rules.py 或 templates.yaml。
-
-    待介接：
-      · CWA 自動雨量站歷史資料 → rain_24h_mm / rain_max_hourly_mm
-      · CWA 颱風資料庫路徑     → typhoon_name / typhoon_distance_km
-      · CWA 地震報告與測站震度 → quake_time / quake_magnitude / pga_gal
     """
-    return None
+    global _OBS_TABLE
+    if _OBS_TABLE is None:
+        _OBS_TABLE = load_observations_table()
+    return _OBS_TABLE.get(row.get("id"))
 
 
 def main() -> None:

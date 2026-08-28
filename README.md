@@ -18,9 +18,11 @@
 | 成因歸因與敘述生成 | ✅ 39 項測試 |
 | 溢流預報（水量平衡） | ✅ 核心完成，待接 QPF |
 | 風險模型（ERA5-Land + 邏輯迴歸，係數與雨量來源採用 package 版本） | ✅ 71/75 筆有評估，CWA 即時／offline 佔位皆可 |
-| CAP 示警輸出 | ✅ demo（`status=Test`），area 暫用 circle 頂著 |
-| CWA API 介接 | ✅ 已接（見 `pipeline.ingest.cwa` / `risk`），僅即時觀測，歷史資料查詢仍待 |
+| CAP 示警輸出 | ✅ demo（`status=Test`），area 暫用 circle 頂著（馬太鞍溪已改用真實偵測多邊形，見下） |
+| CWA API 介接（即時） | ✅ 已接（見 `pipeline.ingest.cwa` / `risk`），僅即時觀測 |
+| 成因敘述觀測資料（B6） | ✅ 改用人工彙整（`data/raw/observations.csv` + `pipeline.ingest.observations`），而非直接呼叫未經驗證的 CWA 歷史 API；表格目前是空的，待團隊查證後填入 |
 | 水體萃取（NDWI，光學半） | ✅ 演算法完成（26 項測試）**且已對馬太鞍溪真實 Sentinel-2 NDWI 影像跑過一次**（Google Earth Engine 匯出，見 `code/scripts/analyze_ndwi_change.py` 與 `data/derived/real_water_bl071.json`）；SAR 半仍未實作 |
+| 儀表板淹沒圖層 | ✅ 馬太鞍溪的 CAP 示警範圍已改成上面真實偵測到的水體多邊形（`synthetic:false`），不是固定 3km 圓也不是合成地形；其餘湖泊仍用圓形示意 |
 | SAR 前處理與偵測（振幅比值/相干性/雷達陰影遮罩） | ⬜ 高風險項目，列輔導期目標 |
 | DEM 蓄水量／壩高反演（hypsometry） | ✅ 演算法完成，20 項測試，尚未接真實 DEM |
 | 淹沒模擬＋人口暴露（inundation / exposure） | ✅ 核心功能完成，尚未接真實村里界線圖／SEGIS 人口表 |
@@ -51,7 +53,7 @@ cd code && pip install -e .
 裝好之後，全部在 `code/` 目錄下執行：
 
 ```bash
-# 測試（102 項）
+# 測試（107 項）
 pytest
 
 # 一鍵重建所有前端資料：清冊 → lakes.js、風險模型 → risk.js、成因敘述加註
@@ -88,6 +90,19 @@ python -m pipeline.detect.water          # NDWI 光學半，合成資料示範
 python -m pipeline.assess.hypsometry     # 水位–容積曲線，合成地形示範
 python -m pipeline.assess.inundation
 python -m pipeline.assess.exposure
+python -m pipeline.assess.backtest       # C1/C2 時點回測＋誤差率，合成日期示範
+python -m pipeline.assess.dashboard_export  # 合成地形示範多邊形 → dashboard/data/inundation.js
+python -m pipeline.ingest.observations   # 印出 data/raw/observations.csv 目前填了幾筆（B6）
+
+# 對真實 Sentinel-2 NDWI 影像跑 B1（需要自己準備事件前後兩張已算好 NDWI
+# 的 GeoTIFF，例如從 Google Earth Engine 匯出，見 scripts/analyze_ndwi_change.py
+# 檔頭的 GEE 匯出腳本說明）
+python scripts/analyze_ndwi_change.py \
+    --before ../data/raw/sentinel2/NDWI_before_matai_an.tif \
+    --after  ../data/raw/sentinel2/NDWI_after_matai_an.tif \
+    --lon 121.29752 --lat 23.70061 --lake-id bl071 --threshold 0.0 \
+    --out ../data/derived/real_water_bl071.json \
+    --dashboard-out dashboard/data/inundation.js
 ```
 
 跑完後，`code/dashboard/data/*.js` 就是最新資料，直接雙擊
@@ -125,6 +140,7 @@ ossint-2026/
 │   │   ├── detect/            偵測（NDWI 光學半） ✅
 │   │   ├── assess/            量化評估            ✅
 │   │   └── attribution/       成因歸因與溢流預報  ✅
+│   ├── scripts/                一次性分析腳本（真實資料，路徑因人而異）
 │   ├── tests/
 │   └── dashboard/             前端，純靜態
 ├── data/

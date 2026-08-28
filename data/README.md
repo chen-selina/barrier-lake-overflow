@@ -11,6 +11,8 @@ data/
 | 檔案 | 來源 | 說明 |
 |---|---|---|
 | `taiwan-barrier-lakes.csv` | 農業部農村發展及水土保持署 | 堰塞湖清冊，75 筆、1979–2026 |
+| `observations.csv` | 團隊人工彙整 | 每個湖 id 一列的歷史觀測資料（雨量／颱風／地震），供 `attribution.annotate` 產生更詳細的敘述。目前只有表頭，欄位說明見 `pipeline/ingest/observations.py` 檔頭；為什麼不直接呼叫 CWA API 自動查詢，也寫在同一份說明裡 |
+| `sentinel2/*.tif` | 使用者自行從 Google Earth Engine 匯出，**已 gitignore 不進版控** | 事件前後 NDWI GeoTIFF（`NDWI_before_matai_an.tif` / `NDWI_after_matai_an.tif`），供 `code/scripts/analyze_ndwi_change.py` 做真實水體變化偵測用。匯出腳本見該檔案開頭說明 |
 | `risk/lake_risk_predictions.csv` | 外部建模流程輸出快照（**已停用**） | 舊版 ERA5-Land 批次預測，`pipeline.ingest.risk` 已改用 package 版模型，不再讀取；保留供對照 |
 | `risk/risk_formula_coefs.csv` | 同上（**已停用**） | 邏輯迴歸係數；係數本身跟 package 版一致，但已改為寫死在 `pipeline/ingest/risk.py`，不再讀此檔 |
 | `risk/feature_importance.csv` | 同上（**已停用**） | 決策樹特徵重要性；package 版模型沒有對應的決策樹，目前無人讀取 |

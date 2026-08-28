@@ -366,12 +366,14 @@ const Map3D = (() => {
     return group;
   }
 
-  /* 淹沒模擬示範多邊形（B3：assess/inundation.py 的輸出，見
-     pipeline/assess/dashboard_export.py → dashboard/data/inundation.js）。
-     跟下面的 capAreaRing（圓形示意）是同一件事的兩種畫法、互斥顯示：
-     選取的湖泊有多邊形資料就優先畫多邊形，沒有就退回圓形示意。
-     目前只有馬太鞍溪（bl071）有示範多邊形，且仍是合成地形算出來的，
-     不是真實 DEM 模擬——這點在 UI 文字跟資料的 note 欄位都有寫明。 */
+  /* 水體範圍多邊形（見 dashboard/data/inundation.js）。跟下面的
+     capAreaRing（圓形示意）是同一件事的兩種畫法、互斥顯示：選取的湖泊
+     有多邊形資料就優先畫多邊形，沒有就退回圓形示意。這份資料檔可能來自
+     兩種來源，各自標了 synthetic 欄位區分：
+       · pipeline/assess/dashboard_export.py 產生的合成地形示範
+       · scripts/analyze_ndwi_change.py 對真實 Sentinel-2 NDWI 影像跑出的
+         真實偵測結果（目前馬太鞍溪／bl071 是這種，synthetic: false）
+     實際是哪一種、門檻/日期區間等細節，看資料裡的 note 欄位。 */
   function buildCapAreaPoly() {
     const group = new THREE.Group();
     const fillMat = new THREE.MeshBasicMaterial({

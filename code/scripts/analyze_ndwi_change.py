@@ -12,7 +12,11 @@ Engine 匯出），路徑因人而異，不適合寫死進可攜的 pipeline 模
         --before ../data/raw/sentinel2/NDWI_before_matai_an.tif \
         --after  ../data/raw/sentinel2/NDWI_after_matai_an.tif \
         --lon 121.29752 --lat 23.70061 --lake-id bl071 \
-        --out ../data/derived/real_water_bl071.json
+        --threshold 0.0 \
+        --before-label "2025-06-01~07-18 中位數合成" \
+        --after-label "2025-07-25~09-15 中位數合成" \
+        --out ../data/derived/real_water_bl071.json \
+        --dashboard-out dashboard/data/inundation.js
 
 流程：
 1. 讀兩張已經算好 NDWI 的 GeoTIFF（`load_ndwi_geotiff`），確認網格對齊
@@ -86,6 +90,62 @@ def largest_component(mask: np.ndarray) -> tuple:
     return biggest, int(sizes[int(np.argmax(sizes))])
 
 
+def mask_to_lonlat_polygon(mask: np.ndarray, transform: tuple, row0: int, col0: int,
+                            simplify_tolerance_deg: float = 0.0003) -> list:
+    """
+    把裁切視窗內的遮罩轉成原圖座標系下的 (lon, lat) 多邊形外環頂點清單。
+
+    `transform` 是原圖（未裁切）的 affine 六元組；視窗左上角在原圖的
+    (row0, col0)，只要把 affine 的平移項 (c, f) 往視窗方向挪過去即可，
+    不用另外處理縮放/旋轉——這幾張 GeoTIFF 都是北向上、無旋轉。
+    找不到任何多邊形（遮罩全空）回傳 None。
+    """
+    from rasterio import features
+    from rasterio.transform import Affine
+    from shapely.geometry import shape
+    from shapely.ops import unary_union
+
+    if not mask.any():
+        return None
+
+    a, b, c, d, e, f = transform
+    window_transform = Affine(a, b, c + col0 * a + row0 * b, d, e, f + col0 * d + row0 * e)
+
+    polys = [shape(geom) for geom, value in
+             features.shapes(mask.astype("uint8"), mask=mask, transform=window_transform)
+             if value == 1]
+    if not polys:
+        return None
+    merged = unary_union(polys)
+    if merged.geom_type == "MultiPolygon":
+        merged = max(merged.geoms, key=lambda g: g.area)
+    simplified = merged.simplify(simplify_tolerance_deg, preserve_topology=True)
+    return [list(pt) for pt in simplified.exterior.coords]
+
+
+def merge_into_dashboard_layer(path: str, lake_id: str, entry: dict) -> None:
+    """
+    把 entry 合併進 `dashboard/data/inundation.js` 的 `window.INUNDATION_DEMO`
+    物件，只覆蓋 lake_id 這一筆，保留其他湖既有的資料（例如
+    `pipeline.assess.dashboard_export` 產生的合成示範資料）。
+    """
+    import os
+
+    existing = {}
+    if os.path.exists(path):
+        with open(path, encoding="utf-8") as f:
+            text = f.read()
+        start, end = text.index("{"), text.rindex("}") + 1
+        existing = json.loads(text[start:end])
+
+    existing[lake_id] = entry
+    with open(path, "w", encoding="utf-8") as f:
+        f.write("// 由 pipeline.assess.dashboard_export（合成示範）與\n")
+        f.write("// scripts/analyze_ndwi_change.py（真實 Sentinel-2 NDWI 資料）共同維護，\n")
+        f.write("// 每筆各自的 synthetic 欄位標明資料來源，請勿手動編輯\n")
+        f.write(f"window.INUNDATION_DEMO = {json.dumps(existing, ensure_ascii=False, indent=2)};\n")
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--before", required=True)
@@ -99,6 +159,12 @@ def main() -> None:
                           "但真實山區複雜地形常會被 Otsu 抓到「陰影 vs 非陰影」而不是"
                           "「水 vs 非水」這個分界，建議真實資料明確指定固定門檻。")
     ap.add_argument("--out", required=True)
+    ap.add_argument("--dashboard-out", default=None,
+                     help="有給的話，把偵測到的最大連通塊多邊形合併寫進這份 "
+                          "dashboard/data/inundation.js（只覆蓋這個 lake-id，"
+                          "不動其他湖既有的資料）。")
+    ap.add_argument("--before-label", default="事件前", help="存進結果 JSON 的日期/期間描述文字")
+    ap.add_argument("--after-label", default="事件後", help="存進結果 JSON 的日期/期間描述文字")
     args = ap.parse_args()
 
     before = load_ndwi_geotiff(args.before)
@@ -119,9 +185,9 @@ def main() -> None:
     method = "fixed" if args.threshold is not None else "otsu"
 
     before_extent = WaterExtent(mask=before_mask, threshold=before_t, method=method,
-                                 cell_size_m=cell_size_m, date="事件前合成影像")
+                                 cell_size_m=cell_size_m, date=args.before_label)
     after_extent = WaterExtent(mask=after_mask, threshold=after_t, method=method,
-                                cell_size_m=cell_size_m, date="事件後合成影像")
+                                cell_size_m=cell_size_m, date=args.after_label)
 
     new_water = change_detection(before_extent, after_extent)
     biggest, biggest_px = largest_component(new_water)
@@ -141,6 +207,8 @@ def main() -> None:
         dist_m = math.hypot(dlat_m, dlon_m)
         centroid_note = {"lon": centroid_lon, "lat": centroid_lat, "distance_from_dam_m": round(dist_m, 1)}
 
+    polygon_lonlat = mask_to_lonlat_polygon(biggest, before["transform"], row0, col0)
+
     result = {
         "lakeId": args.lake_id,
         "synthetic": False,
@@ -153,6 +221,7 @@ def main() -> None:
         "newWaterTotalAreaHectare": round(float(new_water.sum()) * (cell_size_m ** 2) / 1e4, 3),
         "newWaterLargestComponentAreaHectare": round(biggest_px * (cell_size_m ** 2) / 1e4, 3),
         "largestComponentCentroid": centroid_note,
+        "polygonLonLat": polygon_lonlat,
     }
 
     with open(args.out, "w", encoding="utf-8") as f:
@@ -160,6 +229,26 @@ def main() -> None:
 
     print(json.dumps(result, ensure_ascii=False, indent=2))
     print(f"\n寫入 {args.out}")
+
+    if args.dashboard_out:
+        if not polygon_lonlat or len(polygon_lonlat) < 3:
+            print(f"\n（沒有偵測到有效多邊形，不寫入 {args.dashboard_out}）")
+        else:
+            dashboard_entry = {
+                "lakeId": args.lake_id,
+                "synthetic": False,
+                "note": (f"Sentinel-2 NDWI 真實影像偵測到的新增水體範圍（{args.before_label} → "
+                         f"{args.after_label}），非模擬淹沒範圍；門檻={method}"
+                         f"({round(before_t, 3) if method == 'fixed' else 'auto'})，"
+                         f"最大連通塊 {round(biggest_px * (cell_size_m ** 2) / 1e4, 1)} 公頃，"
+                         f"距壩址座標 {centroid_note['distance_from_dam_m'] if centroid_note else '—'} 公尺。"),
+                "areaHectare": round(biggest_px * (cell_size_m ** 2) / 1e4, 3),
+                "waterElevationM": None,
+                "volumeWanM3": None,
+                "polygonLonLat": polygon_lonlat,
+            }
+            merge_into_dashboard_layer(args.dashboard_out, args.lake_id, dashboard_entry)
+            print(f"已合併寫入 {args.dashboard_out}（lakeId={args.lake_id}）")
 
 
 if __name__ == "__main__":
