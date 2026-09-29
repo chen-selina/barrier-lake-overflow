@@ -49,11 +49,12 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 from pipeline.detect.water import load_ndwi_geotiff, water_mask, change_detection, WaterExtent
 
 
-def crop_window(data: dict, center_lon: float, center_lat: float, half_width_km: float) -> tuple:
+def crop_window(data: dict, center_lon: float, center_lat: float, half_width_km: float,
+                key: str = "ndwi") -> tuple:
     """
     以 (center_lon, center_lat) 為中心，裁出 half_width_km 公里半寬的方形視窗。
-    回傳 (裁切後 ndwi array, row0, col0)——row0/col0 供後續換算裁切區域內
-    像元座標回原圖用。
+    回傳 (裁切後 data[key] array, row0, col0)——row0/col0 供後續換算裁切區域內
+    像元座標回原圖用。key 預設 "ndwi"；scripts/analyze_sar_change.py 用 "db"。
     """
     t = data["transform"]
     a, b, c, d, e, f = t  # affine: x = a*col + c, y = e*row + f
@@ -69,12 +70,12 @@ def crop_window(data: dict, center_lon: float, center_lat: float, half_width_km:
 
     r0, c0 = lonlat_to_rowcol(center_lon - half_lon, center_lat + half_lat)
     r1, c1 = lonlat_to_rowcol(center_lon + half_lon, center_lat - half_lat)
-    rows, cols = data["ndwi"].shape
+    rows, cols = data[key].shape
     row0, row1 = sorted([int(round(r0)), int(round(r1))])
     col0, col1 = sorted([int(round(c0)), int(round(c1))])
     row0, row1 = max(0, row0), min(rows, row1)
     col0, col1 = max(0, col0), min(cols, col1)
-    return data["ndwi"][row0:row1, col0:col1], row0, col0
+    return data[key][row0:row1, col0:col1], row0, col0
 
 
 def largest_component(mask: np.ndarray) -> tuple:

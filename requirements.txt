@@ -35,7 +35,10 @@ rasterio>=1.3           # 讀真實 GeoTIFF（load_dem_geotiff / load_ndwi_geoti
                          # B1 已接上真實 Sentinel-2 NDWI 影像（Google Earth Engine
                          # 匯出），這行從此解開；真實 DEM 到位後同一顆套件直接沿用
 
-# ── 影像處理（開始處理 SAR 時解開）────────────────────
+# ── 影像處理（SAR 鏈已實作，這兩個仍不需要）────────────
+# SAR 前處理改由 Google Earth Engine 的 COPERNICUS/S1_GRD 完成（已做輻射／
+# 地形校正、dB），Python 端的 Lee 濾波、Otsu、形態學都用 numpy/scipy，
+# 所以不必裝 SNAP 或 scikit-image。只有日後要做 SLC 相干性（InSAR）時才需要。
 # esa-snappy          # SNAP 的 Python 介面，需先裝 SNAP 本體
 # scikit-image>=0.22  # Otsu 門檻、形態學運算
 #

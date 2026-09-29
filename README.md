@@ -21,9 +21,9 @@
 | CAP 示警輸出 | ✅ demo（`status=Test`）；area 多數湖泊仍用 circle 頂著，馬太鞍溪已改用 `<polygon>`（真實 NDWI 偵測結果，見下） |
 | CWA API 介接（即時） | ✅ 已接（見 `pipeline.ingest.cwa` / `risk`），僅即時觀測 |
 | 成因敘述觀測資料（B6） | ✅ 改用人工彙整（`data/raw/observations.csv` + `pipeline.ingest.observations`），而非直接呼叫未經驗證的 CWA 歷史 API；**馬太鞍溪已填入真實查證數字**（颱風薇帕形成時間、0403花蓮地震規模7.2 關聯，來源見 CSV `source` 欄），其餘 74 筆仍空 |
-| 水體萃取（NDWI，光學半） | ✅ 演算法完成（26 項測試）**且已對馬太鞍溪真實 Sentinel-2 NDWI 影像跑過一次**（Google Earth Engine 匯出，見 `code/scripts/analyze_ndwi_change.py` 與 `data/derived/real_water_bl071.json`）；SAR 半仍未實作 |
+| 水體萃取（NDWI，光學半） | ✅ 演算法完成（26 項測試）**且已對馬太鞍溪真實 Sentinel-2 NDWI 影像跑過一次**（Google Earth Engine 匯出，見 `code/scripts/analyze_ndwi_change.py` 與 `data/derived/real_water_bl071.json`）；SAR 半見下一列 |
 | 儀表板／CAP XML 淹沒圖層 | ✅ 馬太鞍溪的地圖示警範圍與 CAP XML 的 `<area>` 都已改成上面真實偵測到的水體多邊形（`synthetic:false`），不是固定 3km 圓也不是合成地形；`cap.js` 只在資料明確標示非合成時才會替換，其餘湖泊仍用圓形示意 |
-| SAR 前處理與偵測（振幅比值/相干性/雷達陰影遮罩） | ⬜ 高風險項目，列輔導期目標 |
+| SAR 變化偵測 → 新增水體／崩塌 → 疑似堰塞湖判定 | ✅ 演算法完成（31 項測試，合成山谷場景）：Lee 濾波、雷達陰影／疊置／陡坡遮罩、SAR 低回波判水、振幅比值崩塌、`detect/barrier_lake.py` 依「新增水體 × 河道相交 × 鄰近崩塌（DEM 檢核壩體在下游）× 多時相持續」輸出 A/B/C 分級。前處理交給 GEE `S1_GRD`（不需 SNAP）。**尚未對真實 Sentinel-1 影像跑過**——GEE 匯出後執行 `code/scripts/analyze_sar_change.py`；相干性法（SLC）仍列輔導期 |
 | DEM 蓄水量／壩高反演（hypsometry） | ✅ 演算法完成（20+ 項測試）**且已對馬太鞍溪真實 NASADEM 跑過一次**（見 `code/scripts/run_hypsometry_real.py`）：用真實 NDWI 偵測面積反推水位，估算蓄水量 12,716 萬m³，跟官方 9,100 萬m³ 誤差率 39.7%（C2 完成）。過程中抓到一個真實地形上的重要問題：事件前 DEM 沒有崩塌堆積體，連通填洼一度溢出下游河道算出離譜數字，已用崩塌源頭座標把下游像元遮罩排除，細節見該腳本開頭說明 |
 | 淹沒模擬＋人口暴露（inundation / exposure） | ✅ 核心功能完成，**已接上真實村里界線圖（data.gov.tw/dataset/7438）+ 真實 SEGIS 村里人口**（見 `code/scripts/run_exposure_real.py`、`data/derived/real_exposure_bl071.json`）；⚠️ 目前疊合的是 B1 真實偵測到的「湖體本身」範圍，**不是下游潰壩淹沒範圍**——後者需要簡化一維水動力模擬（輔導期項目），目前系統算不出光復鄉這類下游聚落的暴露人口，這點務必在提案書誠實揭露，不能只看「暴露人數 9.5 人」就以為風險很低 |
 
@@ -53,7 +53,7 @@ cd code && pip install -e .
 裝好之後，全部在 `code/` 目錄下執行：
 
 ```bash
-# 測試（107 項）
+# 測試（143 項）
 pytest
 
 # 一鍵重建所有前端資料：清冊 → lakes.js、風險模型 → risk.js、成因敘述加註
@@ -87,6 +87,8 @@ python -m pipeline.attribution.rules
 python -m pipeline.attribution.forecast
 python -m pipeline.attribution.compose
 python -m pipeline.detect.water          # NDWI 光學半，合成資料示範
+python -m pipeline.detect.landslide      # SAR 振幅比值崩塌偵測，合成資料示範
+python -m pipeline.detect.barrier_lake   # SAR 事件前後 → 新增水體／崩塌 → A/B/C 判定，四種合成情境
 python -m pipeline.assess.hypsometry     # 水位–容積曲線，合成地形示範
 python -m pipeline.assess.inundation
 python -m pipeline.assess.exposure
@@ -103,6 +105,11 @@ python scripts/analyze_ndwi_change.py \
     --lon 121.29752 --lat 23.70061 --lake-id bl071 --threshold 0.0 \
     --out ../data/derived/real_water_bl071.json \
     --dashboard-out dashboard/data/inundation.js
+
+# 對真實 Sentinel-1 SAR 跑「變化偵測 → 新增水體／崩塌 → 疑似堰塞湖判定」
+# （事件前後 + 後續一期 σ⁰ VV 與同網格 DEM，GEE 匯出腳本見
+# scripts/analyze_sar_change.py 檔頭）
+python scripts/analyze_sar_change.py     --pre  ../data/raw/sentinel1/S1_VV_pre_matai_an.tif     --post ../data/raw/sentinel1/S1_VV_post_matai_an.tif     --post-later ../data/raw/sentinel1/S1_VV_post2_matai_an.tif     --dem  ../data/raw/sentinel1/NASADEM_matai_an.tif --orbit ASCENDING     --lon 121.29752 --lat 23.70061 --lake-id bl071     --ndwi-json ../data/derived/real_water_bl071.json     --out ../data/derived/real_sar_bl071.json
 
 # 對真實 DEM 跑 B2（需要自己準備事件前 DEM，例如從 GEE 匯出 NASADEM，
 # 見 scripts/run_hypsometry_real.py 檔頭的 GEE 匯出腳本說明），
@@ -145,8 +152,8 @@ ossint-2026/
 │   ├── pipeline/              Python 套件，依資料流階段劃分
 │   │   ├── build_all.py       一鍵串接 ingest → risk → attribution
 │   │   ├── ingest/            資料取得（清冊、CWA、CDSE）
-│   │   ├── preprocess/        影像前處理          ⬜
-│   │   ├── detect/            偵測（NDWI 光學半） ✅
+│   │   ├── preprocess/        SAR 前處理與幾何遮罩 ✅
+│   │   ├── detect/            偵測（NDWI + SAR、崩塌、堰塞湖判定） ✅
 │   │   ├── assess/            量化評估            ✅
 │   │   └── attribution/       成因歸因與溢流預報  ✅
 │   ├── scripts/                一次性分析腳本（真實資料，路徑因人而異）

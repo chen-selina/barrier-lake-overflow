@@ -1,12 +1,15 @@
 #!/usr/bin/env python3
 """
-water.py — 水體萃取（B1：光學 NDWI 半）
+water.py — 水體萃取（B1：光學 NDWI 半 + SAR 低回波半）
 
-依施工地圖對照表的可行性建議，`detect/water.py` 原規劃是「SAR 低回波
-（Otsu 自動門檻）+ 光學 NDWI」雙軌判定，這裡先只做**光學 NDWI 半**。
-SAR 半需要先有 preprocess/sar.py（前處理鏈）、preprocess/mask.py
-（雷達陰影遮罩，山區水體萃取最大的坑）才能餵資料進來，風險最高，
-列入輔導期目標，暫不實作。
+依施工地圖對照表，`detect/water.py` 是「SAR 低回波（Otsu 自動門檻）+
+光學 NDWI」雙軌判定：
+
+- 光學 NDWI 半：`ndwi` / `water_mask` / `extract_water`（下方「方法」）。
+- SAR 半：`sar_water_mask` / `extract_water_sar`。颱風豪雨期間光學影像
+  幾乎都被雲遮，堰塞湖形成當下能用的常常只有 SAR。輸入是
+  preprocess/sar.py 濾波後的 σ⁰（dB），並吃 preprocess/mask.py 算出的
+  陰影／疊置／陡坡遮罩——不排除陰影坡，山區 Otsu 會把陰影當水。
 
 方法
 ----
@@ -20,16 +23,17 @@ NDWI 偏負。門檻二值化取水體遮罩，門檻可用固定值（McFeeters
 
 Otsu 門檻演算法這裡用 numpy 自己實作、不引入 scikit-image：跟
 assess/hypsometry.py 用 scipy 取代 richdem 是同一個理由——現在只需要
-「在雙峰直方圖上找一個門檻」這一個功能，不需要整包 scikit-image，
-等真的要做 SAR 那半（形態學運算）才需要解開 requirements.txt 裡的
+「在雙峰直方圖上找一個門檻」這一個功能，不需要整包 scikit-image。
+SAR 半需要的形態學／連通塊運算也改用 scipy.ndimage，一樣不必引入
 scikit-image。
 
 變化偵測（「新增水體」）
 ----------------------
 堰塞湖判定要的是「事件後新增的水體」，不是水體本身（河道平常就有水）。
 做法：事件前後各算一次水體遮罩，new_water = post_mask & ~pre_mask，
-這是 detect/barrier_lake.py（未來要做）「新增水體 × 河道相交 × 上游
-崩塌」判定的其中一項輸入。
+這是 detect/barrier_lake.py「新增水體 × 河道相交 × 鄰接崩塌 × 多時相
+持續」判定的其中一項輸入。光學與 SAR 兩半都輸出 WaterExtent，
+change_detection 共用。
 
 單位與座標慣例跟 assess/hypsometry.py 一致：像元面積用 m²，輸出面積
 另外換算公頃方便閱讀；真實 GeoTIFF 讀取一樣用延遲 import（沒裝
@@ -219,7 +223,7 @@ class WaterExtent:
     """單一時期（一景影像）的水體萃取結果。"""
     mask: np.ndarray
     threshold: float
-    method: str                    # "otsu" 或 "fixed"
+    method: str                    # "otsu"/"fixed"（光學）或 "sar_otsu"/"sar_fixed"/"sar_otsu_fallback"
     cell_size_m: float
     date: Optional[str] = None     # ISO 日期字串，供 C1 回測時間點比對用
 
@@ -266,7 +270,75 @@ def extract_water(green: np.ndarray, nir: np.ndarray, cell_size_m: float,
 
 
 # ══════════════════════════════════════════
-# 變化偵測：事件後新增的水體（barrier_lake.py 未來的輸入之一）
+# SAR 半：低回波判水（σ⁰ dB）
+# ══════════════════════════════════════════
+
+# 無可靠雙峰時的固定門檻：C 波段 VV 平靜水面多在 −20 dB 以下、植生山坡
+# 約 −12～−6 dB，文獻常用 −18 dB 左右（例：Twele et al. 2016 以此為
+# 初值再做局部 Otsu）。
+SAR_WATER_DB_DEFAULT = -18.0
+# Otsu 門檻若高於此值，代表它切到的是「陸地內部兩群」（例如草地 vs
+# 森林）而不是水陸分界——畫面內水體太少時常見，此時退回固定門檻。
+SAR_OTSU_MAX_DB = -14.0
+
+
+def sar_water_mask(vv_db: np.ndarray, threshold: Optional[float] = None,
+                   invalid_mask: Optional[np.ndarray] = None) -> tuple:
+    """
+    低回波判水：σ⁰ < 門檻 即為水體。回傳 (遮罩, 門檻, method)。
+
+    - threshold=None：只拿有效像元（非 nan、非 invalid_mask）跑 Otsu；
+      結果高於 SAR_OTSU_MAX_DB 時退回 SAR_WATER_DB_DEFAULT，
+      method="sar_otsu_fallback"。
+    - invalid_mask（陰影／疊置／陡坡）內的像元一律 False。
+
+    >>> vv = np.array([-24.0, -22.0, -8.0, -7.0, -23.0])
+    >>> shadow = np.array([False, False, False, False, True])
+    >>> mask, t, m = sar_water_mask(vv, threshold=-18.0, invalid_mask=shadow)
+    >>> mask.tolist(), m
+    ([True, True, False, False, False], 'sar_fixed')
+    """
+    vv_db = np.asarray(vv_db, dtype="float64")
+    invalid = np.isnan(vv_db)
+    if invalid_mask is not None:
+        invalid = invalid | np.asarray(invalid_mask, dtype=bool)
+
+    if threshold is not None:
+        method = "sar_fixed"
+    else:
+        valid_vals = vv_db[~invalid]
+        if valid_vals.size == 0:
+            threshold, method = SAR_WATER_DB_DEFAULT, "sar_otsu_fallback"
+        else:
+            threshold, method = otsu_threshold(valid_vals), "sar_otsu"
+            if threshold > SAR_OTSU_MAX_DB:
+                threshold, method = SAR_WATER_DB_DEFAULT, "sar_otsu_fallback"
+
+    mask = ~invalid & (np.nan_to_num(vv_db, nan=np.inf) < threshold)
+    return mask, float(threshold), method
+
+
+def extract_water_sar(vv_db: np.ndarray, cell_size_m: float,
+                      threshold: Optional[float] = None,
+                      invalid_mask: Optional[np.ndarray] = None,
+                      date: Optional[str] = None) -> WaterExtent:
+    """
+    SAR 版一站式萃取，輸出跟光學版同一個 WaterExtent，可直接送
+    change_detection()。vv_db 建議先過 preprocess.sar.lee_filter。
+
+    >>> vv = np.full((4, 4), -8.0)
+    >>> vv[1:3, 1:3] = -23.0
+    >>> ext = extract_water_sar(vv, cell_size_m=10.0, threshold=-18.0)
+    >>> int(ext.mask.sum()), ext.method
+    (4, 'sar_fixed')
+    """
+    mask, used, method = sar_water_mask(vv_db, threshold=threshold, invalid_mask=invalid_mask)
+    return WaterExtent(mask=mask, threshold=used, method=method,
+                       cell_size_m=cell_size_m, date=date)
+
+
+# ══════════════════════════════════════════
+# 變化偵測：事件後新增的水體（barrier_lake.py 的輸入之一）
 # ══════════════════════════════════════════
 
 def change_detection(pre: WaterExtent, post: WaterExtent) -> np.ndarray:
