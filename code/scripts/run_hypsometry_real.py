@@ -65,6 +65,7 @@ from scipy import ndimage
 
 from pipeline.assess.hypsometry import build_hypsometric_curve, volume_error_rate
 from pipeline.assess.backtest import backtest_report
+from pipeline.assess.scale import classify_volume
 
 DEM_PATH = "../data/raw/dem/DEM_matai_an.tif"
 REAL_WATER_JSON = "../data/derived/real_water_bl071.json"
@@ -197,6 +198,10 @@ def main() -> None:
         "estimatedVolumeWanM3": round(est_volume_wan_m3, 1),
         "officialVolumeWanM3": OFFICIAL_VOLUME_WAN_M3,
         "volumeErrorRate": round(err, 4),
+        # 對外用這個，不報單一數字
+        "volumeClass": classify_volume(
+            est_volume_wan_m3, curve_ok=not (saturated or cliff_detected)).to_dict(),
+        "officialVolumeClass": classify_volume(OFFICIAL_VOLUME_WAN_M3, rel_error=0.0).scale,
     }
 
     with open("../data/derived/real_hypsometry_bl071.json", "w", encoding="utf-8") as f:
