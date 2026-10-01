@@ -1,19 +1,9 @@
 #!/usr/bin/env python3
 """
-擷取中央氣象署（CWA）自動雨量站即時觀測（O-A0002-001），
-並將各湖配對到最近的雨量站。
+抓 CWA 自動雨量站即時觀測（O-A0002-001），配對每座湖最近的測站。
+只負責抓資料，風險判斷在 pipeline.ingest.risk。
 
-這是清冊 README 狀態表「CWA API 介接」那一列的實作——純粹的
-ingest 階段模組，只負責「抓資料、配站」，不做風險判斷（判斷邏輯
-在 pipeline.ingest.risk，沿用本專案「每個結論都要能追溯」
-的階段劃分原則：ingest 不夾帶模型判斷）。
-
-無金鑰或無網路時呼叫端應自行決定是否降級（pipeline.ingest.risk
-會退回訓練樣本平均值佔位，並在輸出的 meta 裡誠實標註為 offline）。
-
-用法（於 code/ 目錄下，通常由 pipeline.ingest.risk 呼叫，不需單獨執行）：
-    export CWA_API_KEY="CWA-你的授權碼"     # https://opendata.cwa.gov.tw 免費申請
-    python -m pipeline.ingest.cwa            # 僅供除錯：印出目前抓到幾個測站
+    python -m pipeline.ingest.cwa   # 除錯用，印出抓到幾個測站
 """
 
 from __future__ import annotations

@@ -1,24 +1,12 @@
 #!/usr/bin/env python3
 """
-rules.py — 結構化歸因判定
+歸因判定：輸入一筆清冊紀錄（可附觀測資料），輸出命中的規則與填槽值。
+這裡不產生文字，文字由 compose.py 依 templates.yaml 組。
 
-輸入一筆堰塞湖紀錄（可選附上氣象／地震觀測），輸出一組
-「命中的規則」與「填槽用的欄位值」。這一層只做判斷與計算，
-不產生任何文字——文字交給 compose.py 依 templates.yaml 組裝。
-
-為何分層
---------
-判定與敘述分離，才能做到：
-  · 每句話都追得到是哪條規則、哪個門檻造成的
-  · 門檻調整時不必動到句型，句型修改時不必動到邏輯
-  · 規則可單獨寫單元測試
-
-門檻來源
---------
-雨量分級   中央氣象署定義（見 verbalize.RAIN_GRADES_24H）
-颱風距離   本專案自訂，依中心距離區分直接侵襲／外圍環流／西南氣流
-地震關聯   形成時間在地震後 72 小時內，且規模 ≥ 5.0
-以上自訂門檻皆應於對外簡報中註明為專案假設。
+門檻：
+    雨量分級   中央氣象署（verbalize.RAIN_GRADES_24H）
+    颱風距離   自訂：< 100 km 直接侵襲，100–300 km 外圍環流
+    地震關聯   自訂：形成於地震後 72 小時內且規模 ≥ 5.0
 """
 
 from __future__ import annotations
@@ -31,9 +19,7 @@ from typing import Any, Optional
 from . import verbalize as V
 
 
-# ══════════════════════════════════════════
 # 資料結構
-# ══════════════════════════════════════════
 
 @dataclass
 class LakeRecord:
@@ -100,9 +86,7 @@ class Attribution:
         self.slots.update({k: v for k, v in slots.items() if v is not None})
 
 
-# ══════════════════════════════════════════
 # 門檻常數（集中管理，便於稽核與調整）
-# ══════════════════════════════════════════
 
 TYPHOON_DIRECT_KM = 100        # 中心距離小於此值視為直接侵襲
 TYPHOON_OUTER_KM = 300         # 100–300 km 視為外圍環流
@@ -118,9 +102,7 @@ COUNTY_PREFIXES = (
 )
 
 
-# ══════════════════════════════════════════
 # 輔助判定
-# ══════════════════════════════════════════
 
 def parse_formed_time(raw: str) -> Optional[datetime]:
     """
@@ -269,9 +251,7 @@ def status_key(status: str) -> str:
     return "gone"
 
 
-# ══════════════════════════════════════════
 # 主判定：五個區段
-# ══════════════════════════════════════════
 
 def attribute(rec: LakeRecord, obs: Optional[Observations] = None) -> Attribution:
     """

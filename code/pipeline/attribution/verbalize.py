@@ -1,15 +1,10 @@
 #!/usr/bin/env python3
 """
-verbalize.py — 數值轉自然語言
+數值轉中文。
 
-把計算結果轉成人看得懂的中文表述。所有規則都是確定性的：
-同樣的輸入必得同樣的輸出，可寫單元測試。
-
-設計原則
---------
-1. 級距名稱一律採官方定義（雨量分級用中央氣象署），不自創形容詞。
-2. 精度隨量級調整——「9,100 萬立方公尺」不需要小數，「0.27」需要。
-3. 「無此現象」與「未記載」必須可區分，不可都輸出「無」。
+- 級距名稱用官方定義（雨量用中央氣象署），不自己發明形容詞
+- 精度隨量級調整：9,100 萬立方公尺不用小數，0.27 要
+- 「無」和「未記載」要分得出來
 """
 
 from __future__ import annotations
@@ -19,9 +14,7 @@ from decimal import Decimal, ROUND_HALF_UP
 from typing import Optional
 
 
-# ══════════════════════════════════════════
 # 時長
-# ══════════════════════════════════════════
 
 def duration(days: Optional[float], raw: str = "") -> Optional[str]:
     """
@@ -95,9 +88,7 @@ def hours_after(delta_hours: Optional[float]) -> Optional[str]:
     return f"{int(round(h / 24))} 日"
 
 
-# ══════════════════════════════════════════
 # 雨量
-# ══════════════════════════════════════════
 
 # 中央氣象署雨量分級（24 小時累積）
 RAIN_GRADES_24H = [
@@ -165,9 +156,7 @@ def rain_percentile(pct: Optional[float]) -> Optional[str]:
     return None
 
 
-# ══════════════════════════════════════════
 # 蓄水量與規模
-# ══════════════════════════════════════════
 
 VOLUME_SCALES = [
     (5000, "huge"),    # 極大型
@@ -220,9 +209,7 @@ def volume_amount(wan_m3: Optional[float]) -> Optional[str]:
     return f"{wan_m3:.2f}"
 
 
-# ══════════════════════════════════════════
 # 距離與高程
-# ══════════════════════════════════════════
 
 def distance_km(km: Optional[float]) -> Optional[str]:
     """
@@ -261,9 +248,7 @@ def elevation_gap(m: Optional[float]) -> Optional[str]:
     return f"{q}"
 
 
-# ══════════════════════════════════════════
 # 時間點與時效
-# ══════════════════════════════════════════
 
 def timepoint(dt: Optional[datetime]) -> Optional[str]:
     """
@@ -335,9 +320,7 @@ def staleness_key(delta: Optional[timedelta]) -> str:
     return "stale"
 
 
-# ══════════════════════════════════════════
 # 缺值處理
-# ══════════════════════════════════════════
 
 def absence(kind: str = "not_recorded") -> str:
     """

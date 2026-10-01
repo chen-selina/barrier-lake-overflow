@@ -1,27 +1,17 @@
 #!/usr/bin/env python3
 """
-hypsometry.py — 由 DEM 對壩址上游填洼，建立水位–面積–容積曲線
+水位–面積–容積曲線
 
-方法
-----
-「填洼法」（bathtub flood-fill）：從壩址（pour point）出發，對每個候選水位
-高程，找出所有「高程 ≤ 該水位」且與壩址**水力連通**的像元（4-連通），
-只累計這個連通分量，避免誤把地形上其他不相干的低窪區也算進蓄水範圍。
+從壩址往上游填洼：每個水位只算「高程 ≤ 水位且和壩址 4-連通」的像元，
+不相干的低窪地不算進去。
 
     面積(h) = 連通像元數 × 像元面積
-    容積(h) = Σ (h − 像元高程) × 像元面積   （僅連通像元）
+    容積(h) = Σ (h − 像元高程) × 像元面積
 
-這條曲線建好後，`attribution.forecast` 可以直接查表用（見該模組的
-`volume_at()` / `elevation_at()`），不需要再改 forecast.py。
+容積單位是萬 m³，和清冊、forecast.LakeState.hypsometric 一致。
+核心只吃 numpy 陣列，讀 GeoTIFF 才需要 rasterio。
 
-單位慣例：水位／高程為公尺；輸出容積一律換算成「萬立方公尺」
-（跟 `data/raw/taiwan-barrier-lakes.csv` 的「蓄水量(萬立方公尺)」欄位、
-以及 `forecast.py` 的 `LakeState.hypsometric` 曲線格式一致）。
-
-本模組核心演算法只吃 numpy 陣列，不綁死 rasterio/GeoTIFF，
-方便用合成資料測試；讀真實 DEM 檔才需要 rasterio（見 `load_dem_geotiff`）。
-
-執行方式：python -m pipeline.assess.hypsometry
+    python -m pipeline.assess.hypsometry
 """
 
 from __future__ import annotations
@@ -34,10 +24,8 @@ import numpy as np
 from scipy import ndimage
 
 
-# ══════════════════════════════════════════
 # DEM 讀取（真實 GeoTIFF；rasterio 為延遲 import，
 # 沒裝也不影響下面的核心演算法可測試性）
-# ══════════════════════════════════════════
 
 @dataclass
 class DemGrid:
@@ -91,9 +79,7 @@ def load_dem_geotiff(path: str) -> DemGrid:
         )
 
 
-# ══════════════════════════════════════════
 # 核心：連通填洼
-# ══════════════════════════════════════════
 
 # 4-連通結構元素（上下左右），跟「水面連續」的物理意義一致；
 # 8-連通會讓對角相鄰的獨立窪地誤判成連通，故不用。
@@ -151,9 +137,7 @@ def area_volume_at_level(dem: np.ndarray, pour_point: tuple, level: float,
     return area_m2, volume_m3 / 1e4  # 換算萬立方公尺
 
 
-# ══════════════════════════════════════════
 # 建立整條曲線
-# ══════════════════════════════════════════
 
 @dataclass
 class HypsometricCurve:
@@ -197,14 +181,10 @@ class HypsometricCurve:
 
     def elevation_at_area(self, target_area_m2: float) -> float:
         """
-        反查：給定水面面積，內插查對應水位（公尺）。面積–水位關係單調
-        不減（bathtub 填洼的物理特性本來就保證：水位越高，連通淹沒範圍
-        只會擴大或持平，不會縮小），邊界外一樣夾住到端點值。
+        給定水面面積，內插反查水位（公尺），超出範圍夾到端點。
+        填洼的面積隨水位單調不減，所以可以反查。
 
-        用途：拿真實遙測（例如 NDWI）偵測到的湖面面積，反推對應水位，
-        藉此在沒有「事件後 DEM」可以直接讀出壩頂高程時，仍能用真實水體
-        範圍校準出一個蓄水量估計值——比直接採信新聞報導、來源常常不一
-        的壩高數字更站得住腳。
+        用途：沒有事件後 DEM 時，用遙測偵測到的湖面面積推水位，再讀容積。
 
         >>> dem = np.array([[10., 10., 10., 10., 10.],
         ...                 [10.,  2.,  1.,  2., 10.],
@@ -281,9 +261,7 @@ def build_hypsometric_curve(dem: np.ndarray, pour_point: tuple,
                              cell_size_m=cell_area_m2 ** 0.5)
 
 
-# ══════════════════════════════════════════
 # 壩高反演
-# ══════════════════════════════════════════
 
 def dam_height_from_dems(pre_event_dem: np.ndarray, post_event_dem: np.ndarray,
                           dam_point: tuple) -> float:
@@ -301,18 +279,15 @@ def dam_height_from_dems(pre_event_dem: np.ndarray, post_event_dem: np.ndarray,
 
 def dam_height_from_curve(curve: HypsometricCurve) -> float:
     """
-    沒有事件前 DEM 時的退而求其次做法：直接用曲線端點差
-    （crest_elevation − floor_elevation）當壩高估計值，準確度較低，
-    僅在拿不到事件前 DEM 時使用，且應在提案書／輸出中註明是估計值。
+    沒有事件前後兩期 DEM 時，用曲線端點差（crest − floor）粗估壩高。
+    準確度低，輸出時要註明是估計值。
     """
     if not curve.points:
         raise ValueError("曲線是空的")
     return curve.points[-1][0] - curve.points[0][0]
 
 
-# ══════════════════════════════════════════
-# 對官方數字算誤差率（B2 步驟 5：跟 taiwan-barrier-lakes.csv 對照）
-# ══════════════════════════════════════════
+# 和清冊官方蓄水量比較
 
 def volume_error_rate(estimated_wan_m3: float, official_wan_m3: float) -> float:
     """
@@ -329,10 +304,7 @@ def volume_error_rate(estimated_wan_m3: float, official_wan_m3: float) -> float:
     return abs(estimated_wan_m3 - official_wan_m3) / official_wan_m3
 
 
-# ══════════════════════════════════════════
-# 輸出到 data/derived/，供 B3（inundation.py）與
-# attribution.forecast 後續使用
-# ══════════════════════════════════════════
+# 存檔／讀檔
 
 def save_curve(curve: HypsometricCurve, path: str) -> None:
     with open(path, "w", encoding="utf-8") as f:

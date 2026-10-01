@@ -1,23 +1,16 @@
 #!/usr/bin/env python3
 """
-sar.py — Sentinel-1 SAR 前處理（B1 SAR 半的輸入端）
+Sentinel-1 前處理
 
-原規劃是用 SNAP（esa-snappy）跑完整前處理鏈，但 SNAP 安裝麻煩、對新
-成員環境不友善。改採跟 B1 光學半一樣的做法：在 Google Earth Engine 取
-`COPERNICUS/S1_GRD`——GEE 已經做好軌道修正、熱雜訊去除、輻射校正、
-地形校正（Range-Doppler），像元值直接是 σ⁰（dB）——匯出 GeoTIFF 後，
-這裡只補 GEE 沒做的 speckle 濾波與網格對齊檢查。GEE 匯出腳本見
-`code/scripts/analyze_sar_change.py` 檔頭。
+GEE 的 COPERNICUS/S1_GRD 已經做完軌道修正、熱雜訊去除、輻射與地形校正，
+像元值是 σ⁰（dB）。這裡只補 speckle 濾波和網格檢查，匯出腳本見
+scripts/analyze_sar_change.py。
 
-- `load_s1_geotiff`：讀 dB 值 GeoTIFF，回傳格式跟
-  `detect.water.load_ndwi_geotiff` 一致（transform/crs/bounds）。
-- `lee_filter`：Lee speckle 濾波（乘性雜訊模型），在線性功率域做，
-  輸入輸出都是 dB。用 scipy.ndimage.uniform_filter 實作，不引入
-  scikit-image。
-- `check_aligned`：事件前後／DEM 網格一致性檢查，對不齊直接丟錯，
-  不做任何隱性 resample（跟 scripts/analyze_ndwi_change.py 同一原則）。
+- load_s1_geotiff：讀檔，回傳格式同 detect.water.load_ndwi_geotiff
+- lee_filter：Lee 濾波，在線性功率域算，輸入輸出都是 dB
+- check_aligned：網格不一致直接丟錯，不偷偷 resample
 
-執行方式：python -m pipeline.preprocess.sar
+    python -m pipeline.preprocess.sar
 """
 
 from __future__ import annotations
@@ -36,9 +29,7 @@ S1_IW_GRD_ENL = 4.4
 M_PER_DEG_LAT = 111320.0
 
 
-# ══════════════════════════════════════════
 # GeoTIFF 讀取（rasterio 延遲 import，同 water.load_ndwi_geotiff）
-# ══════════════════════════════════════════
 
 def load_s1_geotiff(path: str, band: int = 1) -> dict:
     """
@@ -96,9 +87,7 @@ def cell_size_xy_m(transform: tuple, geographic: bool, center_lat: float = 0.0) 
             abs(e) * M_PER_DEG_LAT)
 
 
-# ══════════════════════════════════════════
 # dB ↔ 線性功率
-# ══════════════════════════════════════════
 
 def db_to_linear(db: np.ndarray) -> np.ndarray:
     """
@@ -119,9 +108,7 @@ def linear_to_db(lin: np.ndarray, floor: float = 1e-10) -> np.ndarray:
     return 10.0 * np.log10(np.maximum(lin, floor))
 
 
-# ══════════════════════════════════════════
 # Lee speckle 濾波
-# ══════════════════════════════════════════
 
 def lee_filter(img_db: np.ndarray, size: int = 5, enl: float = S1_IW_GRD_ENL) -> np.ndarray:
     """
@@ -158,9 +145,7 @@ def lee_filter(img_db: np.ndarray, size: int = 5, enl: float = S1_IW_GRD_ENL) ->
     return np.where(valid, linear_to_db(out), np.nan)
 
 
-# ══════════════════════════════════════════
 # 網格對齊檢查
-# ══════════════════════════════════════════
 
 def check_aligned(*rasters: dict, names: tuple = (), array_key: str = "db") -> None:
     """

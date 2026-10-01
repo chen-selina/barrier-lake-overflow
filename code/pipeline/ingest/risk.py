@@ -1,41 +1,15 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-風險模型 → 前端 risk.js
-========================================================================
-模型公式、係數、平均值三者直接採用「package」（隊友給的無 server
-demo 包，`make_risk_snapshot.py`）裡的版本，寫死在本檔（見下方
-LOGIT_INTERCEPT / LOGIT_COEF_RAW / FEATURE_MEANS），不再讀
-`data/raw/risk/risk_formula_coefs.csv`——那是另一條（外部）建模
-流程的輸出快照，本檔改採用 package 這份固定下來的公式做為唯一依據。
+風險模型 → dashboard/data/risk.js
 
-雨量特徵的取得方式也採用 package 的做法：抓 CWA O-A0002-001
-自動雨量站的即時觀測，每座湖配最近的測站；沒有 CWA_API_KEY
-或指定 --offline 時，用公式訓練時的平均值佔位（不是真雨量，
-只用來確認串接正常）。
+邏輯迴歸係數與特徵平均值寫死在下方（來自 make_risk_snapshot.py）。
+雨量取 CWA O-A0002-001 最近測站的 24 小時累積；沒有 CWA_API_KEY 或加
+--offline 時用訓練平均值佔位，RISK_MODEL_META.mode 會標明。
 
-跟 package 原版不同的地方，只在於「湖泊清單從哪來」與
-「輸出格式」，兩者都改成沿用本專案既有的東西，維持前端
-（index.html / app.js / cap.js）完全不用改：
-    * 湖泊清單：直接讀本專案已產生的 `dashboard/data/lakes.js`
-      （window.BARRIER_LAKES），不需要 package 那個中繼的
-      `lakes_static.json` / `make_lakes_static.py` 步驟。
-    * 輸出：沿用本專案原本的 `window.LAKE_RISK` / 
-      `window.RISK_MODEL_META` 格式與檔案位置
-      （dashboard/data/risk.js），CAP 示警、證據卡等前端邏輯
-      不用動。
+data/raw/risk/ 底下的舊檔已不再讀取。
 
-已停用（不再被本檔讀取，但保留在磁碟上供對照／歸檔）：
-    data/raw/risk/lake_risk_predictions.csv
-    data/raw/risk/risk_formula_coefs.csv
-若確定不需要，之後可以自行刪除；本檔不會自動動它們。
-
-用法（於 code/ 目錄下）：
-    export CWA_API_KEY="CWA-你的授權碼"     # opendata.cwa.gov.tw 免費申請
-    python -m pipeline.ingest.risk                       # 即時
-    python -m pipeline.ingest.risk --offline              # 無金鑰／先測流程
-    python -m pipeline.ingest.risk --lakes dashboard/data/lakes.js \
-        --out dashboard/data/risk.js
+    python -m pipeline.ingest.risk [--offline] [--lakes ...] [--out ...]
 """
 
 from __future__ import annotations

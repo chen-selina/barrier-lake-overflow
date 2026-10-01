@@ -78,7 +78,7 @@ python -m pipeline.attribution.forecast
 
 ### 真實影像分析
 
-影像要自己從 Google Earth Engine 匯出，匯出用的 GEE 腳本寫在各支程式的開頭。
+影像要自己從 Google Earth Engine 匯出。SAR 和 DEM 的 GEE 匯出腳本寫在對應程式的開頭。
 
 ```bash
 # 光學：事件前後 NDWI

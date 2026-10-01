@@ -1,15 +1,5 @@
 #!/usr/bin/env python3
-"""
-test_attribution.py — 單元測試
-
-用清冊裡 2025 年的三筆真實紀錄當測試案例。這三筆同為颱風季事件，
-但存續時間從 2 日到 64 日、潰決原因從溢流沖刷到機具開挖，
-剛好檢驗模板法能否正確區分。
-
-執行（於 code/ 目錄下）：
-    pytest
-    python -m pytest tests/test_attribution.py -v
-"""
+"""成因敘述測試。主要案例是清冊 2025 年三筆：存續 2～64 日、潰決原因有溢流也有人為開挖。"""
 
 from __future__ import annotations
 
@@ -28,9 +18,7 @@ from pipeline.attribution.rules import (LakeRecord, Observations, attribute,
 COMPOSER = Composer()
 
 
-# ══════════════════════════════════════════
 # 清冊 2025 年三筆（欄位取自原始 CSV）
-# ══════════════════════════════════════════
 
 CAOLING = LakeRecord(          # 項次 70
     seq=70, name="雲林清水溪(草嶺)", year=2025,
@@ -72,9 +60,7 @@ JIUFEN = LakeRecord(           # 項次 3，九二一地震型、持續至今
 )
 
 
-# ══════════════════════════════════════════
 # verbalize
-# ══════════════════════════════════════════
 
 class TestVerbalize(unittest.TestCase):
 
@@ -131,9 +117,7 @@ class TestVerbalize(unittest.TestCase):
         self.assertEqual(V.staleness_key(timedelta(days=9)), "stale")
 
 
-# ══════════════════════════════════════════
 # rules
-# ══════════════════════════════════════════
 
 class TestRules(unittest.TestCase):
 
@@ -176,9 +160,7 @@ class TestRules(unittest.TestCase):
         self.assertGreater(len(attr.rules_fired), 2)
 
 
-# ══════════════════════════════════════════
 # compose — 三筆真實紀錄的敘述
-# ══════════════════════════════════════════
 
 class TestNarrative(unittest.TestCase):
 
@@ -272,9 +254,7 @@ class TestNarrative(unittest.TestCase):
             self.assertEqual(self.render(MATAIAN, obs).text, first)
 
 
-# ══════════════════════════════════════════
 # forecast
-# ══════════════════════════════════════════
 
 CURVE = [(640, 0), (650, 180), (660, 900), (670, 3200), (676, 6800), (682, 9100)]
 

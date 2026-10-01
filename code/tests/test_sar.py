@@ -1,15 +1,5 @@
 #!/usr/bin/env python3
-"""
-test_sar.py — SAR 鏈單元測試：preprocess.sar / preprocess.mask /
-detect.water（SAR 半）/ detect.landslide / detect.barrier_lake
-
-全部用合成資料（`barrier_lake.synthetic_scene`：南北向山谷、河道、
-崩塌堵塞、上游回淹、一塊雷達陰影陡坡、一塊跟河道不相連的平台積水），
-不需要真實 Sentinel-1 影像。真實資料分析見 scripts/analyze_sar_change.py。
-
-執行（於 code/ 目錄下）：
-    pytest tests/test_sar.py -v
-"""
+"""SAR 鏈測試（濾波、遮罩、判水、崩塌、A/B/C），用 barrier_lake.synthetic_scene 的合成山谷。"""
 
 from __future__ import annotations
 

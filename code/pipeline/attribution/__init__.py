@@ -1,11 +1,9 @@
 """
-成因歸因與溢流預報（規則式，不使用 LLM）。
+成因敘述與溢流預報（規則＋模板，不用 LLM）。
 
-常用入口：
     from pipeline.attribution import attribute, describe
 
-採延遲匯入（PEP 562），這樣 `python -m pipeline.attribution.rules`
-執行單一模組時不會出現重複載入的警告。
+用延遲匯入，避免 python -m pipeline.attribution.rules 出現重複載入警告。
 """
 
 __all__ = [

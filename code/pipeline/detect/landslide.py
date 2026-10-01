@@ -1,30 +1,16 @@
 #!/usr/bin/env python3
 """
-landslide.py — 崩塌變化偵測（SAR 振幅比值法，GRD）
+崩塌偵測：SAR 振幅比值法（GRD）
 
-方法
-----
-事件前後同軌道、同幾何的 σ⁰（dB）相減，就是對數比值（log-ratio）：
+    Δ = σ⁰_post(dB) − σ⁰_pre(dB)，|Δ| ≥ 3 dB 視為變化
 
-    Δ = σ⁰_post(dB) − σ⁰_pre(dB) = 10·log10(σ⁰_post / σ⁰_pre)
+植生坡崩塌成裸岩多半回波增強，但平滑泥流或背向衛星的新崩崖會減弱，
+所以兩個方向都算，另外記正負號。排除：水體（呼叫端傳 exclude_mask）、
+疊置與陰影（不排除陡坡，崩塌本來就在陡坡上）、小於 min_pixels 的碎塊。
 
-比值法對乘性 speckle 比差值法穩定，是 GRD 崩塌偵測的標準做法。
-植生坡面崩塌後變成裸岩／堆積土石，C 波段回波在多數情況增強（粗糙
-碎石、朝向改變）；但平滑的泥流堆積或背向衛星的新崩崖也可能減弱，
-所以 |Δ| ≥ 門檻兩側都算，另外記錄正負號供判讀。
+相干性法（SLC）沒有做。
 
-排除項：
-- 新增水體與事件後水體：水面造成的強烈回波下降不是崩塌，交給
-  water.py 處理（呼叫端用 exclude_mask 傳入）。
-- 雷達疊置／陰影（preprocess/mask.py 的 "landslide" 遮罩）：幾何失真
-  區的回波變化不可信。**不排除陡坡**——崩塌本來就在陡坡上。
-- 面積 < min_pixels 的零星變化（speckle 殘餘、單株倒木、車輛），用
-  scipy.ndimage.label 去掉。
-
-相干性變化法（SLC，InSAR coherence loss）對崩塌更敏感，但需要 SLC
-與干涉處理鏈，列為升級項目。
-
-執行方式：python -m pipeline.detect.landslide
+    python -m pipeline.detect.landslide
 """
 
 from __future__ import annotations

@@ -1,14 +1,5 @@
 #!/usr/bin/env python3
-"""
-test_backtest.py — pipeline.assess.backtest 單元測試（C1 時點回測 / C2 誤差率）
-
-全部用合成日期／數字測試——真實的偵測時間點跟反演蓄水量還沒有，
-等 B1 接上真實 Sentinel-2 影像、B2 接上真實 DEM 之後，同一套
-backtest_report() 直接餵真數字即可，不用再測一次。
-
-執行（於 code/ 目錄下）：
-    pytest tests/test_backtest.py -v
-"""
+"""回測（日期提前量、蓄水量誤差率）測試，用合成日期與數字。"""
 
 from __future__ import annotations
 

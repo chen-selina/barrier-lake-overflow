@@ -1,36 +1,15 @@
 #!/usr/bin/env python3
 """
-analyze_ndwi_change.py — 拿真實的事件前後 NDWI GeoTIFF 跑一次 B1 水體變化偵測
+真實事件前後 NDWI GeoTIFF → 新增水體
 
-跟 `pipeline.detect.water` 的關係：這裡只是把該模組已經測過的純函式
-（`water_mask`、`change_detection`）接上真實資料的一次性分析腳本，不是
-pipeline 套件的一部分——真實影像檔案在使用者本機（例如從 Google Earth
-Engine 匯出），路徑因人而異，不適合寫死進可攜的 pipeline 模組裡。
+    python scripts/analyze_ndwi_change.py         --before ../data/raw/sentinel2/NDWI_before_matai_an.tif         --after  ../data/raw/sentinel2/NDWI_after_matai_an.tif         --lon 121.29752 --lat 23.70061 --lake-id bl071 --threshold 0.0         --before-label "2025-06-01~07-18 中位數合成"         --after-label "2025-07-25~09-15 中位數合成"         --out ../data/derived/real_water_bl071.json         --dashboard-out dashboard/data/inundation.js
 
-用法（於 code/ 目錄下）：
-    python scripts/analyze_ndwi_change.py \
-        --before ../data/raw/sentinel2/NDWI_before_matai_an.tif \
-        --after  ../data/raw/sentinel2/NDWI_after_matai_an.tif \
-        --lon 121.29752 --lat 23.70061 --lake-id bl071 \
-        --threshold 0.0 \
-        --before-label "2025-06-01~07-18 中位數合成" \
-        --after-label "2025-07-25~09-15 中位數合成" \
-        --out ../data/derived/real_water_bl071.json \
-        --dashboard-out dashboard/data/inundation.js
-
-流程：
-1. 讀兩張已經算好 NDWI 的 GeoTIFF（`load_ndwi_geotiff`），確認網格對齊
-   （同尺寸、同 transform、同 CRS）——對不齊就直接停，不做任何隱性 resample。
-2. 裁出壩址附近的分析視窗（預設 4km 見方），避免整張大圖裡跟事件無關的
-   其他變化（例如遠處農地/雲影殘留）混進「新增水體」的統計。
-3. 各自跑 Otsu 自動門檻二值化，算 change_detection() = 事件後 水體
-   且非事件前水體。
-4. 用 scipy.ndimage.label 抓最大連通塊（= 候選堰塞湖本體），跟壩址座標
-   算質心距離，當作「這塊新增水體是不是真的在壩址附近」的粗略檢核——
-   這是 detect/barrier_lake.py（未實作）「新增水體 × 上游崩塌 × 河道
-   相交」判定的簡化版，只做了其中「位置合理性」這一項。
-5. 結果存成 JSON，附上分析視窗大小、門檻方法、真實面積等，供 C1/C2 之後
-   串接使用，也可以直接引用到提案書當作「真實資料跑過 B1」的證據。
+1. 讀兩張 NDWI，網格不一致就停
+2. 以壩址為中心裁 4 km 見方，避免遠處的變化混進來
+3. 二值化，算新增水體
+4. 取最大連通塊，算和壩址的距離作為位置檢核
+   （完整的 A/B/C 判定在 SAR 那支，這裡只看位置）
+5. 輸出 JSON；給 --dashboard-out 時同時更新儀表板圖層
 """
 
 from __future__ import annotations

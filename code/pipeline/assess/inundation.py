@@ -1,19 +1,11 @@
 #!/usr/bin/env python3
 """
-inundation.py — bathtub 淹沒模擬
+bathtub 淹沒範圍。和 hypsometry 共用同一個連通填洼，多回傳遮罩與多邊形。
 
-先做 bathtub model 快估（本檔目前的範圍），之後可再升級成簡化一維水動力
-（例如沿河道做逐斷面演算），但那是輔導期項目，MVP 階段先求「淹沒範圍
-拿得出來、邏輯站得住腳」。
+只會淹湖泊本身，不會往下游傳遞；下游要用一維水動力，還沒做。
+要升級時換掉 inundation_extent_for_scenario() 裡面就好。
 
-跟 hypsometry.py 共用同一套「連通填洼」核心演算法（`_connected_mask_at_level`
-/ `area_volume_at_level`）：蓄水範圍與淹沒範圍本質上是同一個運算在不同
-水位下的結果，這裡不重寫一次，直接 import 沿用，維持單一事實來源。
-
-輸出：一個布林遮罩（哪些像元被淹沒）+ 對應的地理多邊形（供 exposure.py
-疊合人口資料、以及前端地圖畫圖層用）。
-
-執行方式：python -m pipeline.assess.inundation
+    python -m pipeline.assess.inundation
 """
 
 from __future__ import annotations
@@ -27,9 +19,7 @@ import numpy as np
 from .hypsometry import DemGrid, _connected_mask_at_level, area_volume_at_level
 
 
-# ══════════════════════════════════════════
 # 核心：給定水位，回傳淹沒遮罩
-# ══════════════════════════════════════════
 
 @dataclass
 class InundationResult:
@@ -45,10 +35,7 @@ def bathtub_mask(dem: np.ndarray, pour_point: tuple,
     """
     水位以下、且跟 pour_point 水力連通的像元 = 淹沒範圍。
 
-    跟 hypsometry.area_volume_at_level 算的是同一件事，這裡多回傳
-    遮罩本身（hypsometry 那邊只回傳面積/容積數字，是刻意簡化，因為
-    掃整條曲線時不需要每一級都留著遮罩，只有「最終那一個水位」
-    才需要把遮罩留下來用於畫圖跟疊合人口）。
+    和 hypsometry.area_volume_at_level 相同，多回傳遮罩（畫圖、疊人口用）。
 
     >>> dem = np.array([[5., 5., 5.],
     ...                 [5., 1., 5.],
@@ -124,31 +111,20 @@ def mask_to_polygon_shapely_only(mask: np.ndarray, dem_grid: DemGrid):
     return unary_union(boxes)
 
 
-# ══════════════════════════════════════════
-# 由 B2 的水位–容積曲線推算「目前」水位（供還沒溢流前的淹沒範圍展示）
-# 或直接指定壩頂水位（供「假設溢流會淹到哪裡」的情境展示）
-# ══════════════════════════════════════════
+# 情境：目前水位，或壩頂高程（蓄滿）
 
 def inundation_extent_for_scenario(dem: np.ndarray, pour_point: tuple,
                                     cell_area_m2: float,
                                     water_elevation: float) -> InundationResult:
     """
-    對外的主入口：給定情境水位（可以是 B2 反演出的目前水位、
-    也可以是壩頂高程＝「萬一蓄滿溢流」情境），算出淹沒範圍。
-
-    這支刻意跟 bathtub_mask 拆開成獨立函式名稱，是為了讓呼叫端
-    語意清楚（「這是在跑一個情境」），未來要接一維水動力模擬時，
-    只需要在這一層把 bathtub_mask 換掉即可，上層呼叫介面不必變動。
+    給定情境水位算淹沒範圍。之後換成一維水動力時只改這裡。
     """
     return bathtub_mask(dem, pour_point, water_elevation, cell_area_m2)
 
 
 def save_result(result: InundationResult, path: str) -> None:
     """
-    存成 JSON，供 exposure.py（B3 後半）與前端
-    `code/dashboard/data/inundation.js`（仿照 lakes.js/risk.js/terrain.js
-    的模式）轉譯使用。遮罩本身不存進 JSON（太大），只存範圍摘要；
-    真正要畫圖的多邊形另外用 mask_to_polygons() 產生。
+    存範圍摘要成 JSON。遮罩太大不存，多邊形另外用 mask_to_polygons() 產生。
     """
     with open(path, "w", encoding="utf-8") as f:
         json.dump({

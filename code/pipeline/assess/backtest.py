@@ -1,24 +1,10 @@
 #!/usr/bin/env python3
 """
-backtest.py — C1 時點回測 + C2 蓄水量誤差率
+回測：偵測日期 vs 官方形成／溢流日期（提前或延遲幾天），加上蓄水量誤差率
+（hypsometry.volume_error_rate）。官方值取自清冊，例如馬太鞍溪形成
+2025/7/21、溢流 2025/09/23、蓄水量 9,100 萬 m³。
 
-依施工地圖對照表：
-- C1：拿 B1（detect/water.py）偵測到「新增水體」的時間，跟官方紀錄的
-  「實際形成時間」「實際溢流時間」比對，算出提前量／延遲量。
-- C2：拿 B2（assess/hypsometry.py）反演出的蓄水量，跟官方蓄水量數字
-  算誤差率——這條公式已經在 `hypsometry.volume_error_rate()` 做好，
-  這裡只是把它跟時點回測包成同一份報告，不重寫一次。
-
-官方 ground truth 來源：`data/raw/taiwan-barrier-lakes.csv`（或轉換後的
-`dashboard/data/lakes.js`），例如馬太鞍溪的 `formed="2025/7/21"`、
-`breachDate="2025/09/23"`、蓄水量 9,100.00 萬立方公尺。
-
-目前限制：B1 還沒接真實 Sentinel-2 影像，所以還沒有真的偵測時間點可以
-拿來跑這支——本檔案先把邏輯做好、用合成日期測過，真實資料（B1 偵測
-輸出的 `WaterExtent.date`、B2 真實反演出的蓄水量）到位後，直接餵進
-`backtest_report()` 就能出報告，不需要再改這支程式。
-
-執行方式：python -m pipeline.assess.backtest
+    python -m pipeline.assess.backtest
 """
 
 from __future__ import annotations
@@ -137,8 +123,7 @@ if __name__ == "__main__":
     fails, total = doctest.testmod()
     print(f"backtest: {total - fails}/{total} 通過")
 
-    # 示範：合成一組日期／蓄水量（不是真的偵測結果！等 B1 真的接上
-    # Sentinel-2、B2 真的反演出蓄水量之後，這裡要換成真實數字）
+    # 示範用的合成日期與蓄水量，不是真實偵測結果
     report = backtest_report(
         lake_name="花蓮馬太鞍溪（示範資料，非真實偵測結果）",
         formed_detected=date(2025, 7, 19),

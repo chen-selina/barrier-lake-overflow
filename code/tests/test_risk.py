@@ -1,15 +1,5 @@
 #!/usr/bin/env python3
-"""
-test_risk.py — pipeline.ingest.risk 單元測試（package 模型版）
-
-只測不連網的部分：logit 公式是否與 package 的 make_risk_snapshot.py
-數字一致、lakes.js 解析與單位換算是否正確、offline 模式下整條流程
-能否正常寫出 risk.js。CWA 連線（pipeline.ingest.cwa.fetch_rainfall_stations）
-不在本檔測試範圍內——那需要真的網路與金鑰。
-
-執行（於 code/ 目錄下）：
-    pytest tests/test_risk.py -v
-"""
+"""風險模型測試：係數與 make_risk_snapshot.py 一致、lakes.js 解析、offline 流程。不測 CWA 連線。"""
 
 from __future__ import annotations
 

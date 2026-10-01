@@ -1,45 +1,15 @@
 #!/usr/bin/env python3
 """
-water.py — 水體萃取（B1：光學 NDWI 半 + SAR 低回波半）
+水體萃取：光學 NDWI 與 SAR 低回波
 
-依施工地圖對照表，`detect/water.py` 是「SAR 低回波（Otsu 自動門檻）+
-光學 NDWI」雙軌判定：
+- NDWI = (Green − NIR) / (Green + NIR)（McFeeters 1996），門檻用固定值或 Otsu
+- SAR：濾波後的 σ⁰（dB）切 Otsu 門檻，搭配 preprocess/mask.py 的遮罩，
+  不然山區陰影坡會被當成水。颱風期間光學幾乎都被雲遮，常常只有 SAR 可用
 
-- 光學 NDWI 半：`ndwi` / `water_mask` / `extract_water`（下方「方法」）。
-- SAR 半：`sar_water_mask` / `extract_water_sar`。颱風豪雨期間光學影像
-  幾乎都被雲遮，堰塞湖形成當下能用的常常只有 SAR。輸入是
-  preprocess/sar.py 濾波後的 σ⁰（dB），並吃 preprocess/mask.py 算出的
-  陰影／疊置／陡坡遮罩——不排除陰影坡，山區 Otsu 會把陰影當水。
+兩種都輸出 WaterExtent，共用 change_detection()：新增水體 = 事件後 ∧ ¬事件前。
+Otsu 用 numpy 自己寫，不引入 scikit-image。
 
-方法
-----
-NDWI（Normalized Difference Water Index，McFeeters 1996）：
-
-    NDWI = (Green − NIR) / (Green + NIR)
-
-水體近紅外反射率低、綠光反射率相對高，NDWI 偏正；植生／裸露地相反，
-NDWI 偏負。門檻二值化取水體遮罩，門檻可用固定值（McFeeters 慣例 0.0）
-或自動找。
-
-Otsu 門檻演算法這裡用 numpy 自己實作、不引入 scikit-image：跟
-assess/hypsometry.py 用 scipy 取代 richdem 是同一個理由——現在只需要
-「在雙峰直方圖上找一個門檻」這一個功能，不需要整包 scikit-image。
-SAR 半需要的形態學／連通塊運算也改用 scipy.ndimage，一樣不必引入
-scikit-image。
-
-變化偵測（「新增水體」）
-----------------------
-堰塞湖判定要的是「事件後新增的水體」，不是水體本身（河道平常就有水）。
-做法：事件前後各算一次水體遮罩，new_water = post_mask & ~pre_mask，
-這是 detect/barrier_lake.py「新增水體 × 河道相交 × 鄰接崩塌 × 多時相
-持續」判定的其中一項輸入。光學與 SAR 兩半都輸出 WaterExtent，
-change_detection 共用。
-
-單位與座標慣例跟 assess/hypsometry.py 一致：像元面積用 m²，輸出面積
-另外換算公頃方便閱讀；真實 GeoTIFF 讀取一樣用延遲 import（沒裝
-rasterio 不影響核心演算法可測試性）。
-
-執行方式：python -m pipeline.detect.water
+    python -m pipeline.detect.water
 """
 
 from __future__ import annotations
@@ -51,10 +21,8 @@ from typing import Optional
 import numpy as np
 
 
-# ══════════════════════════════════════════
 # Sentinel-2 影像讀取（真實 GeoTIFF；rasterio 延遲 import，
 # 跟 assess/hypsometry.py 的 load_dem_geotiff 同款）
-# ══════════════════════════════════════════
 
 def load_sentinel2_bands(green_path: str, nir_path: str) -> tuple:
     """
@@ -124,9 +92,7 @@ def load_ndwi_geotiff(path: str) -> dict:
         }
 
 
-# ══════════════════════════════════════════
 # NDWI 計算
-# ══════════════════════════════════════════
 
 def ndwi(green: np.ndarray, nir: np.ndarray) -> np.ndarray:
     """
@@ -147,9 +113,7 @@ def ndwi(green: np.ndarray, nir: np.ndarray) -> np.ndarray:
     return result
 
 
-# ══════════════════════════════════════════
 # 門檻二值化（Otsu 自動門檻，numpy 自實作）
-# ══════════════════════════════════════════
 
 def otsu_threshold(values: np.ndarray, bins: int = 256) -> float:
     """
@@ -187,10 +151,8 @@ def otsu_threshold(values: np.ndarray, bins: int = 256) -> float:
         between_var = weight_bg * weight_fg * (mean_bg - mean_fg) ** 2
 
     between_var = np.nan_to_num(between_var, nan=-1.0)
-    # 直方圖中間若有一段完全沒有資料的空隙（例如兩群樣本分得很開），
-    # 該區間內每個門檻的類間變異數都會打平、同為最大值；此時取這段
-    # 平段的中點，而不是 argmax 預設回傳的第一個 bin——後者會讓門檻
-    # 卡在低群組的邊緣，容易把低群組裡最極端的離群值誤判過線。
+    # 兩群中間有空檔時，整段的類間變異數一樣大。取平段中點，
+    # argmax 會取第一個 bin，門檻會貼著低群邊緣。
     max_var = between_var.max()
     tied = np.flatnonzero(np.isclose(between_var, max_var))
     best_idx = int(round(tied.mean()))
@@ -214,9 +176,7 @@ def water_mask(ndwi_arr: np.ndarray, threshold: Optional[float] = None) -> tuple
     return mask, threshold
 
 
-# ══════════════════════════════════════════
 # 單期水體萃取結果（面積等），單位慣例跟 hypsometry 一致
-# ══════════════════════════════════════════
 
 @dataclass
 class WaterExtent:
@@ -225,7 +185,7 @@ class WaterExtent:
     threshold: float
     method: str                    # "otsu"/"fixed"（光學）或 "sar_otsu"/"sar_fixed"/"sar_otsu_fallback"
     cell_size_m: float
-    date: Optional[str] = None     # ISO 日期字串，供 C1 回測時間點比對用
+    date: Optional[str] = None     # ISO 日期，回測用
 
     @property
     def area_m2(self) -> float:
@@ -269,9 +229,7 @@ def extract_water(green: np.ndarray, nir: np.ndarray, cell_size_m: float,
                         cell_size_m=cell_size_m, date=date)
 
 
-# ══════════════════════════════════════════
 # SAR 半：低回波判水（σ⁰ dB）
-# ══════════════════════════════════════════
 
 # 無可靠雙峰時的固定門檻：C 波段 VV 平靜水面多在 −20 dB 以下、植生山坡
 # 約 −12～−6 dB，文獻常用 −18 dB 左右（例：Twele et al. 2016 以此為
@@ -337,9 +295,7 @@ def extract_water_sar(vv_db: np.ndarray, cell_size_m: float,
                        cell_size_m=cell_size_m, date=date)
 
 
-# ══════════════════════════════════════════
 # 變化偵測：事件後新增的水體（barrier_lake.py 的輸入之一）
-# ══════════════════════════════════════════
 
 def change_detection(pre: WaterExtent, post: WaterExtent) -> np.ndarray:
     """
@@ -361,9 +317,7 @@ def change_detection(pre: WaterExtent, post: WaterExtent) -> np.ndarray:
     return post.mask & ~pre.mask
 
 
-# ══════════════════════════════════════════
-# 存到 data/derived/，供 B2 定位水體邊界、C1 回測時間點比對使用
-# ══════════════════════════════════════════
+# 存檔
 
 def save_extent_summary(extent: WaterExtent, path: str) -> None:
     with open(path, "w", encoding="utf-8") as f:

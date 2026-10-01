@@ -1,13 +1,10 @@
 #!/usr/bin/env python3
 """
-將農村水保署堰塞湖清冊 CSV 轉為前端使用的 lakes.js
+水保署堰塞湖清冊 CSV → dashboard/data/lakes.js，座標 TWD97 TM2 轉 WGS84。
 
-用法（於 code/ 目錄下）:
-    python -m pipeline.ingest.inventory \
-        ../data/raw/taiwan-barrier-lakes.csv dashboard/data/lakes.js
+    python -m pipeline.ingest.inventory ../data/raw/taiwan-barrier-lakes.csv dashboard/data/lakes.js
 
-座標轉換: TWD97 TM2 (EPSG:3826) -> WGS84 經緯度 (EPSG:4326)
-資料來源: https://tech.ardswc.gov.tw/Results/BarrierLakeInfo
+來源：https://tech.ardswc.gov.tw/Results/BarrierLakeInfo
 """
 
 import csv

@@ -1,25 +1,14 @@
 #!/usr/bin/env python3
 """
-forecast.py — 溢流預報（水量平衡）
+溢流預報（水量平衡）
 
-核心式子
---------
-    剩餘容量 = V(壩頂高程) − V(當前水位)
+    剩餘容量 = V(壩頂高程) − V(目前水位)
     淨入流   = 降雨 × 集水面積 × 逕流係數 − 滲流 − 蒸發
     溢流時間 = 剩餘容量 / 淨入流
 
-三個工程紀律
-------------
-1. **一律輸出區間，不輸出單一時間點。** 用高／中／低三個雨量情境
-   各算一次，回傳最早、中位、最晚。災防上假精確比不精確更危險。
-
-2. **逕流係數是最大不確定來源。** 震後裸露坡面可從 0.5 跳到 0.8 以上，
-   同樣的雨進來的水差很多。此參數必須外顯、可調、並在輸出中揭露。
-
-3. **兩次衛星過境間為純外推。** Sentinel-1 約 6 日重訪，期間水位靠雨量
-   推估、沒有實測校正。這件事必須隨每次輸出一起講清楚。
-
-本模組不含機器學習，全部是確定性計算，可寫單元測試。
+- 低／中／高三個雨量情境各算一次，回報區間，不給單一時間點
+- 逕流係數是最大的不確定來源（震後裸露坡可從 0.5 升到 0.8 以上），每次輸出都列出
+- Sentinel-1 約 6 天重訪，中間水位靠雨量外推，沒有實測校正
 """
 
 from __future__ import annotations
@@ -32,9 +21,7 @@ from typing import Optional
 from . import verbalize as V
 
 
-# ══════════════════════════════════════════
 # 參數
-# ══════════════════════════════════════════
 
 @dataclass
 class BasinParams:
@@ -98,9 +85,7 @@ class Forecast:
         return any(s.overflow_at for s in self.scenarios)
 
 
-# ══════════════════════════════════════════
 # 水位–容積曲線
-# ══════════════════════════════════════════
 
 def volume_at(hypsometric: list, elevation: float) -> float:
     """
@@ -168,9 +153,7 @@ def remaining_capacity(state: LakeState) -> float:
            volume_at(state.hypsometric, state.water_el)
 
 
-# ══════════════════════════════════════════
 # 入流量
-# ══════════════════════════════════════════
 
 def inflow_cms(rain_mm_per_hour: float, params: BasinParams) -> float:
     """
@@ -198,9 +181,7 @@ def net_inflow_cms(rain_mm_per_hour: float, params: BasinParams,
     return inflow_cms(rain_mm_per_hour, params) - params.seepage_cms - evap_cms
 
 
-# ══════════════════════════════════════════
 # 預報
-# ══════════════════════════════════════════
 
 DEFAULT_SCENARIOS = [
     RainScenario("低情境", mm_per_hour=2.0),
@@ -265,9 +246,7 @@ def forecast(state: LakeState,
     )
 
 
-# ══════════════════════════════════════════
 # 敘述（沿用 templates.yaml 的 forecast 區段）
-# ══════════════════════════════════════════
 
 def describe_forecast(fc: Forecast, templates: dict,
                       next_pass_hours: Optional[float] = None,

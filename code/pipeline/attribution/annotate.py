@@ -1,18 +1,10 @@
 #!/usr/bin/env python3
 """
-annotate.py — 批次產生全清冊的成因敘述
+跑全清冊的成因敘述，寫回 dashboard/data/lakes.js（narrative、rulesFired）。
 
-讀 data/lakes.js，對每筆紀錄跑一次歸因與敘述，把結果寫回
-data/lakes.js（新增 narrative 與 rulesFired 欄位），供前端顯示。
+觀測資料來自 data/raw/observations.csv，沒填的湖只輸出不需要觀測的句子。
 
-用法：
     python -m pipeline.attribution.annotate
-
-觀測資料（雨量、颱風距離、地震規模）目前靠人工彙整到
-`data/raw/observations.csv`（見 `pipeline.ingest.observations`），
-還沒填的湖只會產出不依賴觀測的句子。把觀測值填進那張表後，
-對應的敘述會自動變詳細——敘述邏輯（rules.py／templates.yaml）
-完全不用改。
 """
 
 from __future__ import annotations

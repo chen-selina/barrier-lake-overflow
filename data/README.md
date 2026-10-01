@@ -16,7 +16,7 @@
 | `population/` | SEGIS（segis.moi.gov.tw），不用登入（不進版控） | 114 年 12 月花蓮縣村里人口。路徑：資料集查詢下載 → 人口 → 縣市 → 村里別。`V_ID` 格式是 `10015120-004`，去掉連字號才對得上 `VILLCODE`，轉換寫在 `run_exposure_real.py` 的 `load_population()` |
 | `risk/` | 舊版外部建模流程的輸出（已停用） | 係數現在寫在 `pipeline/ingest/risk.py`，這些檔案沒有程式讀取，只留著對照 |
 
-GEE 匯出腳本寫在各支 script 的開頭。
+SAR 和 DEM 的 GEE 匯出腳本寫在 `analyze_sar_change.py`、`run_hypsometry_real.py` 開頭。
 
 ## 重新產生
 

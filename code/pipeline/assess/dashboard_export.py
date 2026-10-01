@@ -1,28 +1,15 @@
 #!/usr/bin/env python3
 """
-dashboard_export.py — 把 assess 模組的淹沒模擬結果轉成前端圖層資料
+淹沒結果 → dashboard/data/inundation.js
 
-B3 施工地圖對照表的「前端顯示」步驟：目前 `dashboard/map3d.js` 的
-CAP 示警範圍還是壩址座標＋3km 固定半徑的示意圓（`cap.js` 註解已明講
-「等 assess/ 模組做出多邊形」）。`inundation.py` 的演算法已經完成，
-這裡把它的輸出接上前端——但**目前還沒有真實 DEM**，所以本檔案產出的
-是用合成地形跑出來的「示範多邊形」，不是馬太鞍溪真實的淹沒範圍。
-資料裡會誠實標註 `synthetic: true`，前端也要顯示對應提示文字，
-不能讓人誤以為這是真實模擬結果。
+本檔的示範是用合成地形產生多邊形，輸出會標 synthetic: true，
+cap.js 不會把它放進 CAP。真實偵測結果由 scripts/analyze_ndwi_change.py 寫入
+（synthetic: false）。
 
-真實 DEM 到位後，只要把 `_synthetic_dem_around()` 換成
-`hypsometry.load_dem_geotiff()` 讀真實資料、`pour_point` 換成真實壩址
-座標，下面的轉換與輸出邏輯不需要再改。
+網格座標轉經緯度用等距圓柱近似（1° 緯度 ≈ 111.32 km），和 map3d.js 相同，
+只供顯示，不是測量精度。
 
-座標轉換慣例
-------------
-`inundation.py` 的核心演算法只吃區域網格座標（公尺），要畫在
-`map3d.js`（吃經緯度）上，需要轉成 (lon, lat)。這裡用簡化的等距圓柱
-投影近似（1 緯度 ≈ 111.32 公里，1 經度 ≈ 111.32×cos(lat) 公里），
-跟 `map3d.js` 的 `kmToWorldUnits()` 用同一個緯度換算常數，
-量級上一致；示範用途，不追求測量級精度。
-
-執行方式：python -m pipeline.assess.dashboard_export
+    python -m pipeline.assess.dashboard_export
 """
 
 from __future__ import annotations
@@ -43,14 +30,9 @@ def _synthetic_dem_around(radius_cells: int = 40, cell_size_m: float = 10.0,
                            floor_elevation: float = 600.0,
                            rim_height: float = 45.0) -> tuple:
     """
-    合成一個以壩址為中心的**狹長河谷型** DEM，純供示範前端管線用。
+    合成一段彎曲的狹長河谷 DEM，只給示範用。
 
-    刻意不用對稱碗形：真實堰塞湖是沿河道分布的狹長水體，不是同心圓；
-    早期版本用對稱碗形合成地形，跑出來的淹沒多邊形在地圖上看起來就是
-    一個圓，跟原本要取代的「3km 固定半徑圓」示意圈幾乎分不出來，
-    容易讓人誤以為多邊形圖層沒有真的接上。這裡改用「垂直河道方向陡升
-    （狹窄河谷）、沿河道方向緩升（狹長水體）＋緩和彎曲（模擬河道蜿蜒）」
-    的地形，讓淹沒範圍明顯是長條彎曲形狀，一眼就能跟圓形示意圈區分開。
+    不用碗形是因為碗形淹出來是圓，在地圖上和 3 km 示意圓分不出來。
 
     回傳 (dem, pour_point, cell_size_m, floor_elevation, crest_elevation)。
     """

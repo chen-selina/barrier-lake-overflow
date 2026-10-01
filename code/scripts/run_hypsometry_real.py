@@ -1,53 +1,27 @@
 #!/usr/bin/env python3
 """
-run_hypsometry_real.py — B2：真實 DEM × 真實 NDWI 偵測面積，反推真實蓄水量
+真實 DEM × NDWI 偵測面積 → 蓄水量（bl071）
 
-資料來源：
-    data/raw/dem/DEM_matai_an.tif —— NASADEM（基於 SRTM，2025 事件前地形），
-        Google Earth Engine 匯出，30m 解析度，EPSG:4326（見
-        pipeline/assess/dashboard_export.py 的合成版對照，這裡換成真的檔案）
+DEM：data/raw/dem/DEM_matai_an.tif，NASADEM 30 m，EPSG:4326。GEE 匯出：
 
-    GEE 匯出腳本（貼到 code.earthengine.google.com 執行，Tasks 分頁按
-    Run，跑完到 Google Drive 下載）：
+    var aoi = ee.Geometry.Rectangle([121.268, 23.673, 121.327, 23.728]);
+    var dem = ee.Image('NASA/NASADEM_HGT/001').select('elevation').clip(aoi);
+    Export.image.toDrive({
+      image: dem, description: 'DEM_matai_an',
+      region: aoi, scale: 30, crs: 'EPSG:4326', maxPixels: 1e9
+    });
 
-        var aoi = ee.Geometry.Rectangle([121.268, 23.673, 121.327, 23.728]);
-        var dem = ee.Image('NASA/NASADEM_HGT/001').select('elevation').clip(aoi);
-        Export.image.toDrive({
-          image: dem, description: 'DEM_matai_an',
-          region: aoi, scale: 30, crs: 'EPSG:4326', maxPixels: 1e9
-        });
+水位不用新聞的壩高（120～200 m 都有人報），改用 NDWI 偵測到的湖面面積
+（real_water_bl071.json 的 newWaterLargestComponentAreaHectare）在曲線上反查。
 
-跟原本規劃的差異——用真實偵測面積反推水位，不用新聞報導的壩高數字：
-    新聞對馬太鞍溪壩高的估計從 120m 到 200m 都有，來源不一致，直接採信
-    任一個數字都不夠站得住腳。這裡改用 `HypsometricCurve.elevation_at_area()`
-    （B2 新增的反查方法）：拿 B1 對真實 Sentinel-2 NDWI 影像偵測到的湖面
-    面積（data/derived/real_water_bl071.json 的
-    newWaterLargestComponentAreaHectare），反推對應水位，再讀出該水位
-    的容積——整條推論鏈只用了兩份真實遙測資料（DEM + NDWI），沒有引用
-    任何無法驗證的新聞數字。
+下游遮罩：DEM 是事件前地形，沒有崩塌堆積體，水位一高填洼就會從壩址灌進
+下游河道。第一次跑時 867 m 連通面積 0.8 公頃，868 m 直接跳到 137 公頃。
+崩塌源頭在壩址北方，所以把壩址以南（留一點緩衝）的像元設成 NaN 再算。
+另外保留斷崖檢查：目標面積落在面積暴增 5 倍以上的區間時，結果標為不可信。
 
-**關鍵限制，第一版直接對真實 DEM 跑就踩到了**：這份 DEM 是事件前
-（~2000年 SRTM）地形，崩塌堆積體本身（真正擋住河道的東西）完全不在
-這份 DEM 裡。從壩址往上游填洼沒問題，但**演算法沒有理由知道不該往
-下游繼續填**——事件前的河道在壩址往下游本來就是持續往下流的通路，
-一旦水位漲到某個馬鞍部（saddle）高程，連通填洼會直接「溢出」壩址、
-灌進下游河道，範圍瞬間暴增到跟真正的堰塞湖完全無關的量級（實測：
-867m 時連通面積僅 0.8 公頃，868m 一口氣跳到 137 公頃——這個斷崖式跳躍
-本身就是「溢出下游」的訊號，不是真的水位–面積關係）。
+DEM 是經緯度網格，像元面積要依緯度換算成公尺，不能直接用度。
 
-處理方式：既然已知崩塌源頭座標在壩址正上游（北方，見
-`崩塌X_TW/Y_TW`），下游方向就是壩址以南——把 DEM 裡壩址以南（南緯／
-row 較大，只留一點緩衝避免誤傷壩址本身周邊）的像元全部設成 NaN 再跑，
-連通填洼就沒有下游可以溢出，只會老實地往上游山谷擴張。這不是「調參數
-調到我要的答案」，是把演算法沒有能力知道的物理限制（有一座壩擋著）用
-已知的地理資訊（崩塌源頭方向）補回去。
-
-座標系統注意：這份 DEM 是 EPSG:4326（經緯度），不是投影座標，1 度不等於
-1 公尺，所以**不能**直接把 pixel size（度）當 cell_size_m 用——這裡用
-緯度換算（跟 dashboard_export.py 的 KM_PER_DEGREE_LAT 是同一套換算），
-分別算出經度、緯度方向的公尺級距，兩者相乘得到每個像元的真實面積。
-
-用法（於 code/ 目錄下）：python scripts/run_hypsometry_real.py
+    python scripts/run_hypsometry_real.py
 """
 
 from __future__ import annotations
@@ -161,11 +135,8 @@ def main() -> None:
     max_area_on_curve = curve.points[-1][1]
     saturated = target_area_m2 >= max_area_on_curve
 
-    # 斷崖檢查：找出「目標面積落在哪兩個取樣點之間」，如果那個區間本身
-    # 面積暴增（例如溢出下游造成的斷崖，見檔案開頭「關鍵限制」），
-    # elevation_at_area() 的線性內插結果就不是真的水位–面積關係，
-    # 不該被當成可信數字——即使加了下游遮罩，這裡還是留著這道檢查，
-    # 因為地形本來就可能還有其他方向的溢出路徑沒被遮罩排除。
+    # 斷崖檢查：目標面積所在區間如果面積暴增，代表水從別的路徑溢出，
+    # 內插出來的水位不可信。有下游遮罩也保留，其他方向仍可能溢出。
     areas_only = [p[1] for p in curve.points]
     bracket_jump_ratio = None
     for i in range(len(areas_only) - 1):
@@ -182,7 +153,7 @@ def main() -> None:
 
     result = {
         "lakeId": "bl071",
-        "source": "NASADEM（GEE匯出，30m）+ B1 真實 NDWI 偵測面積反推水位，"
+        "source": "NASADEM（GEE匯出，30m）+ NDWI 偵測面積反推水位，"
                    "非採信新聞報導壩高數字；已將壩址以南（下游）像元遮罩，"
                    "避免連通填洼溢出下游河道",
         "pourPointRowCol": list(pour_point),

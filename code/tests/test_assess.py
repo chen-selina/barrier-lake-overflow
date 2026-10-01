@@ -1,16 +1,5 @@
 #!/usr/bin/env python3
-"""
-test_assess.py — pipeline.assess 單元測試（hypsometry / inundation / exposure）
-
-只測不需要真實 DEM／shapefile 檔案的部分：核心的連通填洼演算法、
-水位–容積曲線的內插、bathtub 遮罩、以及用合成資料驗證的人口疊合邏輯。
-真實 GeoTIFF／shapefile 讀取（load_dem_geotiff、
-population_exposure_from_villages 接真實 SEGIS 資料）不在本檔測試範圍內
-——那需要真的資料檔案，等資料到位後另外用整合測試涵蓋。
-
-執行（於 code/ 目錄下）：
-    pytest tests/test_assess.py -v
-"""
+"""pipeline.assess 測試，全部用合成 DEM 與合成村里，不讀真實檔案。"""
 
 from __future__ import annotations
 

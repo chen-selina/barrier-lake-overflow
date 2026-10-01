@@ -1,19 +1,5 @@
 #!/usr/bin/env python3
-"""
-test_detect.py — pipeline.detect 單元測試（water.py，B1 NDWI 光學半）
-
-只測不需要真實 Sentinel-2 GeoTIFF 的部分：NDWI 公式、Otsu 門檻、
-二值化、變化偵測，全部用合成資料驗證。`load_ndwi_geotiff()` 讀檔邏輯
-用臨時合成的小張 GeoTIFF 測（rasterio 現在是必要依賴，見
-requirements.txt），不需要真的衛星影像；`load_sentinel2_bands` 沒有
-對應測試——那需要真的 Green/NIR 兩個波段檔案。
-
-馬太鞍溪真實 NDWI 影像（Google Earth Engine 匯出）的分析結果不在這裡，
-見 `data/derived/real_water_bl071.json` 與對應的一次性分析 script。
-
-執行（於 code/ 目錄下）：
-    pytest tests/test_detect.py -v
-"""
+"""NDWI 水體萃取測試：公式、Otsu、二值化、變化偵測，以及用臨時小 GeoTIFF 測讀檔。"""
 
 from __future__ import annotations
 

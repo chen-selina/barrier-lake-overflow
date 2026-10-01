@@ -1,22 +1,10 @@
 #!/usr/bin/env python3
 """
-compose.py — 敘述組裝
+依 templates.yaml 把命中的規則組成中文敘述。這裡只查句型、填槽、排語序，
+判斷都在 rules.py。輸出附 rules_fired。
 
-把 rules.py 判定出的「命中規則 + 填槽值」依 templates.yaml 的句型
-與語序組裝成中文敘述。這裡沒有任何判斷邏輯——所有決定都在
-rules.py 做完了，本模組只負責查表、填槽、串接。
-
-輸出同時附帶 rules_fired，介面上點敘述即可展開看依據。
-
-用法
-----
-    from rules import LakeRecord, Observations, attribute
-    from compose import Composer
-
-    comp = Composer("templates.yaml")
+    comp = Composer()
     result = comp.render(attribute(rec, obs))
-    print(result.text)
-    print(result.rules_fired)
 """
 
 from __future__ import annotations
@@ -37,9 +25,7 @@ except ImportError:  # 沒裝 PyYAML 時給出明確指示，而非 traceback
 from .rules import Attribution
 
 
-# ══════════════════════════════════════════
 # 結果
-# ══════════════════════════════════════════
 
 @dataclass
 class Narrative:
@@ -52,9 +38,7 @@ class Narrative:
         return self.text
 
 
-# ══════════════════════════════════════════
 # 組裝器
-# ══════════════════════════════════════════
 
 # 需要先查表換成中文的槽位：欄位名 → templates.yaml 中的查表路徑
 LOOKUP_SLOTS = {
@@ -145,9 +129,7 @@ class Composer:
         )
 
 
-# ══════════════════════════════════════════
 # 便利函式
-# ══════════════════════════════════════════
 
 _default: Optional[Composer] = None
 

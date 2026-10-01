@@ -1,37 +1,15 @@
 #!/usr/bin/env python3
 """
-exposure.py — 暴露評估
+暴露人口：淹沒多邊形 × 村里界線 × 人口。
 
-依施工地圖對照表的可行性建議，這裡**只做「人口疊加算暴露人數」這個核心
-功能**；道路中斷／孤島化聚落判定屬於非必要複雜度，直接砍掉不做。
+- 人口：SEGIS 村里人口（沒有幾何），用村里代碼 join 村里界圖
+  （data.gov.tw/dataset/7438）。用代碼不用中文名，同名村里很多。
+- 疊合是多邊形交集，依每個村里被覆蓋的面積比例分配人口。
+- 備案：WorldPop 100 m 網格，見 population_exposure_from_grid()。
 
-資料來源
---------
-人口（村里級）：SEGIS「人口（村里級）」資料集（戶數/人口/男女，
-2008/03～2025/12），是純數字表，**沒有 geometry 欄位**，需要另外
-join 村里界線圖：
-    內政部國土測繪中心「村里界圖(TWD97經緯度)」
-    https://data.gov.tw/dataset/7438
+道路中斷、孤島聚落沒有做。
 
-備案：WorldPop 100m 人口網格（CC BY 4.0），已網格化、不需要 join，
-但官方村里資料的說服力較強，建議優先用村里資料，卡關才退回 WorldPop
-（見 population_exposure_from_grid()）。
-
-Join 注意事項（對照表已強調的兩點）
---------------------------------
-1. 用代碼 join（VILLCODE / COUNTYCODE / TOWNCODE），不要用中文名稱
-   join——同名不同地在台灣鄉鎮里名裡很常見。
-2. 座標系統要對齊：join 前用 gdf.crs 確認實際 EPSG，不一致就
-   `.to_crs("EPSG:4326")` 轉換。
-
-疊合方式
---------
-淹沒範圍是一個面（polygon），村里界線也是面，兩者要做的是
-**多邊形疊合（overlay/intersection）**，不是單點查詢（`.contains(point)`
-是拿一個點反查行政區，語意不同，這裡不能用）。依每個村里被淹沒範圍覆蓋
-的面積比例，加權估算暴露人口。
-
-執行方式：python -m pipeline.assess.exposure
+    python -m pipeline.assess.exposure
 """
 
 from __future__ import annotations
@@ -40,9 +18,7 @@ from dataclasses import dataclass
 from typing import Optional
 
 
-# ══════════════════════════════════════════
 # 資料結構
-# ══════════════════════════════════════════
 
 @dataclass
 class VillageExposure:
@@ -74,9 +50,7 @@ class ExposureSummary:
                       reverse=True)[:n]
 
 
-# ══════════════════════════════════════════
 # 核心：淹沒範圍 × 村里界線 疊合
-# ══════════════════════════════════════════
 
 # 村里人口表跟界線圖的欄位名稱常不完全一樣，這裡集中列出常見別名，
 # 實際 join 前務必自己先 print 兩份資料的欄位名稱核對一次
@@ -194,9 +168,7 @@ def population_exposure_from_villages(inundation_polygon, villages_gdf,
     )
 
 
-# ══════════════════════════════════════════
 # 備案：WorldPop 100m 網格（不需要 join，卡關時退回這個）
-# ══════════════════════════════════════════
 
 def population_exposure_from_grid(inundation_mask, population_grid) -> float:
     """

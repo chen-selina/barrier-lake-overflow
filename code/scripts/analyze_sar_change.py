@@ -1,26 +1,10 @@
 #!/usr/bin/env python3
 """
-analyze_sar_change.py — 拿真實的事件前後 Sentinel-1 SAR 跑一次
-「變化偵測 → 新增水體／崩塌 → 疑似堰塞湖判定」
+真實事件前後 Sentinel-1 → 新增水體／崩塌 → 疑似堰塞湖 A/B/C
 
-跟 pipeline 的關係同 analyze_ndwi_change.py：演算法都在已測過的
-`pipeline.preprocess.sar/mask`、`pipeline.detect.water/landslide/barrier_lake`，
-這裡只是接上使用者本機真實 GeoTIFF 的一次性分析腳本。
+    python scripts/analyze_sar_change.py         --pre  ../data/raw/sentinel1/S1_VV_pre_matai_an.tif         --post ../data/raw/sentinel1/S1_VV_post_matai_an.tif         --post-later ../data/raw/sentinel1/S1_VV_post2_matai_an.tif         --dem  ../data/raw/sentinel1/NASADEM_matai_an.tif         --orbit ASCENDING         --lon 121.29752 --lat 23.70061 --lake-id bl071         --pre-label "2025-06-01~07-18 中位數" --post-label "2025-07-25~08-10 中位數"         --ndwi-json ../data/derived/real_water_bl071.json         --out ../data/derived/real_sar_bl071.json
 
-用法（於 code/ 目錄下）：
-    python scripts/analyze_sar_change.py \\
-        --pre  ../data/raw/sentinel1/S1_VV_pre_matai_an.tif \\
-        --post ../data/raw/sentinel1/S1_VV_post_matai_an.tif \\
-        --post-later ../data/raw/sentinel1/S1_VV_post2_matai_an.tif \\
-        --dem  ../data/raw/sentinel1/NASADEM_matai_an.tif \\
-        --orbit ASCENDING \\
-        --lon 121.29752 --lat 23.70061 --lake-id bl071 \\
-        --pre-label "2025-06-01~07-18 中位數" --post-label "2025-07-25~08-10 中位數" \\
-        --ndwi-json ../data/derived/real_water_bl071.json \\
-        --out ../data/derived/real_sar_bl071.json
-
-Google Earth Engine 匯出（Code Editor 貼上執行，四張圖同 region/scale/crs，
-才能過 check_aligned；不做隱性 resample）：
+GEE 匯出（Code Editor 執行）。四張圖要同 region / scale / crs，否則過不了 check_aligned：
 
     var aoi = ee.Geometry.Point([121.29752, 23.70061]).buffer(5000).bounds();
     var s1 = ee.ImageCollection('COPERNICUS/S1_GRD')
@@ -28,12 +12,11 @@ Google Earth Engine 匯出（Code Editor 貼上執行，四張圖同 region/scal
       .filter(ee.Filter.eq('instrumentMode', 'IW'))
       .filter(ee.Filter.listContains('transmitterReceiverPolarisation', 'VV'))
       .filter(ee.Filter.eq('orbitProperties_pass', 'ASCENDING'));
-    // 事件前後必須是同一條相對軌道（同觀測幾何），否則回波差異大半是
-    // 幾何造成的，不是地表變化。先看有哪些軌道，挑一條前後都有影像的：
+    // 前後要同一條相對軌道，不然回波差異大多來自觀測幾何。先看有哪些軌道：
     print(s1.aggregate_histogram('relativeOrbitNumber_start'));
-    var orbit = 69;   // ← 換成上面印出、前後期都有資料的軌道號
+    var orbit = 69;   // 佔位值，換成上面印出、前後期都有影像的軌道號
     s1 = s1.filter(ee.Filter.eq('relativeOrbitNumber_start', orbit));
-    // 中位數合成：dB 與線性功率的中位數等價（單調轉換），也順便壓 speckle
+    // dB 取中位數等同線性取中位數，也順便壓 speckle
     var pre   = s1.filterDate('2025-06-01', '2025-07-18').select('VV').median();
     var post  = s1.filterDate('2025-07-25', '2025-08-10').select('VV').median();
     var post2 = s1.filterDate('2025-08-10', '2025-08-31').select('VV').median();
@@ -44,17 +27,10 @@ Google Earth Engine 匯出（Code Editor 貼上執行，四張圖同 region/scal
     Export.image.toDrive(Object.assign({image: post2.toFloat(), description: 'S1_VV_post2_matai_an'}, opt));
     Export.image.toDrive(Object.assign({image: dem.toFloat(),   description: 'NASADEM_matai_an'}, opt));
 
-GEE 的 S1_GRD 已經做完軌道修正、熱雜訊去除、輻射校正、地形校正並轉成
-dB，所以不需要 SNAP。--orbit 要跟上面篩的 orbitProperties_pass 一致
-（決定雷達視向，影響陰影／疊置遮罩）。
+--orbit 要和 orbitProperties_pass 一致，它決定視向，會影響陰影／疊置遮罩。
 
-流程：
-1. 讀檔 → 網格對齊檢查 → 以壩址為中心裁出分析視窗（預設 4 km 見方）。
-2. `run_sar_chain`：Lee 濾波 → DEM 陰影／疊置／陡坡遮罩 → SAR 低回波判水
-   （事件前、後、後續各期）→ 新增水體 → 振幅比值崩塌 → D8 河網 ∪ 事件前
-   水體當河道 → 逐塊判定 A/B/C。
-3. 每個候選附上質心經緯度、與壩址距離、湖面多邊形；有 --ndwi-json 時
-   跟光學 B1 結果比對面積（交叉驗證）。
+流程：裁 4 km 視窗 → run_sar_chain → 每個候選輸出經緯度、和壩址距離、
+湖面多邊形；有 --ndwi-json 時和光學結果比對面積。
 """
 
 from __future__ import annotations

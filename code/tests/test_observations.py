@@ -1,14 +1,5 @@
 #!/usr/bin/env python3
-"""
-test_observations.py — pipeline.ingest.observations 單元測試（B6）
-
-全部用臨時合成的 CSV 測，數值皆為測試用假資料，不是真的馬太鞍溪
-觀測值——真實觀測資料要由團隊查證後填進 data/raw/observations.csv，
-不在本檔測試範圍內。
-
-執行（於 code/ 目錄下）：
-    pytest tests/test_observations.py -v
-"""
+"""observations.csv 讀取測試，用臨時 CSV，數值都是假的。"""
 
 from __future__ import annotations
 
