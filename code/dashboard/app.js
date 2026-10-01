@@ -8,9 +8,7 @@
 
 const LAKES = (window.BARRIER_LAKES || []).slice();
 
-/* 風險模型輸出（見 pipeline/ingest/risk.py）：以清冊名稱去頭尾空白比對，
-   目前 71/75 筆有對應，其餘 4 筆沒有評估——顯示為「無風險評估」，
-   絕不能預設成低風險。 */
+/* risk.js 以湖名對應，71/75 筆有評估。沒有的顯示「尚無評估」，不要當成低風險。 */
 const RISK = window.LAKE_RISK || {};
 const RISK_META = window.RISK_MODEL_META || null;
 
@@ -77,9 +75,6 @@ function visibleLakes() {
 
 /* ── 2. 地圖（3D 立體地形，見 map3d.js）──── */
 
-/* 立體地形本身的形狀直接來自 data/terrain.js 的高程網格（由 DEM tif 縮小
-   取樣而來），這裡只負責：初始化場景、把清冊座標交給 Map3D 建立標記、
-   以及在篩選/選取狀態改變時同步視覺狀態（dim/active/CAP 高風險環）。 */
 
 function initMap3D() {
   const wrap = $('#map3dWrap');
@@ -89,8 +84,7 @@ function initMap3D() {
 
   if (typeof THREE === 'undefined' || typeof Map3D === 'undefined' || !window.TAIWAN_TERRAIN) {
     if (wrap) {
-      wrap.innerHTML = '<p class="map3d-fallback">立體地形載入失敗——請確認可連線至 three.js CDN，' +
-        '且 data/terrain.js 已正確載入。</p>';
+      wrap.innerHTML = '<p class="map3d-fallback">立體地形載入失敗，請確認 vendor/three.min.js 和 data/terrain.js 都在。</p>';
     }
     return;
   }
@@ -105,9 +99,7 @@ function initMap3D() {
   bindFullscreenToggle(wrap);
 }
 
-/* 全螢幕：用瀏覽器原生 Fullscreen API，讓地圖區塊(.map3d-wrap)整個佔滿螢幕。
-   進出全螢幕時容器尺寸會改變，Map3D 本身已經用 ResizeObserver 監聽
-   wrapEl，會自動重新適應尺寸，這裡不用另外呼叫 resize()。 */
+// Map3D 有 ResizeObserver，切換全螢幕不用手動 resize
 function bindFullscreenToggle(wrap) {
   const btn = $('#map3dFullscreen');
   if (!btn || !wrap) return;
@@ -128,8 +120,6 @@ function bindFullscreenToggle(wrap) {
   });
 }
 
-/* 地圖 Hover 資訊卡：只顯示簡要摘要，不放完整 CAP 內容；
-   無風險評估顯示「尚無評估」，不可顯示成 0%。 */
 function hoverCardRiskText(lake) {
   if (lake.statusKey === 'gone') return '不適用';
   if (!lake.risk) return '尚無評估';
@@ -167,11 +157,7 @@ function syncMarkers() {
   const highRiskIds = new Set(LAKES.filter(l => CAP.shouldAlert(l)).map(l => l.id));
 
   const selectedLake = LAKES.find(l => l.id === state.selected);
-  // 有 inundation.js 圖層資料（目前僅 bl071／馬太鞍溪，且是真實 NDWI
-  // 偵測結果，見 cap.js 的 buildArea）就優先用多邊形，否則沿用固定半徑圓
-  // ——地圖上這圈本來就只是「示警範圍示意」，多邊形版本只是把示意的形狀
-  // 換成真的偵測結果，不是新的地理判斷。cap.js 算 CAP XML 的 <area> 時
-  // 用同一份 demoLayer 資料做一樣的取捨，兩邊邏輯保持一致。
+  // 有偵測多邊形（目前只有 bl071）就畫多邊形，否則畫圓；跟 cap.js buildArea 一致
   const demoLayer = selectedLake ? INUNDATION_DEMO[selectedLake.id] : null;
   const capArea = (selectedLake && selectedLake.risk && selectedLake.cap)
     ? {
@@ -322,8 +308,6 @@ function renderList() {
   $('[data-bind="listCount"]').textContent = `${visible.length} 筆`;
 }
 
-/* 目前生效的篩選條件，統一整理成 { key, label, clear() } 陣列，
-   同時給清單數量文字、chips、空清單訊息共用，避免三處各自維護一份邏輯。 */
 function activeFilterChips() {
   const chips = [];
   if (state.status !== 'all') chips.push({ key: 'status', label: `存續：${STATUS_TEXT[state.status]}`, clear: () => { state.status = 'all'; } });
@@ -352,7 +336,6 @@ function renderActiveFilterChips() {
   $('#resetBtn').hidden = chips.length === 0;
 }
 
-/* 篩選條件被 chips 的 x 清掉時，要把對應的按鈕/輸入框視覺同步回「全部」 */
 function syncFilterControls() {
   $$('.filter').forEach(b => {
     const kind = b.dataset.kind;
@@ -382,8 +365,7 @@ function renderDetail() {
   renderCapDraft(lake);
 }
 
-/* 存續狀態（監測中/已穩定/已消失）與風險等級是兩個不同概念，
-   絕不能只顯示一個標籤讓評審誤把「監測中」當成風險高低。 */
+// 存續狀態和風險等級分開顯示
 function riskBadgeInfo(lake) {
   if (lake.statusKey === 'gone') return { text: '不適用', cls: 'is-na' };
   if (!lake.risk) return { text: '尚無評估', cls: 'is-none' };
@@ -417,9 +399,6 @@ function renderEventHeader(lake) {
   set('where', `${lake.county}${lake.town}${lake.village} · ${lake.lat.toFixed(4)}°N ${lake.lon.toFixed(4)}°E`);
 }
 
-/* CAP 標籤三態：已消失→已過期（urgency=Past，跟 cap.js 邏輯一致）；
-   已穩定且有風險評估→草稿（嚴重度已被現況下修，非最終判定）；
-   監測中且有風險評估→CAP TEST；沒有風險評估則不顯示（沒有可用的 CAP）。 */
 function capBadgeText(lake) {
   if (!lake.cap) return null;
   if (lake.statusKey === 'gone') return '已過期';
@@ -428,8 +407,6 @@ function capBadgeText(lake) {
   return 'CAP TEST';
 }
 
-/* 快速決策摘要：風險機率／CAP 嚴重度／CAP 急迫性／模型確定性
-   全部沿用 cap.js 既有的判定結果，這裡不重新計算任何風險邏輯。 */
 function renderDecisionSummary(lake) {
   const box = $('#decisionSummary');
   if (!box) return;
@@ -454,8 +431,6 @@ function renderDecisionSummary(lake) {
   ].join('');
 }
 
-/* 系統結論：把既有的 severity/topDrivers 組成 2～3 行摘要，
-   文字本身不誇大（不用「AI 已預測潰決」等超出模型能力的說法）。 */
 function conclusionHeadline(lake, info) {
   if (lake.statusKey === 'gone') return '壩體已消失，無需示警。';
   if (!lake.risk) return '尚無風險模型評估，請以清冊現況與官方公告為準。';
@@ -477,8 +452,6 @@ function renderConclusion(lake) {
     ${lake.risk ? '<div class="line3">限制：本結果為批次模型推論，仍須配合現地觀測。</div>' : ''}`;
 }
 
-/* 建議行動：直接沿用 cap.js 的 instructionFor() 輸出文字，
-   只是把整段文字拆成條列，不新增或改寫任何行動內容。 */
 function splitInstruction(text) {
   return text.split(/[；。]/).map(s => s.trim()).filter(Boolean);
 }
@@ -494,9 +467,6 @@ function renderActionCard(lake) {
     <ol>${steps.map(s => `<li>${s}</li>`).join('')}</ol>`;
 }
 
-/* 判定依據與限制：整合 severity/urgency/certainty 的 basis 文字、
-   topDrivers、以及原本 renderNarrative() 的成因敘述與命中規則，
-   資料來源全部已存在，這裡只是重新組織呈現順序。 */
 function renderEvidenceCard(lake) {
   const box = $('#evidenceCard');
   if (!box) return;
@@ -534,8 +504,6 @@ function renderEvidenceCard(lake) {
       </details>` : ''}`;
 }
 
-/* 基本資料：內容與原本完全相同，只是搬進 <details> 收合區塊
-   （見 index.html 的 .basic-facts），不再放在畫面第一屏。 */
 function renderBasicFacts(lake) {
   const set = (key, val) => {
     const el = $(`[data-bind="${key}"]`);
@@ -578,10 +546,6 @@ function renderBasicFacts(lake) {
 }
 
 
-/* CAP 示警草稿：改成「摘要層（預設展開）＋技術層（點開才展開）」，
-   避免評審一開始就看到滿版技術欄位。摘要層只放事件／範圍／有效期間／狀態，
-   技術層才放完整的 Event/Urgency/Severity/Certainty/Area/Description/Instruction/basis。
-   沒有風險評估的湖泊顯示提示文字，不偽造成低風險。 */
 function renderCapDraft(lake) {
   const box = $('#capBlock');
   if (!box) return;
@@ -625,8 +589,8 @@ function renderCapDraft(lake) {
           <div class="cap-field"><dt>Certainty</dt><dd>${info.certainty.value}（${CERTAINTY_TEXT[info.certainty.value] || info.certainty.value}）</dd></div>
           <div class="cap-field"><dt>Area</dt><dd>${info.area.areaDesc}${
             info.area.polygon
-              ? `（多邊形範圍：Sentinel-2 NDWI 真實偵測到的新增水體形狀，非模擬結果，見淹沒範圍圖層）`
-              : (info.area.circle ? `（半徑範圍：${info.area.circle.split(' ')[1]} km，暫用圓形頂著，待 DEM 淹沒模擬完成後換成多邊形）` : '')
+              ? '（Sentinel-2 NDWI 偵測到的新增水體範圍）'
+              : (info.area.circle ? `（壩址周圍 ${info.area.circle.split(' ')[1]} km 示意範圍）` : '')
           }</dd></div>
           <div class="cap-field"><dt>Effective / Expires</dt><dd>${fmtDateTime(info.effective)} → ${fmtDateTime(info.expires)}</dd></div>
         </dl>
@@ -697,7 +661,6 @@ function downloadCapXml(lake) {
   showToast(`已下載 cap-${lake.id}.xml`);
 }
 
-/* 簡單的短暫成功提示，2.5 秒後自動移除，不依賴任何 UI 框架 */
 function showToast(msg) {
   const toast = document.createElement('div');
   toast.className = 'toast';
@@ -712,8 +675,7 @@ function showToast(msg) {
 }
 
 
-/* CAP 示警橫幅：列出目前風險模型判定為「高」的湖泊。
-   與篩選狀態無關——即使使用者篩掉了某湖，示警仍要看得到。 */
+// 示警橫幅不受篩選影響
 function renderCapBar() {
   const bar = $('#capBar');
   if (!bar) return;
@@ -761,8 +723,7 @@ function renderStats() {
   const countHighRisk = LAKES.filter(l => CAP.shouldAlert(l)).length;
   const countUnassessed = LAKES.filter(l => l.risk === null).length;
 
-  /* 風險模型是逐湖批次跑出快照，沒有單一全域日期欄位——
-     取所有有評估紀錄中最新的一筆快照日期，代表「目前最新一批模型跑到哪一天」。 */
+  // 取最新一筆快照日期
   const snapshotDates = LAKES.map(l => l.risk && l.risk.date).filter(Boolean).sort();
   const riskSnapshotDate = snapshotDates.length
     ? fmtDateOnly(snapshotDates[snapshotDates.length - 1])
@@ -800,7 +761,6 @@ function select(id) {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-/* 地圖 ↔ 清單 hover 雙向高亮：已經是選取狀態的項目不需要再疊加 preview 效果 */
 function setPreview(id) {
   if (!id || id === state.selected) return;
   $$(`.lake[data-id="${id}"]`).forEach(l => l.classList.add('is-preview'));
@@ -812,7 +772,6 @@ function clearPreview(id) {
   if (typeof Map3D !== 'undefined') Map3D.unhoverMarker(id);
 }
 
-/* 清單用事件委派綁在容器上一次即可，篩選重繪清單時不用每次重新 addEventListener */
 function bindListInteractions() {
   const list = $('#lakeList');
   if (!list) return;
@@ -842,7 +801,6 @@ function refresh() {
   }
 }
 
-/* 地圖圖層控制：四個勾選框直接對應 Map3D.setLayers() 的四個開關 */
 function bindLayerControls() {
   const map = {
     layerPoints: 'points',
@@ -894,7 +852,6 @@ function bindFilters() {
     });
   }
 
-  /* 關鍵字搜尋用簡單 debounce，避免每敲一個字就重新渲染整份清單 */
   const searchInput = $('#searchInput');
   if (searchInput) {
     let debounceTimer = null;
@@ -923,7 +880,7 @@ function init() {
   if (!LAKES.length) {
     $('#lakeList').innerHTML =
       '<div class="empty"><b>找不到清冊資料</b>請確認 data/lakes.js 已產生，' +
-      '或執行 tools/csv_to_js.py 重新轉換。</div>';
+      '或在 code/ 底下執行 python -m pipeline.build_all。</div>';
     return;
   }
 

@@ -22,7 +22,7 @@
   </div>
 </div>
 
-<!-- 即時雨量：在瀏覽器端直接呼叫 CWA API，金鑰只留在這台電腦（可選擇是否記住） -->
+<!-- CWA 即時雨量 -->
 <div class="livebar">
   <div class="wrap livebar-inner">
     <span class="livebar-label">CWA 即時雨量</span>
@@ -34,7 +34,7 @@
     <button class="livebar-btn" id="cwaFetchBtn" type="button">更新即時風險</button>
     <span class="livebar-status" id="liveStatus">尚未更新，目前顯示的是打包時的批次快照。</span>
     <span class="capbar-info" tabindex="0"
-          title="在你的瀏覽器裡直接呼叫 CWA 開放資料 API，金鑰只存在這台電腦（勾選「記住」才會寫進瀏覽器本機儲存），不會送到任何第三方伺服器。留空按「更新」會改用訓練平均值 offline 佔位。">i</span>
+          title="由瀏覽器直接呼叫 CWA 開放資料 API。金鑰只留在這台電腦，勾選「記住」才會存進瀏覽器。留空會改用訓練平均值。">i</span>
   </div>
 </div>
 
@@ -98,7 +98,7 @@
             <label><input type="checkbox" id="layerCapArea" checked>CAP 示警範圍</label>
             <label><input type="checkbox" id="layerLabels">點位名稱</label>
           </div>
-          <div class="cap-preview-note">多數湖泊暫以壩址周圍 3 km 示意；馬太鞍溪的範圍是 Sentinel-2 NDWI 真實影像偵測到的新增水體形狀（非模擬結果，門檻/日期區間見下方 CAP 卡片說明）</div>
+          <div class="cap-preview-note">示警範圍：多數湖泊為壩址周圍 3 km 示意；馬太鞍溪為 Sentinel-2 NDWI 偵測到的新增水體</div>
 
           <div class="map-hover-card" id="mapHoverCard" hidden></div>
 
@@ -225,7 +225,7 @@
     </div>
   </section>
 
-  <!-- 年度分布：降級為輔助洞察，預設收合，不佔據第一屏 -->
+  <!-- 年度分布 -->
   <section class="sec">
     <details class="timeline-sec">
       <summary>

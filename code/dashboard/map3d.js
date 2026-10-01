@@ -17,9 +17,6 @@
      Map3D.sync({ selectedId, visibleIds, highRiskIds })
      Map3D.hoverMarker(id) / Map3D.unhoverMarker(id)
      Map3D.resize()
-
-   這裡不做任何「新的地理判斷」——地形形狀完全來自 terrain.js 的網格資料，
-   標記位置完全來自既有清冊的 lon/lat；本檔只負責把這些既有資料畫成 3D。
    ════════════════════════════════════════ */
 
 'use strict';
@@ -142,11 +139,8 @@ const Map3D = (() => {
     return e > -9999 ? e : 0;
   }
 
-  /* ── 建立地形網格 ─────────────────────────
-     只有「至少一角有陸地」的方格才畫出三角面，完全是海的方格整片跳過——
-     這樣立體地形本身的輪廓就是台灣海岸線，不需要另外準備向量圖形。
-     採用不共用頂點（每個三角形自帶三個頂點）以取得平面切割（faceted）
-     的低多邊形地形質感，並用 computeVertexNormals 取得逐面法線。 */
+  /* 地形網格：四角全是海的方格不畫，輪廓自然就是海岸線。
+     頂點不共用，做出 faceted 的低多邊形效果。 */
   function buildTerrain() {
     const cols = TERRAIN.cols, rows = TERRAIN.rows;
     const positions = [];
@@ -265,11 +259,7 @@ const Map3D = (() => {
     capRing.visible = false;
     group.add(capRing);
 
-    // 「透視示警」替身：任何標記被地形擋住時，這顆關閉深度測試的替身會
-    // 穿透山體持續顯示，讓使用者不必刻意轉到縫隙那側也能察覺該處有標記。
-    // 原本只有監測中（紅點）湖泊才有這個機制，現在擴大到全部標記——
-    // 已穩定/已消失的小標記一樣容易被複雜地形擋住、找不到。
-    // 替身顏色沿用該標記本身的存續狀態顏色，維持跟圖例一致的視覺語意。
+    // 被山擋住時仍看得到的替身（關閉深度測試），顏色同存續狀態
     const ghostGeo = new THREE.SphereGeometry(Math.max(dotR * 0.85, 0.012), 10, 8);
     const ghostMat = new THREE.MeshBasicMaterial({
       color, transparent: true, opacity: 0,
@@ -281,11 +271,7 @@ const Map3D = (() => {
     ghostDot.visible = false;
     group.add(ghostDot);
 
-    // 垂直定位線：從替身往上拉出一條線，即使替身本身很小，
-    // 在複雜地形的側面輪廓上也還是能靠這條線注意到「這裡有標記」。
-    // 用鮮豔青色而不是存續狀態色——這條線純粹是「這裡有東西」的視覺
-    // 提示，跟狀態沒有關係，用鮮豔色才能在各種地形背景上都夠明顯。
-    // 同樣關閉深度測試，才不會又被地形擋住。
+    // 定位線，用亮青色在任何地形上都看得到，同樣關閉深度測試
     const pinHeight = Math.max(dotR * 6, 0.16);
     const pinGeo = new THREE.CylinderGeometry(0.014, 0.014, pinHeight, 8);
     const pinMat = new THREE.MeshBasicMaterial({
@@ -336,11 +322,7 @@ const Map3D = (() => {
     });
   }
 
-  /* ── CAP 示警範圍圈（任務六：選取事件時才畫出，未選取時不畫全部）──
-     只是把 cap.js 既有的示意半徑（預設 3km）畫成地面上的一塊區域，
-     不代表任何新的地理判斷，也不是淹沒模擬——UI 端另有文字提醒使用者這點。
-     比照氣象警報圖的畫法：半透明實心色塊 + 較粗外框，而不是一條細線，
-     這樣「這一圈是示警範圍」的視覺語意才會成立。 */
+  /* CAP 示警範圍：只畫選取中的湖。半透明色塊加粗外框，仿氣象警報圖。 */
   function buildCapAreaRing() {
     const group = new THREE.Group();
 
@@ -551,11 +533,7 @@ const Map3D = (() => {
     resetIdleTimer();
   }
 
-  /* 拖曳平移：把螢幕上的左右/上下位移，換算成沿著相機目前朝向的
-     地面左右／前後向量，這樣不管旋轉到哪個角度，拖曳方向都跟畫面對齊。
-     平移距離會跟著目前的縮放距離(radius)等比例縮放——拉近看細節時，
-     拖一小段畫面不會整個跳掉；拉遠看全貌時，拖一小段畫面也能跨比較大的距離。
-     移動範圍限制在地形範圍內，避免把整張地形拖到畫面外面回不來。 */
+  /* 平移：沿相機朝向的地面方向移動，距離隨 radius 縮放，範圍限制在地形內。 */
   const _panRight = new THREE.Vector3();
   const _panForward = new THREE.Vector3();
 

@@ -1,26 +1,10 @@
-/* ════════════════════════════════════════
-   live.js — 瀏覽器端直接呼叫 CWA 即時雨量，更新風險評估
-   ════════════════════════════════════════
+/* live.js — 在瀏覽器直接抓 CWA 即時雨量（O-A0002-001），重算風險。
 
-   不透過 Python、不用重新產生 risk.js——輸入框裡的金鑰只在這台
-   瀏覽器記憶體（或勾選「記住」後的 localStorage）裡，直接從瀏覽器
-   打 CWA 開放資料 API，抓回來的雨量即時套用公式後更新畫面。
-
-   公式、係數、平均值跟 pipeline/ingest/risk.py 完全一致（都是
-   package 版本），兩邊維持同一個模型，只是換一種執行環境。
-
-   資料只留在這個分頁的記憶體裡，重新整理頁面就會回到打包時的
-   批次快照（dashboard/data/risk.js）——這是故意的，本檔不寫回
-   任何檔案，維持「前端純靜態」的架構。
-
-   已知限制：
-     · CWA 開放資料平台目前允許瀏覽器端直接呼叫；如果之後平台
-       政策改變、瀏覽器出現 CORS 相關錯誤，這裡會抓不到資料，
-       此時仍可回頭用本機 Python 執行
-       `python -m pipeline.build_all --live` 產生新的 risk.js。
-     · 跟 Python 版一樣：CWA 自動站只到 24 小時累積雨量，
-       rain_7d / rain_30d 用 24h 值或訓練平均值近似，不是精確值。
-   ════════════════════════════════════════ */
+   模型係數跟 pipeline/ingest/risk.py 相同。結果只留在這個分頁，
+   重新整理就回到 risk.js 的快照。金鑰只存在瀏覽器（勾「記住」才寫 localStorage）。
+   CWA 自動站只有 24 小時累積雨量，rain_3d / rain_7d 用 24h 值代替，
+   rain_30d 用訓練平均值。如果瀏覽器擋跨網域請求，改跑
+   python -m pipeline.build_all --live。 */
 
 'use strict';
 
@@ -28,7 +12,7 @@
   const CWA_URL = 'https://opendata.cwa.gov.tw/api/v1/rest/datastore/O-A0002-001';
   const STORAGE_KEY = 'cwaApiKey';
 
-  // ── 模型（跟 pipeline/ingest/risk.py 完全一致，package 版本）──
+  // ── 模型（同 pipeline/ingest/risk.py）──
   const LOGIT_INTERCEPT = -3.0259088850754257;
   const LOGIT_COEF_RAW = {
     rain_7d: 0.03584177519291969, rain_30d: -0.004287918499608312,
@@ -153,7 +137,9 @@
 
       RISK[name] = entry;
       lake.risk = entry;
-      lake.cap = (typeof CAP !== 'undefined') ? CAP.build(lake, lake.risk, RISK_META) : null;
+      lake.cap = (typeof CAP !== 'undefined')
+        ? CAP.build(lake, lake.risk, RISK_META, { inundation: INUNDATION_DEMO[lake.id] })
+        : null;
     }
 
     if (RISK_META) {
@@ -173,8 +159,7 @@
   }
 
   function redrawEverything() {
-    // refresh/renderDetail/renderStats/renderCapBar 是 app.js 的頂層函式，
-    // 跟本檔（同為 classic <script>）共用全域作用域，這裡可以直接呼叫。
+    // 這幾個都是 app.js 的全域函式
     if (typeof refresh === 'function') refresh();
     if (typeof renderDetail === 'function') renderDetail();
     if (typeof renderStats === 'function') renderStats();

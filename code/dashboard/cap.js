@@ -1,27 +1,10 @@
-/* ════════════════════════════════════════
-   cap.js — CAP 1.2 (CAP-TWP) 示警映射與 XML 組裝
+/* cap.js — 把 risk.js 的風險結果轉成 CAP 1.2 (CAP-TWP) 欄位與 XML。
 
-   依循 docs/ossint-barrier-lake-architecture.html 第 09 節的設計、
-   docs/attribution.md 的稽核精神：
-     · 這裡不做「新判斷」，只把既有的風險模型輸出（risk.js）
-       翻譯成 CAP 欄位。所有門檻寫在本檔最上方，方便之後校準。
-     · 每個 CAP 欄位的依據都附進 <parameter>，前端也把依據攤開顯示，
-       不接受「只給結論不給依據」。
-     · status 目前固定為 "Test"——這是 demo/開發階段的資料，
-       尚未經過 NCDR 平台介接與正式門檻審定，絕不可標成 "Actual"。
-       正式上線前這裡是必須手動確認並修改的地方。
-
-   已知限制（必須誠實反映在 UI 上，不能只藏在註解裡）：
-     · 風險模型正樣本數極少（見 RISK_MODEL_META.nPositives，目前是 12），
-       且 risk_formula.txt 附的 0.927 AUC 是全資料擬合、非留出驗證，
-       容易高估。因此 certainty 最高只給到 "Possible"，
-       不給 "Likely" 或 "Observed"。
-     · 大部分湖泊仍沒有淹沒範圍資料，area 用 <circle> 以壩址座標＋保守
-       半徑頂著。有真實偵測多邊形的湖（目前是馬太鞍溪，見
-       dashboard/data/inundation.js，synthetic:false）改用 <polygon>；
-       只在資料明確標示「非合成」時才會替換，避免把示範用合成資料
-       誤植進 CAP 輸出裡。
-   ════════════════════════════════════════ */
+   不做新的風險判斷，每個欄位的依據都放進 <parameter>。
+   status 固定 Test，正式上線前要人工改。
+   certainty 最高 Possible：正樣本 12 筆，沒有留出驗證。
+   area：有真實偵測多邊形（inundation.js 中 synthetic:false）才用 <polygon>，
+   其餘用壩址圓形。 */
 
 'use strict';
 
@@ -32,18 +15,10 @@ const CAP = (() => {
 
   // ── 門檻（唯一該調整風險分級的地方）───────────
 
-  /* 風險模型完全不知道「這個湖現在還存不存在」——它只看雨量與登載
-     蓄水量特徵。清冊的 statusKey 才是現況存續的唯一依據，CAP 在這裡
-     必須以 statusKey 把關，否則會對「已消失」的湖發出嚴重示警，
-     這正是最典型會造成「狼來了」的假警報。
-
-     覆寫規則：
-       gone   → 壩體已不存在，不管模型怎麼判，一律 urgency=Past、
-                severity 不採信模型值，並在 basis 中說明原因。
-       stable → 已有穩定溢流道、現地有實際觀測佐證，模型判高風險時
-                下修一級（Severe → Moderate），因為模型沒有把
-                「已穩定」這個事實納入判斷。
-       watch  → 唯一該直接採信模型輸出的狀況。 */
+  /* 模型不知道湖還在不在，用清冊 statusKey 修正：
+       gone   → urgency=Past，severity 不採用模型值
+       stable → 模型判高時下修一級（Severe → Moderate）
+       watch  → 直接用模型結果 */
 
   function severityFromRisk(risk, lake) {
     if (lake && lake.statusKey === 'gone') {
@@ -70,8 +45,7 @@ const CAP = (() => {
     return { value: 'Unknown', basis: 'risk_level 欄位為空或無法辨識' };
   }
 
-  /* 風險快照是批次計算（目前每湖僅一筆最新值），不是即時觀測，
-     因此不給 Immediate——那必須保留給真的有秒級/分鐘級觀測依據的情境。 */
+  // 批次快照不是即時觀測，不給 Immediate
   function urgencyFromRisk(risk, lake) {
     if (lake && lake.statusKey === 'gone') {
       return { value: 'Past', basis: '壩體已消失，已無應變必要（CAP「Past」原意即為此）' };
@@ -83,8 +57,6 @@ const CAP = (() => {
     return { value: 'Future', basis: '目前風險判定為低，僅列入例行監控' };
   }
 
-  /* 樣本數極少、且擬合 AUC 非留出驗證 -> 最高只給 Possible，
-     誠實反映模型現階段的可信度，不要讓示警看起來比實際上更確定。 */
   function certaintyFromModel(meta) {
     const n = meta ? meta.nPositives : null;
     const heldOut = meta ? meta.rocAuc : null;
@@ -146,17 +118,12 @@ const CAP = (() => {
       `請配合現地觀測與官方公告研判，不應單獨作為疏散決策依據。`;
   }
 
-  /* 是否構成「需要出現在示警橫幅/地圖示警環上的可行動警示」。
-     只有 statusKey === 'watch'（現況仍監測中）且模型判高風險，
-     才算數——已消失、已穩定的湖即使模型算出高風險也不算。 */
+  // 只有監測中且模型判高才上示警橫幅
   function shouldAlert(lake) {
     return !!(lake && lake.statusKey === 'watch' && lake.risk && lake.risk.risk_level === '高');
   }
 
-  /* 風險快照是「每湖一筆最新值」的批次結果，不是連續觀測。
-     effective 用該筆快照的日期（沒有快照就退回 sent 當下）；
-     expires 抓 +1 天——下一次批次重跑後這筆判斷就該被取代，
-     不該讓一筆舊快照的示警無限期掛著。 */
+  // effective = 快照日期，expires = +1 天（下次批次會取代）
   function effectiveWindow(risk) {
     const base = (risk && risk.date) ? new Date(`${risk.date}T00:00:00+08:00`) : new Date();
     const effective = base.toISOString();
@@ -164,8 +131,6 @@ const CAP = (() => {
     return { effective, expires };
   }
 
-  /* 建議行動：依「現況把關後」的 severity/urgency 決定文字，
-     不是直接照模型原始輸出講話——已消失/已穩定的湖不能叫人家撤離。 */
   function instructionFor(lake, risk, severity, urgency) {
     if (lake && lake.statusKey === 'gone') {
       return '壩體已消失，無需採取行動。如發現清冊現況與實際不符，請通報更新清冊資料。';
@@ -174,20 +139,16 @@ const CAP = (() => {
       return '目前無風險模型評估資料，請以清冊現況與官方公告為準，持續留意當地雨量與河川水位。';
     }
     if (lake && lake.statusKey === 'stable') {
-      return '已有穩定溢流道，惟風險模型未納入此事實：建議維持例行監測，暴雨期間留意上游雨量即可，非必要不需特殊應變。';
+      return '已有穩定溢流道（風險模型未納入此資訊）。維持例行監測，暴雨期間留意上游雨量。';
     }
     if (severity.value === 'Severe') {
-      return '請留意最新降雨與官方公告，避免進入下游河道與低窪地區；若現地出現異常湧水、水色混濁、水位快速上升等徵兆，請立即遠離並通報，此為統計模型批次示警，非即時觀測確認，仍須配合現地觀察研判。';
+      return '留意最新降雨與官方公告，避免進入下游河道與低窪地區；現地如有異常湧水、水色混濁、水位快速上升，立即遠離並通報；本示警來自統計模型批次結果，須配合現地觀察研判。';
     }
     return '目前風險判定為低，維持例行監測即可，暴雨期間仍建議留意當地雨量與官方公告。';
   }
 
-  /* CAP 1.2 的 <polygon> 格式是「lat,lon lat,lon ...」空白分隔、首尾點
-     相同的閉環，跟本專案內部（inundation.js／map3d.js）慣用的
-     [lon, lat] 順序相反，這裡負責轉換。
-     只有 inundation 資料明確標示 synthetic:false（真實偵測結果）才會
-     採用多邊形；沒有資料、或資料是合成示範，一律退回原本的圓形示意，
-     不能讓 CAP 這種對外格式輸出示範用的假資料。 */
+  // CAP <polygon> 是 "lat,lon lat,lon ..."，內部資料是 [lon, lat]。
+  // 合成示範資料不能進 CAP，只接受 synthetic === false。
   function buildArea(lake, inundation) {
     const areaDesc = `${lake.county}${lake.town}${lake.village}`;
     const hasRealPolygon = inundation && inundation.synthetic === false &&
