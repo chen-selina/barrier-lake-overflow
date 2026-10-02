@@ -31,7 +31,8 @@ data/raw/*
 !data/raw/risk/*.json
 
 # 中繼產物可重新產生，不進版控
-data/derived/
+data/derived/*
+!data/derived/final_*.json
 data/interim/
 data/cache/
 
@@ -81,3 +82,7 @@ Thumbs.db
 # ── Node（若之後前端加上建置工具）─────────────────────
 node_modules/
 package-lock.json
+
+# 馬太鞍溪 SAR 驗證：影像與結果一起進版控，方便直接取用
+!data/raw/sentinel1/
+!data/raw/sentinel1/*.tif
