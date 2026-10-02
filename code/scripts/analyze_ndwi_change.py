@@ -121,7 +121,7 @@ def merge_into_dashboard_layer(path: str, lake_id: str, entry: dict) -> None:
     existing[lake_id] = entry
     with open(path, "w", encoding="utf-8") as f:
         f.write("// 由 pipeline.assess.dashboard_export（合成示範）與\n")
-        f.write("// scripts/analyze_ndwi_change.py（真實 Sentinel-2 NDWI 資料）共同維護，\n")
+        f.write("// scripts/analyze_ndwi_change.py（光學 NDWI）、scripts/analyze_sar_change.py（Sentinel-1 SAR）共同維護，\n")
         f.write("// 每筆各自的 synthetic 欄位標明資料來源，請勿手動編輯\n")
         f.write(f"window.INUNDATION_DEMO = {json.dumps(existing, ensure_ascii=False, indent=2)};\n")
 

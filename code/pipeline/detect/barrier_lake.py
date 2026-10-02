@@ -93,9 +93,49 @@ def flow_accumulation_d8(dem: np.ndarray) -> np.ndarray:
     return acc.reshape(z.shape)
 
 
+def fill_depressions(dem: np.ndarray, eps: float = 1e-3) -> np.ndarray:
+    """
+    Priority-flood 填窪（Barnes et al. 2014）：從影像邊界與 nan 旁的像元
+    往內淹，窪地填到出口高程再加 eps，保證每個像元都有往邊界流的路徑。
+    30 m DEM 重採樣到 10 m 後窄谷底常有小窪地，不填的話 D8 累積會一路被
+    截斷，河網斷成碎段。
+
+    >>> z = np.array([[5., 5., 5.], [5., 1., 3.], [5., 5., 5.]])
+    >>> f = fill_depressions(z)
+    >>> bool(f[1, 1] > 3.0), float(f[1, 2])
+    (True, 3.0)
+    """
+    import heapq
+    z = np.asarray(dem, dtype="float64")
+    rows, cols = z.shape
+    filled = z.copy()
+    nan = np.isnan(z)
+    closed = nan.copy()
+    seeds = np.zeros_like(nan)
+    seeds[0, :] = seeds[-1, :] = True
+    seeds[:, 0] = seeds[:, -1] = True
+    if nan.any():
+        seeds |= ndimage.binary_dilation(nan, EIGHT) & ~nan
+    seeds &= ~nan
+    heap = [(filled[r, c], r, c) for r, c in zip(*np.nonzero(seeds))]
+    heapq.heapify(heap)
+    closed |= seeds
+    while heap:
+        h, r, c = heapq.heappop(heap)
+        for dr, dc in _D8:
+            nr, nc = r + dr, c + dc
+            if 0 <= nr < rows and 0 <= nc < cols and not closed[nr, nc]:
+                closed[nr, nc] = True
+                if filled[nr, nc] <= h:
+                    filled[nr, nc] = h + eps
+                heapq.heappush(heap, (filled[nr, nc], nr, nc))
+    return filled
+
+
 def river_mask(pre_water: np.ndarray, dem: Optional[np.ndarray] = None,
                cell_size_m: Union[float, tuple] = 10.0,
-               min_catchment_km2: float = 1.0) -> np.ndarray:
+               min_catchment_km2: float = 1.0,
+               fill: bool = True) -> np.ndarray:
     """
     河道遮罩 = 事件前水體 ∪（有 DEM 時）集水面積 ≥ min_catchment_km2 的
     D8 河網。事件前影像上河道可能太窄、被陰影遮住而抓不到，DEM 河網補
@@ -109,7 +149,7 @@ def river_mask(pre_water: np.ndarray, dem: Optional[np.ndarray] = None,
     river = np.asarray(pre_water, dtype=bool).copy()
     if dem is not None:
         cell_km2 = _area_cell(cell_size_m) ** 2 / 1e6
-        acc = flow_accumulation_d8(dem)
+        acc = flow_accumulation_d8(fill_depressions(dem) if fill else dem)
         river |= acc * cell_km2 >= min_catchment_km2
     return river
 
@@ -333,10 +373,13 @@ def run_sar_chain(pre_db: np.ndarray, post_db: np.ndarray,
                   water_edge_buffer_px: int = 2,
                   min_catchment_km2: float = 1.0,
                   dates: Sequence[Optional[str]] = (),
+                  max_water_slope_deg: float = 20.0,
                   **classify_kwargs) -> dict:
     """
     pre_db / post_db / later_post_dbs：同軌道、同網格的 σ⁰（dB），未濾波。
     dem：事件前 DEM，同網格；沒有就跳過幾何遮罩、DEM 河網與壩體位置檢核。
+    max_water_slope_deg：坡度超過此值的像元不判水（預設 20°）。陡峭窄谷配
+    30 m DEM 時，谷底坡度會被山壁拉高，湖面可能整片被遮掉，可視情況放寬。
 
     回傳 dict：pre_water / post_water（WaterExtent）、new_water、
     landslides（LandslideResult）、river、invalid（遮罩 dict 或 None）、
@@ -348,7 +391,8 @@ def run_sar_chain(pre_db: np.ndarray, post_db: np.ndarray,
     invalid = None
     water_invalid = ls_invalid = None
     if dem is not None:
-        invalid = sar_invalid_masks(dem, cell_size_m, incidence_deg, look_azimuth_deg)
+        invalid = sar_invalid_masks(dem, cell_size_m, incidence_deg, look_azimuth_deg,
+                                    max_water_slope_deg=max_water_slope_deg)
         water_invalid, ls_invalid = invalid["water"], invalid["landslide"]
 
     # 水體與崩塌用不同濾波視窗：山區河道常只有 2–3 像元寬，5×5 Lee 會把

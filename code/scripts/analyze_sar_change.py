@@ -41,13 +41,16 @@ import math
 import os
 import sys
 
+import numpy as np
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 sys.path.insert(0, os.path.dirname(__file__))
 
-from analyze_ndwi_change import crop_window, mask_to_lonlat_polygon  # noqa: E402
-from pipeline.detect.barrier_lake import run_sar_chain  # noqa: E402
+from analyze_ndwi_change import crop_window, mask_to_lonlat_polygon, merge_into_dashboard_layer  # noqa: E402
+from pipeline.detect.barrier_lake import EIGHT, run_sar_chain  # noqa: E402
+from scipy import ndimage  # noqa: E402
 from pipeline.preprocess.mask import S1_IW_MID_INCIDENCE_DEG, S1_LOOK_AZIMUTH_DEG  # noqa: E402
-from pipeline.preprocess.sar import cell_size_xy_m, check_aligned, load_s1_geotiff  # noqa: E402
+from pipeline.preprocess.sar import cell_size_xy_m, check_aligned, lee_filter, load_s1_geotiff  # noqa: E402
 
 
 def distance_m(lon1: float, lat1: float, lon2: float, lat2: float) -> float:
@@ -76,6 +79,13 @@ def main() -> None:
     ap.add_argument("--min-lake-area-m2", type=float, default=5000.0)
     ap.add_argument("--min-catchment-km2", type=float, default=1.0)
     ap.add_argument("--search-radius-m", type=float, default=500.0)
+    ap.add_argument("--dashboard-out", default=None,
+                    help="給的話把等級最高、面積最大的候選多邊形寫進 dashboard/data/inundation.js"
+                         "（只覆蓋這個 lake-id）。沒有候選就不寫")
+    ap.add_argument("--debug-components", action="store_true",
+                    help="列出所有新增水體連通塊（含被淘汰的）與淘汰原因，除錯用")
+    ap.add_argument("--max-water-slope-deg", type=float, default=20.0,
+                    help="坡度超過此值不判水（預設 20）。陡峭窄谷配 30 m DEM 時湖面可能被整片遮掉")
     ap.add_argument("--pre-label", default="事件前")
     ap.add_argument("--post-label", default="事件後")
     ap.add_argument("--ndwi-json", default=None, help="analyze_ndwi_change.py 的輸出，交叉驗證用")
@@ -113,6 +123,7 @@ def main() -> None:
         min_catchment_km2=args.min_catchment_km2,
         dates=[args.pre_label, args.post_label] + [f"後續第{i + 1}期" for i in range(len(wins) - 2)],
         min_area_m2=args.min_lake_area_m2, search_radius_m=args.search_radius_m,
+        max_water_slope_deg=args.max_water_slope_deg,
     )
 
     candidates = []
@@ -127,6 +138,20 @@ def main() -> None:
 
     invalid = out["invalid"]
     area_px = dx * dy / 1e4
+
+    # 診斷：事件後影像裡「夠暗、像水」的像元，有多少被遮罩擋掉。
+    # 比例很高代表湖面落在遮罩裡，候選為空不一定是影像上沒有湖。
+    thr = out["post_water"].threshold
+    post_w = lee_filter(wins[1], size=3)
+    pre_w = lee_filter(wins[0], size=3)
+    with np.errstate(invalid="ignore"):
+        dark_new = (post_w < thr) & ~(pre_w < thr)
+    dark_new_ha = float(dark_new.sum()) * area_px
+    masked_ha = float((dark_new & invalid["water"]).sum()) * area_px if invalid is not None else 0.0
+    slope_only = None
+    if invalid is not None:
+        geom = invalid["layover"] | invalid["shadow"]
+        slope_only = invalid["water"] & ~geom
     result = {
         "lakeId": args.lake_id,
         "synthetic": False,
@@ -142,6 +167,15 @@ def main() -> None:
             "layoverHectare": round(float(invalid["layover"].sum()) * area_px, 2),
             "shadowHectare": round(float(invalid["shadow"].sum()) * area_px, 2),
             "excludedForWaterPct": round(100.0 * float(invalid["water"].mean()), 1),
+            "slopeOnlyExcludedHectare": round(float(slope_only.sum()) * area_px, 2),
+            "maxWaterSlopeDeg": args.max_water_slope_deg,
+        },
+        "darkNewPixelsDiagnostic": {
+            "note": "事件後比門檻暗、事件前不暗的像元（遮罩前）；maskedPct 高代表湖面被遮罩擋掉",
+            "thresholdDb": thr,
+            "darkNewHectareBeforeMask": round(dark_new_ha, 2),
+            "maskedHectare": round(masked_ha, 2),
+            "maskedPct": round(100.0 * masked_ha / dark_new_ha, 1) if dark_new_ha else None,
         },
         "laterScenes": len(wins) - 2,
         "candidates": candidates,
@@ -157,6 +191,75 @@ def main() -> None:
             "sarTopCandidateHectare": top,
             "ratioSarToOptical": round(top / optical, 3) if optical and top else None,
         }
+
+    if args.debug_components:
+        # 跟 classify() 同樣的分塊方式（外擴 3 像元合併、河道外擴 2 像元），
+        # 列出每一塊為什麼被保留或淘汰。
+        nw = out["new_water"]
+        groups, n = ndimage.label(ndimage.binary_dilation(nw, EIGHT, iterations=3), structure=EIGHT)
+        labeled = np.where(nw, groups, 0)
+        river = out["river"]
+        river_zone = ndimage.binary_dilation(river, EIGHT, iterations=2)
+        min_px = int(math.ceil(args.min_lake_area_m2 / (dx * dy)))
+        a0, b0, c0, d0, e0, f0 = win_transform
+        comps = []
+        for lab in range(1, n + 1):
+            comp = labeled == lab
+            n_px = int(comp.sum())
+            if n_px < 5:
+                continue
+            ys, xs = np.nonzero(comp)
+            lon = a0 * (xs.mean() + 0.5) + c0
+            lat = e0 * (ys.mean() + 0.5) + f0
+            on_river = bool((comp & river_zone).any()
+                            or (ndimage.binary_dilation(comp, EIGHT) & river).any())
+            elev = None
+            if dem_win is not None:
+                v = dem_win[comp]
+                if np.isfinite(v).any():
+                    elev = [round(float(np.nanmin(v))), round(float(np.nanmax(v)))]
+            status = ("面積不足" if n_px < min_px else
+                      "未貼河道" if not on_river else "保留（見 candidates）")
+            comps.append({
+                "areaHectare": round(n_px * area_px, 3),
+                "centroidLonLat": [round(float(lon), 6), round(float(lat), 6)],
+                "distanceFromDamM": round(distance_m(args.lon, args.lat, lon, lat), 1),
+                "demMinMaxM": elev,
+                "onRiver": on_river,
+                "status": status,
+            })
+        comps.sort(key=lambda c: -c["areaHectare"])
+        result["debugComponents"] = {
+            "note": "所有 ≥5 像元的新增水體塊，依面積排序；min_lake_area 換算為 %d 像元" % min_px,
+            "riverHectare": round(float(river.sum()) * area_px, 2),
+            "components": comps[:15],
+        }
+
+    if args.dashboard_out:
+        if candidates and len(candidates[0]["polygonLonLat"]) >= 3:
+            top = candidates[0]
+            date_txt = args.post_label.removeprefix("post ").strip()
+            entry = {
+                "lakeId": args.lake_id,
+                "synthetic": False,
+                "source": "sentinel1_sar",
+                "grade": top["grade"],
+                "detectedOn": date_txt,
+                "sourceLabel": f"Sentinel-1 SAR 判定之疑似堰塞湖範圍（{top['grade']} 級，{date_txt}）",
+                "note": (f"Sentinel-1 SAR 事件前後變化偵測（{args.pre_label} → {date_txt}，"
+                         f"{args.orbit}），{top['grade']} 級候選，新增水體 {top['areaHectare']} 公頃，"
+                         f"距壩址座標 {top.get('distanceFromDamM')} 公尺。"
+                         "雷達陰影／陡坡遮罩會擋掉部分湖面，面積偏低，不可直接用於蓄水量。"),
+                "areaHectare": top["areaHectare"],
+                "waterElevationM": None,
+                "volumeWanM3": None,
+                "reasons": top.get("reasons", []),
+                "polygonLonLat": top["polygonLonLat"],
+            }
+            merge_into_dashboard_layer(args.dashboard_out, args.lake_id, entry)
+            print(f"\n已更新 {args.dashboard_out}（{args.lake_id}：{top['grade']} 級，{top['areaHectare']} 公頃）")
+        else:
+            print(f"\n（沒有候選，不寫入 {args.dashboard_out}）")
 
     with open(args.out, "w", encoding="utf-8") as fh:
         json.dump(result, fh, ensure_ascii=False, indent=2)

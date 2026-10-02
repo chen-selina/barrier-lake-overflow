@@ -22,12 +22,12 @@ LAKES.forEach(lake => {
 });
 
 const STATUS_TEXT = { watch: '監測中', stable: '存在已穩定', gone: '已消失' };
-const CAUSE_TEXT  = { quake: '地震', typhoon: '颱風', rain: '降雨', slide: '崩塌', other: '未記載' };
+const CAUSE_TEXT = { quake: '地震', typhoon: '颱風', rain: '降雨', slide: '崩塌', other: '未記載' };
 const SEVERITY_TEXT = { Extreme: '非常嚴重', Severe: '嚴重', Moderate: '有威脅', Minor: '輕微', Unknown: '未知' };
-const URGENCY_TEXT  = { Immediate: '立即', Expected: '應盡快', Future: '未來', Past: '已過期', Unknown: '未知' };
+const URGENCY_TEXT = { Immediate: '立即', Expected: '應盡快', Future: '未來', Past: '已過期', Unknown: '未知' };
 const CERTAINTY_TEXT = { Observed: '已確認', Likely: '可能發生', Possible: '有可能', Unlikely: '不太可能', Unknown: '未知' };
 
-const $  = (sel, root = document) => root.querySelector(sel);
+const $ = (sel, root = document) => root.querySelector(sel);
 const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
 
 const state = {
@@ -53,9 +53,9 @@ function riskCategory(lake) {
 
 function matches(lake) {
   if (state.status !== 'all' && lake.statusKey !== state.status) return false;
-  if (state.cause  !== 'all' && lake.causeKey  !== state.cause)  return false;
-  if (state.year   !== null  && lake.year      !== state.year)   return false;
-  if (state.risk   !== 'all' && riskCategory(lake) !== state.risk) return false;
+  if (state.cause !== 'all' && lake.causeKey !== state.cause) return false;
+  if (state.year !== null && lake.year !== state.year) return false;
+  if (state.risk !== 'all' && riskCategory(lake) !== state.risk) return false;
   if (state.county !== 'all' && lake.county !== state.county) return false;
   if (state.hasCap && !(lake.risk && lake.cap)) return false;
   if (state.keyword) {
@@ -108,7 +108,7 @@ function bindFullscreenToggle(wrap) {
     if (document.fullscreenElement === wrap) {
       document.exitFullscreen();
     } else if (wrap.requestFullscreen) {
-      wrap.requestFullscreen().catch(() => {});
+      wrap.requestFullscreen().catch(() => { });
     }
   });
 
@@ -161,12 +161,12 @@ function syncMarkers() {
   const demoLayer = selectedLake ? INUNDATION_DEMO[selectedLake.id] : null;
   const capArea = (selectedLake && selectedLake.risk && selectedLake.cap)
     ? {
-        lakeId: selectedLake.id,
-        radiusKm: selectedLake.cap.info.area.circle
-          ? parseFloat(selectedLake.cap.info.area.circle.split(' ')[1])
-          : 3,
-        polygonLonLat: demoLayer ? demoLayer.polygonLonLat : null,
-      }
+      lakeId: selectedLake.id,
+      radiusKm: selectedLake.cap.info.area.circle
+        ? parseFloat(selectedLake.cap.info.area.circle.split(' ')[1])
+        : 3,
+      polygonLonLat: demoLayer ? demoLayer.polygonLonLat : null,
+    }
     : null;
 
   if (typeof Map3D !== 'undefined') {
@@ -311,9 +311,9 @@ function renderList() {
 function activeFilterChips() {
   const chips = [];
   if (state.status !== 'all') chips.push({ key: 'status', label: `存續：${STATUS_TEXT[state.status]}`, clear: () => { state.status = 'all'; } });
-  if (state.cause  !== 'all') chips.push({ key: 'cause', label: `誘因：${CAUSE_TEXT[state.cause]}`, clear: () => { state.cause = 'all'; } });
-  if (state.year   !== null)  chips.push({ key: 'year', label: `${state.year} 年`, clear: () => { state.year = null; } });
-  if (state.risk   !== 'all') chips.push({ key: 'risk', label: `風險：${{ high: '高風險', low: '低風險', none: '尚無評估' }[state.risk]}`, clear: () => { state.risk = 'all'; } });
+  if (state.cause !== 'all') chips.push({ key: 'cause', label: `誘因：${CAUSE_TEXT[state.cause]}`, clear: () => { state.cause = 'all'; } });
+  if (state.year !== null) chips.push({ key: 'year', label: `${state.year} 年`, clear: () => { state.year = null; } });
+  if (state.risk !== 'all') chips.push({ key: 'risk', label: `風險：${{ high: '高風險', low: '低風險', none: '尚無評估' }[state.risk]}`, clear: () => { state.risk = 'all'; } });
   if (state.county !== 'all') chips.push({ key: 'county', label: state.county, clear: () => { state.county = 'all'; } });
   if (state.hasCap) chips.push({ key: 'hasCap', label: '僅看有 CAP 草稿', clear: () => { state.hasCap = false; } });
   if (state.keyword.trim()) chips.push({ key: 'keyword', label: `搜尋：${state.keyword.trim()}`, clear: () => { state.keyword = ''; const input = $('#searchInput'); if (input) input.value = ''; } });
@@ -489,8 +489,7 @@ function renderEvidenceCard(lake) {
       <dt>原始模型分級</dt><dd>${lake.risk.risk_level}風險</dd>
       <dt>現況修正</dt><dd>${info.severity.basis}</dd>
       ${RISK_META && RISK_META.mode ? `
-      <dt>資料來源</dt><dd>${RISK_META.mode}${
-        lake.risk.nearest_station_km != null ? `｜距最近雨量站 ${lake.risk.nearest_station_km} km` : ''}</dd>` : ''}
+      <dt>資料來源</dt><dd>${RISK_META.mode}${lake.risk.nearest_station_km != null ? `｜距最近雨量站 ${lake.risk.nearest_station_km} km` : ''}</dd>` : ''}
     </dl>
     ${drivers.length ? `
       <span class="label" style="display:block;margin-bottom:6px">主要驅動因子</span>
@@ -531,13 +530,13 @@ function renderBasicFacts(lake) {
   }
 
   const rows = [
-    ['誘因',     lake.cause || '未記載',      !lake.cause],
-    ['觸發事件', lake.event || '未記載',      !lake.event],
-    ['地標',     lake.landmark || '未記載',   !lake.landmark],
-    ['坐落區位', lake.setting || '未記載',    !lake.setting],
+    ['誘因', lake.cause || '未記載', !lake.cause],
+    ['觸發事件', lake.event || '未記載', !lake.event],
+    ['地標', lake.landmark || '未記載', !lake.landmark],
+    ['坐落區位', lake.setting || '未記載', !lake.setting],
     ['潰決時間', lake.breachDate || '無紀錄', !lake.breachDate],
-    ['潰決原因', lake.breachCause || '無紀錄',!lake.breachCause],
-    ['清冊項次', `#${lake.seq}`,              false, true]
+    ['潰決原因', lake.breachCause || '無紀錄', !lake.breachCause],
+    ['清冊項次', `#${lake.seq}`, false, true]
   ];
 
   $('#facts').innerHTML = rows.map(([k, v, muted, mono]) =>
@@ -587,11 +586,10 @@ function renderCapDraft(lake) {
           <div class="cap-field"><dt>Urgency</dt><dd>${info.urgency.value}（${URGENCY_TEXT[info.urgency.value] || info.urgency.value}）</dd></div>
           <div class="cap-field"><dt>Severity</dt><dd>${info.severity.value}（${SEVERITY_TEXT[info.severity.value] || info.severity.value}）</dd></div>
           <div class="cap-field"><dt>Certainty</dt><dd>${info.certainty.value}（${CERTAINTY_TEXT[info.certainty.value] || info.certainty.value}）</dd></div>
-          <div class="cap-field"><dt>Area</dt><dd>${info.area.areaDesc}${
-            info.area.polygon
-              ? '（Sentinel-2 NDWI 偵測到的新增水體範圍）'
-              : (info.area.circle ? `（壩址周圍 ${info.area.circle.split(' ')[1]} km 示意範圍）` : '')
-          }</dd></div>
+          <div class="cap-field"><dt>Area</dt><dd>${info.area.areaDesc}${info.area.polygon
+      ? `（${(INUNDATION_DEMO[lake.id] && INUNDATION_DEMO[lake.id].sourceLabel) || '衛星影像偵測到的新增水體範圍'}）`
+      : (info.area.circle ? `（壩址周圍 ${info.area.circle.split(' ')[1]} km 示意範圍）` : '')
+    }</dd></div>
           <div class="cap-field"><dt>Effective / Expires</dt><dd>${fmtDateTime(info.effective)} → ${fmtDateTime(info.expires)}</dd></div>
         </dl>
         <div class="cap-text-block">
@@ -729,12 +727,12 @@ function renderStats() {
     ? fmtDateOnly(snapshotDates[snapshotDates.length - 1])
     : '—';
 
-  $('[data-bind="countAll"]').textContent          = `${LAKES.length}`;
-  $('[data-bind="countWatch"]').textContent        = `${by('watch')} 處`;
-  $('[data-bind="countHighRisk"]').textContent      = `${countHighRisk} 處`;
-  $('[data-bind="countUnassessed"]').textContent    = `${countUnassessed} 處`;
-  $('[data-bind="countStableOrGone"]').textContent  = `${by('stable') + by('gone')} 處`;
-  $('[data-bind="riskSnapshotDate"]').textContent    = riskSnapshotDate;
+  $('[data-bind="countAll"]').textContent = `${LAKES.length}`;
+  $('[data-bind="countWatch"]').textContent = `${by('watch')} 處`;
+  $('[data-bind="countHighRisk"]').textContent = `${countHighRisk} 處`;
+  $('[data-bind="countUnassessed"]').textContent = `${countUnassessed} 處`;
+  $('[data-bind="countStableOrGone"]').textContent = `${by('stable') + by('gone')} 處`;
+  $('[data-bind="riskSnapshotDate"]').textContent = riskSnapshotDate;
 
   const riskSourceEl = $('[data-bind="riskSource"]');
   if (riskSourceEl) {

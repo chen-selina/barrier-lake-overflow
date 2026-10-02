@@ -26,16 +26,16 @@ const Map3D = (() => {
   // ── 色票（對齊 styles.css 的設計變數）───────────
   const COL = {
     coastDark: 0x18211C,   // 對齊 --stone 系，海岸/低窪過渡色
-    lowland:   0x3F5C4C,   // 低地：偏暗的苔綠
-    mid:       0x7CA48A,   // 中海拔：--moss
-    high:      0xC98A2E,   // 高海拔：--ochre
-    peak:      0xE9F1EB,   // 高峰：--snow
-    watch:     0xC2503C,   // --clay
-    stable:    0xC98A2E,   // --ochre
-    gone:      0x7CA48A,   // --moss
-    jade:      0x3FA9A0,   // --jade（hover/select 光環）
-    alert:     0xF5D547,   // 高風險警示環專用亮黃色，刻意跟監測中的紅點區隔開
-    locate:    0x38E1FF,   // 垂直定位線專用亮青色，純粹是「這裡有東西」的視覺提示，跟狀態色無關
+    lowland: 0x3F5C4C,   // 低地：偏暗的苔綠
+    mid: 0x7CA48A,   // 中海拔：--moss
+    high: 0xC98A2E,   // 高海拔：--ochre
+    peak: 0xE9F1EB,   // 高峰：--snow
+    watch: 0xC2503C,   // --clay
+    stable: 0xC98A2E,   // --ochre
+    gone: 0x7CA48A,   // --moss
+    jade: 0x3FA9A0,   // --jade（hover/select 光環）
+    alert: 0xF5D547,   // 高風險警示環專用亮黃色，刻意跟監測中的紅點區隔開
+    locate: 0x38E1FF,   // 垂直定位線專用亮青色，純粹是「這裡有東西」的視覺提示，跟狀態色無關
   };
 
   let renderer, scene, camera, canvas, labelsEl, wrapEl;
@@ -353,8 +353,9 @@ const Map3D = (() => {
      有多邊形資料就優先畫多邊形，沒有就退回圓形示意。這份資料檔可能來自
      兩種來源，各自標了 synthetic 欄位區分：
        · pipeline/assess/dashboard_export.py 產生的合成地形示範
-       · scripts/analyze_ndwi_change.py 對真實 Sentinel-2 NDWI 影像跑出的
-         真實偵測結果（目前馬太鞍溪／bl071 是這種，synthetic: false）
+       · scripts/analyze_sar_change.py（Sentinel-1 SAR）或 analyze_ndwi_change.py
+         （光學 NDWI）對真實影像跑出的偵測結果（synthetic: false）。目前馬太鞍溪／
+         bl071 是 SAR 8/21 A 級候選
      實際是哪一種、門檻/日期區間等細節，看資料裡的 note 欄位。 */
   function buildCapAreaPoly() {
     const group = new THREE.Group();
@@ -467,7 +468,7 @@ const Map3D = (() => {
       if (m.ghostDot) m._ghostEligible = visible;
     });
     setCapArea(capArea ? capArea.lakeId : null, capArea ? capArea.radiusKm : null,
-               capArea ? capArea.polygonLonLat : null);
+      capArea ? capArea.polygonLonLat : null);
   }
 
   function hoverMarker(id) {
@@ -755,7 +756,7 @@ const Map3D = (() => {
     handlers = handlersArg || {};
 
     WORLD.depth = WORLD.width * (TERRAIN.bounds.north - TERRAIN.bounds.south)
-                              / (TERRAIN.bounds.east - TERRAIN.bounds.west);
+      / (TERRAIN.bounds.east - TERRAIN.bounds.west);
     HEIGHT_SCALE = (WORLD.width * 0.16) / Math.max(1, TERRAIN.maxElevation);
     RADIUS_MIN = 6;
     RADIUS_MAX = 48;
