@@ -12,20 +12,89 @@ const LAKES = (window.BARRIER_LAKES || []).slice();
 const RISK = window.LAKE_RISK || {};
 const RISK_META = window.RISK_MODEL_META || null;
 
+// 真實 SAR 偵測範圍（目前只有 bl071），在 3D 地圖上畫出
 const INUNDATION_DEMO = window.INUNDATION_DEMO || {};
 
 LAKES.forEach(lake => {
   lake.risk = RISK[(lake.name || '').trim()] || null;
-  lake.cap = (typeof CAP !== 'undefined')
-    ? CAP.build(lake, lake.risk, RISK_META, { inundation: INUNDATION_DEMO[lake.id] })
-    : null;
 });
 
 const STATUS_TEXT = { watch: '監測中', stable: '存在已穩定', gone: '已消失' };
 const CAUSE_TEXT = { quake: '地震', typhoon: '颱風', rain: '降雨', slide: '崩塌', other: '未記載' };
-const SEVERITY_TEXT = { Extreme: '非常嚴重', Severe: '嚴重', Moderate: '有威脅', Minor: '輕微', Unknown: '未知' };
-const URGENCY_TEXT = { Immediate: '立即', Expected: '應盡快', Future: '未來', Past: '已過期', Unknown: '未知' };
-const CERTAINTY_TEXT = { Observed: '已確認', Likely: '可能發生', Possible: '有可能', Unlikely: '不太可能', Unknown: '未知' };
+
+const fmtProb = p => (p == null ? '—' : `${(p * 100).toFixed(0)}%`);
+
+/* 風險模型不知道湖還在不在，用清冊現況修正：
+     gone   → 不適用
+     stable → 模型判高時下修一級（已形成穩定溢流道，模型未納入）
+     watch  → 直接用模型結果 */
+function riskView(lake) {
+  const risk = lake.risk;
+  if (lake.statusKey === 'gone') {
+    return {
+      level: 'na', text: '不適用',
+      basis: '清冊登載為「已消失」，壩體已不存在；風險模型未區分現況存續，對已消失個案不具意義',
+      instruction: '壩體已消失，無需採取行動。如發現清冊現況與實際不符，請通報更新清冊資料。',
+    };
+  }
+  if (!risk) {
+    return {
+      level: 'none', text: '尚無評估', basis: '無風險模型評估資料',
+      instruction: '目前無風險模型評估資料，請以清冊現況與官方公告為準，持續留意當地雨量與河川水位。',
+    };
+  }
+  const stableInstruction = '已有穩定溢流道（風險模型未納入此資訊）。維持例行監測，暴雨期間留意上游雨量。';
+  if (risk.risk_level === '高') {
+    if (lake.statusKey === 'stable') {
+      return {
+        level: 'moderate', text: '中（下修）',
+        basis: `risk_prob=${fmtProb(risk.risk_prob)}，模型判定為高風險，但清冊登載為「存在(已穩定)」` +
+          '（已形成穩定溢流道），模型未納入此事實，下修一級',
+        instruction: stableInstruction,
+      };
+    }
+    return {
+      level: 'high', text: '高', basis: `risk_prob=${fmtProb(risk.risk_prob)}，模型判定為高風險`,
+      instruction: '留意最新降雨與官方公告，避免進入下游河道與低窪地區；現地如有異常湧水、水色混濁、水位快速上升，' +
+        '立即遠離並通報；本結果來自統計模型批次推論，須配合現地觀察研判。',
+    };
+  }
+  return {
+    level: 'low', text: '低', basis: `risk_prob=${fmtProb(risk.risk_prob)}，模型判定為低風險`,
+    instruction: lake.statusKey === 'stable' ? stableInstruction
+      : '目前風險判定為低，維持例行監測即可，暴雨期間仍建議留意當地雨量與官方公告。',
+  };
+}
+
+// 監測中且模型判高：KPI「高風險」與地圖上的高風險環
+function isHighRiskWatch(lake) {
+  return !!(lake && lake.statusKey === 'watch' && lake.risk && lake.risk.risk_level === '高');
+}
+
+function modelLimitation() {
+  const n = RISK_META ? RISK_META.nPositives : null;
+  const heldOut = RISK_META ? RISK_META.rocAuc : null;
+  if (n != null && n < 30 && heldOut == null) {
+    return `正樣本數僅 ${n} 筆，且無留出驗證（roc_auc 未提供），模型可信度尚待確認`;
+  }
+  return '模型樣本數與驗證方式見 RISK_MODEL_META';
+}
+
+function topDrivers(risk, n = 2) {
+  if (!risk || !RISK_META || !RISK_META.featureImportance) return [];
+  const FEATURE_TEXT = {
+    volume: '既有蓄水量', rain_7d: '近 7 日累積雨量', rain_3d: '近 3 日累積雨量',
+    rain_30d: '近 30 日累積雨量', rain_1d: '近 1 日雨量',
+    shaking_30d: '近 30 日地動', quake_max_mag_30d: '近 30 日最大地震規模',
+    quake_count_30d: '近 30 日地震次數',
+    formed_by_quake: '地震誘發', formed_by_rain: '降雨誘發',
+  };
+  return Object.entries(RISK_META.featureImportance)
+    .filter(([, v]) => v > 0)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, n)
+    .map(([k]) => FEATURE_TEXT[k] || k);
+}
 
 const $ = (sel, root = document) => root.querySelector(sel);
 const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
@@ -37,7 +106,6 @@ const state = {
   year: null,
   risk: 'all',       // all / high / low / none
   county: 'all',
-  hasCap: false,     // 只顯示有 CAP 草稿（= 有風險評估）的湖泊
   keyword: ''
 };
 
@@ -57,7 +125,6 @@ function matches(lake) {
   if (state.year !== null && lake.year !== state.year) return false;
   if (state.risk !== 'all' && riskCategory(lake) !== state.risk) return false;
   if (state.county !== 'all' && lake.county !== state.county) return false;
-  if (state.hasCap && !(lake.risk && lake.cap)) return false;
   if (state.keyword) {
     const kw = state.keyword.trim().toLowerCase();
     if (kw) {
@@ -134,7 +201,7 @@ function showHoverCard(id, coords) {
     <div class="hc-name">${lake.name}</div>
     <div class="hc-meta">${lake.county}${lake.town}</div>
     <div class="hc-meta">${STATUS_TEXT[lake.statusKey]}｜${hoverCardRiskText(lake)}</div>
-    <div class="hc-meta">蓄水量 ${lake.volume ? lake.volume.toLocaleString() : '—'} 萬 m³</div>`;
+    <div class="hc-meta">蓄水量（清冊）${lake.volume ? `${volumeScaleText(lake.volume)} · ${lake.volume.toLocaleString()} 萬 m³` : '—'}</div>`;
   positionHoverCard(coords);
   card.hidden = false;
 }
@@ -154,23 +221,16 @@ function hideHoverCard() {
 function syncMarkers() {
   const visible = visibleLakes();
   const visibleIds = new Set(visible.map(l => l.id));
-  const highRiskIds = new Set(LAKES.filter(l => CAP.shouldAlert(l)).map(l => l.id));
+  const highRiskIds = new Set(LAKES.filter(isHighRiskWatch).map(l => l.id));
 
-  const selectedLake = LAKES.find(l => l.id === state.selected);
-  // 有偵測多邊形（目前只有 bl071）就畫多邊形，否則畫圓；跟 cap.js buildArea 一致
-  const demoLayer = selectedLake ? INUNDATION_DEMO[selectedLake.id] : null;
-  const capArea = (selectedLake && selectedLake.risk && selectedLake.cap)
-    ? {
-      lakeId: selectedLake.id,
-      radiusKm: selectedLake.cap.info.area.circle
-        ? parseFloat(selectedLake.cap.info.area.circle.split(' ')[1])
-        : 3,
-      polygonLonLat: demoLayer ? demoLayer.polygonLonLat : null,
-    }
+  // 只有真實 SAR 偵測多邊形（目前只有 bl071）才畫範圍；合成示範資料不畫
+  const layer = INUNDATION_DEMO[state.selected];
+  const area = (layer && layer.synthetic === false && (layer.polygonLonLat || []).length >= 3)
+    ? { lakeId: state.selected, polygonLonLat: layer.polygonLonLat }
     : null;
 
   if (typeof Map3D !== 'undefined') {
-    Map3D.sync({ selectedId: state.selected, visibleIds, highRiskIds, capArea });
+    Map3D.sync({ selectedId: state.selected, visibleIds, highRiskIds, area });
   }
 
   $('[data-bind="mapCount"]').textContent = `顯示 ${visibleIds.size} / ${LAKES.length} 處`;
@@ -287,7 +347,7 @@ function renderList() {
         <span class="meta">${lake.county}${lake.town} · ${CAUSE_TEXT[lake.causeKey]}${lake.event ? ' · ' + lake.event : ''}</span>
       </span>
       <span class="vol">
-        <span class="num">${lake.volume ? lake.volume.toLocaleString() : '—'}</span><span class="u">萬 m³</span>
+        <span class="num">${lake.volume ? lake.volume.toLocaleString() : '—'}</span><span class="u">萬 m³ 清冊</span>
       </span>
       <span class="pills">
         <span class="pill s-${lake.statusKey}">${STATUS_TEXT[lake.statusKey]}</span>
@@ -315,7 +375,6 @@ function activeFilterChips() {
   if (state.year !== null) chips.push({ key: 'year', label: `${state.year} 年`, clear: () => { state.year = null; } });
   if (state.risk !== 'all') chips.push({ key: 'risk', label: `風險：${{ high: '高風險', low: '低風險', none: '尚無評估' }[state.risk]}`, clear: () => { state.risk = 'all'; } });
   if (state.county !== 'all') chips.push({ key: 'county', label: state.county, clear: () => { state.county = 'all'; } });
-  if (state.hasCap) chips.push({ key: 'hasCap', label: '僅看有 CAP 草稿', clear: () => { state.hasCap = false; } });
   if (state.keyword.trim()) chips.push({ key: 'keyword', label: `搜尋：${state.keyword.trim()}`, clear: () => { state.keyword = ''; const input = $('#searchInput'); if (input) input.value = ''; } });
   return chips;
 }
@@ -343,8 +402,6 @@ function syncFilterControls() {
   });
   const countySelect = $('#countySelect');
   if (countySelect) countySelect.value = state.county;
-  const capToggle = $('#hasCapToggle');
-  if (capToggle) capToggle.checked = state.hasCap;
   const input = $('#searchInput');
   if (input) input.value = state.keyword;
 }
@@ -362,10 +419,17 @@ function renderDetail() {
   renderActionCard(lake);
   renderEvidenceCard(lake);
   renderBasicFacts(lake);
-  renderCapDraft(lake);
 }
 
 // 存續狀態和風險等級分開顯示
+/* 跟 pipeline/attribution/verbalize.py 的 VOLUME_SCALES 一致（專案自訂，非官方分級） */
+function volumeScaleText(wanM3) {
+  if (wanM3 >= 5000) return '極大型';
+  if (wanM3 >= 1000) return '大型';
+  if (wanM3 >= 100) return '中型';
+  return '小型';
+}
+
 function riskBadgeInfo(lake) {
   if (lake.statusKey === 'gone') return { text: '不適用', cls: 'is-na' };
   if (!lake.risk) return { text: '尚無評估', cls: 'is-none' };
@@ -390,32 +454,15 @@ function renderEventHeader(lake) {
   riskBadge.className = `badge badge-risk ${risk.cls}`;
   riskBadge.textContent = risk.text;
 
-  const capBadge = $('.badge-cap');
-  const capLabel = capBadgeText(lake);
-  capBadge.hidden = !capLabel;
-  if (capLabel) capBadge.textContent = capLabel;
-
   set('name', lake.name);
   set('where', `${lake.county}${lake.town}${lake.village} · ${lake.lat.toFixed(4)}°N ${lake.lon.toFixed(4)}°E`);
-}
-
-function capBadgeText(lake) {
-  if (!lake.cap) return null;
-  if (lake.statusKey === 'gone') return '已過期';
-  if (!lake.risk) return null;
-  if (lake.statusKey === 'stable') return '草稿';
-  return 'CAP TEST';
 }
 
 function renderDecisionSummary(lake) {
   const box = $('#decisionSummary');
   if (!box) return;
 
-  const prob = (lake.risk && lake.risk.risk_prob != null)
-    ? `${(lake.risk.risk_prob * 100).toFixed(0)}%` : '尚無評估';
-  const info = lake.cap ? lake.cap.info : null;
-  const isHigh = !!(lake.risk && lake.risk.risk_level === '高');
-
+  const rv = riskView(lake);
   const cell = (label, value, sub, danger) => `
     <div class="cell">
       <span class="label">${label}</span>
@@ -424,18 +471,19 @@ function renderDecisionSummary(lake) {
     </div>`;
 
   box.innerHTML = [
-    cell('風險機率', prob, null, isHigh),
-    cell('CAP 嚴重度', info ? info.severity.value : '—', info ? SEVERITY_TEXT[info.severity.value] : null),
-    cell('CAP 急迫性', info ? info.urgency.value : '—', info ? URGENCY_TEXT[info.urgency.value] : null),
-    cell('模型確定性', info ? info.certainty.value : '—', info ? CERTAINTY_TEXT[info.certainty.value] : null),
+    cell('風險機率', lake.risk ? fmtProb(lake.risk.risk_prob) : '尚無評估', null, rv.level === 'high'),
+    cell('現況修正後', rv.text, lake.risk ? `模型原判 ${lake.risk.risk_level}` : null, rv.level === 'high'),
+    cell('存續狀態', STATUS_TEXT[lake.statusKey], '清冊登載'),
+    cell('風險快照', lake.risk ? fmtDateOnly(lake.risk.date) : '—', '批次推論，非即時'),
   ].join('');
 }
 
-function conclusionHeadline(lake, info) {
-  if (lake.statusKey === 'gone') return '壩體已消失，無需示警。';
-  if (!lake.risk) return '尚無風險模型評估，請以清冊現況與官方公告為準。';
-  if (info.severity.value === 'Severe' || info.severity.value === 'Extreme') return '高風險，建議短期內密切注意。';
-  if (info.severity.value === 'Moderate') return '風險經現況修正下修一級，維持例行觀察。';
+function conclusionHeadline(lake) {
+  const rv = riskView(lake);
+  if (rv.level === 'na') return '壩體已消失，無需處理。';
+  if (rv.level === 'none') return '尚無風險模型評估，請以清冊現況與官方公告為準。';
+  if (rv.level === 'high') return '高風險，建議短期內密切注意。';
+  if (rv.level === 'moderate') return '風險經現況修正下修一級，維持例行觀察。';
   return '低風險，維持例行監控。';
 }
 
@@ -443,11 +491,10 @@ function renderConclusion(lake) {
   const box = $('#conclusion');
   if (!box) return;
 
-  const info = lake.cap ? lake.cap.info : null;
-  const drivers = lake.risk ? CAP.topDrivers(lake.risk, RISK_META) : [];
+  const drivers = topDrivers(lake.risk);
 
   box.innerHTML = `
-    <div class="line1">系統判定：${conclusionHeadline(lake, info)}</div>
+    <div class="line1">風險模型：${conclusionHeadline(lake)}</div>
     <div class="line2">主要依據：${drivers.length ? drivers.join('、') : '清冊登載之存續狀態'}</div>
     ${lake.risk ? '<div class="line3">限制：本結果為批次模型推論，仍須配合現地觀測。</div>' : ''}`;
 }
@@ -459,9 +506,8 @@ function splitInstruction(text) {
 function renderActionCard(lake) {
   const box = $('#actionCard');
   if (!box) return;
-  if (!lake.cap) { box.innerHTML = ''; return; }
 
-  const steps = splitInstruction(lake.cap.info.instruction);
+  const steps = splitInstruction(riskView(lake).instruction);
   box.innerHTML = `
     <span class="at">建議行動</span>
     <ol>${steps.map(s => `<li>${s}</li>`).join('')}</ol>`;
@@ -471,30 +517,29 @@ function renderEvidenceCard(lake) {
   const box = $('#evidenceCard');
   if (!box) return;
 
-  if (!lake.risk || !lake.cap) {
+  if (!lake.risk) {
     box.innerHTML = `
-      <div class="et">判定依據</div>
-      <p class="narr-empty">此筆紀錄尚無風險模型評估，無法提供判定依據。</p>`;
+      <div class="et">風險模型依據</div>
+      <p class="narr-empty">此筆紀錄尚無風險模型評估。</p>`;
     return;
   }
 
-  const info = lake.cap.info;
-  const drivers = CAP.topDrivers(lake.risk, RISK_META);
+  const drivers = topDrivers(lake.risk);
   const rules = lake.rulesFired || [];
 
   box.innerHTML = `
-    <div class="et">判定依據</div>
+    <div class="et">風險模型依據</div>
     <dl class="evidence-row">
-      <dt>風險機率</dt><dd>${(lake.risk.risk_prob * 100).toFixed(0)}%</dd>
+      <dt>風險機率</dt><dd>${fmtProb(lake.risk.risk_prob)}</dd>
       <dt>原始模型分級</dt><dd>${lake.risk.risk_level}風險</dd>
-      <dt>現況修正</dt><dd>${info.severity.basis}</dd>
+      <dt>現況修正</dt><dd>${riskView(lake).basis}</dd>
       ${RISK_META && RISK_META.mode ? `
       <dt>資料來源</dt><dd>${RISK_META.mode}${lake.risk.nearest_station_km != null ? `｜距最近雨量站 ${lake.risk.nearest_station_km} km` : ''}</dd>` : ''}
     </dl>
     ${drivers.length ? `
       <span class="label" style="display:block;margin-bottom:6px">主要驅動因子</span>
       <ul class="evidence-list">${drivers.map(d => `<li>${d}</li>`).join('')}</ul>` : ''}
-    <div class="limitation-note">模型限制：${info.certainty.basis}</div>
+    <div class="limitation-note">模型限制：${modelLimitation()}</div>
     ${lake.narrative ? `
       <details class="narr-rules" style="margin-top:12px">
         <summary>成因敘述與命中規則${rules.length ? `（${rules.length} 條）` : ''}</summary>
@@ -511,7 +556,7 @@ function renderBasicFacts(lake) {
 
   set('volume', lake.volume ? lake.volume.toLocaleString() : '—');
   set('volumeNote', lake.volume
-    ? (lake.volume >= 1000 ? '屬大型，潰決影響範圍可觀' : '清冊登載值')
+    ? `${volumeScaleText(lake.volume)}（專案自訂級距）· 清冊登載值，非本系統估算`
     : '清冊未登載或規模極小');
 
   set('year', lake.year || '—');
@@ -545,120 +590,6 @@ function renderBasicFacts(lake) {
 }
 
 
-function renderCapDraft(lake) {
-  const box = $('#capBlock');
-  if (!box) return;
-
-  if (!lake.risk || !lake.cap) {
-    box.innerHTML = `
-      <div class="cap-summary-card">
-        <div class="cs-head"><span class="cs-title">CAP 1.2 示警草稿</span></div>
-        <p class="narr-empty">此筆紀錄尚無風險模型評估，無法產生示警草稿。</p>
-      </div>`;
-    return;
-  }
-
-  const info = lake.cap.info;
-  const drivers = CAP.topDrivers(lake.risk, RISK_META);
-
-  box.innerHTML = `
-    <div class="cap-summary-card">
-      <div class="cs-head">
-        <span class="cs-title">CAP 1.2 示警草稿</span>
-        <span class="cap-status-test">TEST</span>
-      </div>
-      <div class="cs-row">事件：<b>${info.event}</b></div>
-      <div class="cs-row">範圍：<b>${info.area.areaDesc}</b></div>
-      <div class="cs-row">有效期間：<b>${fmtDateTime(info.effective)} → ${fmtDateTime(info.expires)}</b></div>
-      <div class="cs-row">狀態：<b>待人工確認</b></div>
-
-      <div class="cap-primary-actions">
-        <button class="cap-btn ghost" type="button" id="capMapPreviewBtn">地圖預覽</button>
-        <button class="cap-btn ghost" type="button" data-toggle="capTech">檢視完整內容</button>
-        <button class="cap-btn" type="button" id="capDownloadBtn">下載 CAP XML</button>
-      </div>
-      <div class="cap-disclaimer">CAP 1.2 測試輸出・非正式對外示警</div>
-
-      <details class="narr-rules cap-tech" id="capTech">
-        <summary>技術欄位（Event／Urgency／Severity／Certainty／Area／Effective-Expires／Description／Instruction）</summary>
-        <dl class="cap-fields">
-          <div class="cap-field"><dt>Event</dt><dd>${info.event}</dd></div>
-          <div class="cap-field"><dt>Urgency</dt><dd>${info.urgency.value}（${URGENCY_TEXT[info.urgency.value] || info.urgency.value}）</dd></div>
-          <div class="cap-field"><dt>Severity</dt><dd>${info.severity.value}（${SEVERITY_TEXT[info.severity.value] || info.severity.value}）</dd></div>
-          <div class="cap-field"><dt>Certainty</dt><dd>${info.certainty.value}（${CERTAINTY_TEXT[info.certainty.value] || info.certainty.value}）</dd></div>
-          <div class="cap-field"><dt>Area</dt><dd>${info.area.areaDesc}${info.area.polygon
-      ? `（${(INUNDATION_DEMO[lake.id] && INUNDATION_DEMO[lake.id].sourceLabel) || '衛星影像偵測到的新增水體範圍'}）`
-      : (info.area.circle ? `（壩址周圍 ${info.area.circle.split(' ')[1]} km 示意範圍）` : '')
-    }</dd></div>
-          <div class="cap-field"><dt>Effective / Expires</dt><dd>${fmtDateTime(info.effective)} → ${fmtDateTime(info.expires)}</dd></div>
-        </dl>
-        <div class="cap-text-block">
-          <span class="cap-text-label">Description</span>
-          <p class="cap-desc">${info.description}</p>
-        </div>
-        <div class="cap-text-block">
-          <span class="cap-text-label">Instruction</span>
-          <p class="cap-instruction">${info.instruction}</p>
-        </div>
-        <details class="narr-rules cap-basis">
-          <summary>示警依據（severity / urgency / certainty）</summary>
-          <ul>
-            <li>severity：${info.severity.basis}</li>
-            <li>urgency：${info.urgency.basis}</li>
-            <li>certainty：${info.certainty.basis}</li>
-            ${drivers.length ? `<li>主要驅動特徵：${drivers.join('、')}</li>` : ''}
-          </ul>
-        </details>
-      </details>`;
-
-  const techEl = $('#capTech');
-  const toggleBtn = box.querySelector('[data-toggle="capTech"]');
-  if (techEl && toggleBtn) {
-    toggleBtn.addEventListener('click', () => { techEl.open = !techEl.open; });
-  }
-
-  $('#capDownloadBtn').addEventListener('click', () => downloadCapXml(lake));
-
-  const previewBtn = $('#capMapPreviewBtn');
-  if (previewBtn) {
-    previewBtn.addEventListener('click', () => {
-      const capAreaCheckbox = $('#layerCapArea');
-      if (capAreaCheckbox && !capAreaCheckbox.checked) {
-        capAreaCheckbox.checked = true;
-        if (typeof Map3D !== 'undefined') Map3D.setLayers({ capArea: true });
-      }
-      $('.map-panel').scrollIntoView({ behavior: 'smooth', block: 'start' });
-    });
-  }
-}
-
-function fmtDateTime(iso) {
-  if (!iso) return '—';
-  try {
-    return new Date(iso).toLocaleString('zh-TW', {
-      timeZone: 'Asia/Taipei', year: 'numeric', month: '2-digit', day: '2-digit',
-      hour: '2-digit', minute: '2-digit', hour12: false,
-    });
-  } catch (e) {
-    return iso;
-  }
-}
-
-function downloadCapXml(lake) {
-  if (!lake.cap) return;
-  const xml = CAP.toXML(lake.cap);
-  const blob = new Blob([xml], { type: 'application/xml' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `cap-${lake.id}.xml`;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  URL.revokeObjectURL(url);
-  showToast(`已下載 cap-${lake.id}.xml`);
-}
-
 function showToast(msg) {
   const toast = document.createElement('div');
   toast.className = 'toast';
@@ -673,52 +604,12 @@ function showToast(msg) {
 }
 
 
-// 示警橫幅不受篩選影響
-function renderCapBar() {
-  const bar = $('#capBar');
-  if (!bar) return;
-
-  const highRisk = LAKES.filter(l => CAP.shouldAlert(l));
-  if (!highRisk.length) {
-    bar.hidden = true;
-    return;
-  }
-
-  const snapshotDates = LAKES.map(l => l.risk && l.risk.date).filter(Boolean).sort();
-  const snapshotDate = snapshotDates.length ? fmtDateOnly(snapshotDates[snapshotDates.length - 1]) : '—';
-
-  bar.hidden = false;
-  $('[data-bind="capBarText"]').textContent =
-    `高風險監測事件 ${highRisk.length} 處　｜　風險快照：${snapshotDate}`;
-
-  $('#capBarChips').innerHTML = highRisk
-    .sort((a, b) => (b.risk.risk_prob || 0) - (a.risk.risk_prob || 0))
-    .map(l => `<button class="capbar-chip" type="button" data-id="${l.id}">${l.name} ${(l.risk.risk_prob * 100).toFixed(0)}%</button>`)
-    .join('');
-
-  $$('#capBarChips .capbar-chip').forEach(el =>
-    el.addEventListener('click', () => select(el.dataset.id))
-  );
-
-  const viewAllBtn = $('#capBarViewAll');
-  if (viewAllBtn) {
-    viewAllBtn.onclick = () => {
-      state.status = 'watch'; state.risk = 'high';
-      $$('.filter[data-kind="status"]').forEach(b => b.classList.toggle('is-on', b.dataset.val === 'watch'));
-      syncFilterControls();
-      refresh();
-      $('#lakeList').scrollIntoView({ behavior: 'smooth', block: 'start' });
-    };
-  }
-}
-
-
 /* ── 7. 統計 ───────────────────────────── */
 
 function renderStats() {
   const by = key => LAKES.filter(l => l.statusKey === key).length;
 
-  const countHighRisk = LAKES.filter(l => CAP.shouldAlert(l)).length;
+  const countHighRisk = LAKES.filter(isHighRiskWatch).length;
   const countUnassessed = LAKES.filter(l => l.risk === null).length;
 
   // 取最新一筆快照日期
@@ -803,7 +694,7 @@ function bindLayerControls() {
   const map = {
     layerPoints: 'points',
     layerHighRisk: 'highRisk',
-    layerCapArea: 'capArea',
+    layerArea: 'area',
     layerLabels: 'labels',
   };
   Object.entries(map).forEach(([elId, layerKey]) => {
@@ -842,14 +733,6 @@ function bindFilters() {
     });
   }
 
-  const capToggle = $('#hasCapToggle');
-  if (capToggle) {
-    capToggle.addEventListener('change', () => {
-      state.hasCap = capToggle.checked;
-      refresh();
-    });
-  }
-
   const searchInput = $('#searchInput');
   if (searchInput) {
     let debounceTimer = null;
@@ -864,7 +747,7 @@ function bindFilters() {
 
   $('#resetBtn').addEventListener('click', () => {
     state.status = 'all'; state.cause = 'all'; state.year = null;
-    state.risk = 'all'; state.county = 'all'; state.hasCap = false; state.keyword = '';
+    state.risk = 'all'; state.county = 'all'; state.keyword = '';
     $$('.filter').forEach(b => b.classList.toggle('is-on', b.dataset.val === 'all'));
     syncFilterControls();
     refresh();
@@ -884,7 +767,6 @@ function init() {
 
   initMap3D();
   renderStats();
-  renderCapBar();
   bindFilters();
   bindLayerControls();
   populateCountyOptions();

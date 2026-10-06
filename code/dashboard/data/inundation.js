@@ -8,7 +8,7 @@ window.INUNDATION_DEMO = {
     "source": "sentinel1_sar",
     "grade": "A",
     "detectedOn": "2025-08-21 21:51 UTC",
-    "sourceLabel": "Sentinel-1 SAR 判定之疑似堰塞湖範圍（A 級，2025-08-21 21:51 UTC）",
+    "sourceLabel": "Sentinel-1 SAR 偵測到的新增水體範圍（證據強度 A 級，2025-08-21 21:51 UTC）",
     "note": "Sentinel-1 SAR 事件前後變化偵測（pre 2025-06-04~07-16 median → 2025-08-21 21:51 UTC，DESCENDING），A 級候選，新增水體 26.325 公頃，距壩址座標 382.3 公尺。雷達陰影／陡坡遮罩會擋掉部分湖面，面積偏低，不可直接用於蓄水量。",
     "areaHectare": 26.325,
     "waterElevationM": null,

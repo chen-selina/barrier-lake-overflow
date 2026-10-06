@@ -137,9 +137,6 @@
 
       RISK[name] = entry;
       lake.risk = entry;
-      lake.cap = (typeof CAP !== 'undefined')
-        ? CAP.build(lake, lake.risk, RISK_META, { inundation: INUNDATION_DEMO[lake.id] })
-        : null;
     }
 
     if (RISK_META) {
@@ -163,7 +160,6 @@
     if (typeof refresh === 'function') refresh();
     if (typeof renderDetail === 'function') renderDetail();
     if (typeof renderStats === 'function') renderStats();
-    if (typeof renderCapBar === 'function') renderCapBar();
   }
 
   async function updateLive() {

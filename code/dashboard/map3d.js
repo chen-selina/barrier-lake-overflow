@@ -41,7 +41,7 @@ const Map3D = (() => {
   let renderer, scene, camera, canvas, labelsEl, wrapEl;
   let terrainMesh, groundPlate;
   let markerGroup;
-  let markers = new Map(); // id -> { group, dot, selectRing, capRing, label, baseY, r }
+  let markers = new Map(); // id -> { group, dot, selectRing, alertRing, label, baseY, r }
   let handlers = {};
   let TERRAIN = null;
 
@@ -70,14 +70,14 @@ const Map3D = (() => {
   let clock = 0;
 
   /* 圖層開關狀態（對應任務六的圖層控制 UI）。
-     points/highRisk 直接套用在既有標記上；capArea 是「選取事件時才畫出
-     的 CAP 示警範圍圈」，跟每個標記常駐的 highRisk 環是兩件事；
+     points/highRisk 直接套用在既有標記上；area 是「選取湖泊時才畫出
+     的 SAR 偵測範圍」，跟每個標記常駐的 highRisk 環是兩件事；
      labels 開啟時強制顯示全部點位名稱，off 時維持原本只在 hover/選取時顯示。 */
-  let layers = { points: true, highRisk: true, capArea: true, labels: false };
-  let capAreaRing = null;
-  let capAreaPoly = null;       // { group, fillMesh, borderLine } | null，見 buildCapAreaPoly()
-  let capAreaPolyKey = null;    // 目前 poly 幾何體對應哪個 lakeId，避免每次都重建
-  let lastCapArea = null; // { lakeId, radiusKm, polygonLonLat } | null
+  let layers = { points: true, highRisk: true, area: true, labels: false };
+  let areaRing = null;
+  let areaPoly = null;       // { group, fillMesh, borderLine } | null，見 buildAreaPoly()
+  let areaPolyKey = null;    // 目前 poly 幾何體對應哪個 lakeId，避免每次都重建
+  let lastArea = null; // { lakeId, radiusKm, polygonLonLat } | null
 
   function lerp(a, b, t) { return a + (b - a) * t; }
   function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
@@ -119,8 +119,7 @@ const Map3D = (() => {
     return { x: (fx - 0.5) * WORLD.width, z: (fz - 0.5) * WORLD.depth };
   }
 
-  /* 公里 → 世界單位，僅供「CAP 示警範圍」示意圈使用（3km 半徑本身就是
-     cap.js 裡的示意值，不是精確淹沒模擬），用緯度方向的世界縮放換算，
+  /* 公里 → 世界單位，僅供範圍示意圈使用（不是精確淹沒模擬），用緯度方向的世界縮放換算，
      1 緯度約 111.32 公里，避免額外處理經度隨緯度變化的 cos 修正。 */
   function kmToWorldUnits(km) {
     const worldUnitsPerDegreeLat = WORLD.depth / (TERRAIN.bounds.north - TERRAIN.bounds.south);
@@ -247,17 +246,17 @@ const Map3D = (() => {
     selectRing.position.y = 0.01;
     group.add(selectRing);
 
-    // CAP 高風險示警環（旋轉、脈動）：刻意加寬（原本只有 0.3r 寬，太細看不出來）
+    // 高風險環（旋轉、脈動）：刻意加寬（原本只有 0.3r 寬，太細看不出來）
     // 並改用亮黃色，跟監測中紅點本體的顏色區隔開，避免兩者融在一起難以分辨。
-    const capGeo = new THREE.RingGeometry(r * 2.1, r * 3.1, 28);
-    const capMat = new THREE.MeshBasicMaterial({
+    const alertGeo = new THREE.RingGeometry(r * 2.1, r * 3.1, 28);
+    const alertMat = new THREE.MeshBasicMaterial({
       color: COL.alert, transparent: true, opacity: 0, side: THREE.DoubleSide, depthWrite: false,
     });
-    const capRing = new THREE.Mesh(capGeo, capMat);
-    capRing.rotation.x = -Math.PI / 2;
-    capRing.position.y = 0.012;
-    capRing.visible = false;
-    group.add(capRing);
+    const alertRing = new THREE.Mesh(alertGeo, alertMat);
+    alertRing.rotation.x = -Math.PI / 2;
+    alertRing.position.y = 0.012;
+    alertRing.visible = false;
+    group.add(alertRing);
 
     // 被山擋住時仍看得到的替身（關閉深度測試），顏色同存續狀態
     const ghostGeo = new THREE.SphereGeometry(Math.max(dotR * 0.85, 0.012), 10, 8);
@@ -304,7 +303,7 @@ const Map3D = (() => {
     label.textContent = lake.name;
     labelsEl.appendChild(label);
 
-    return { group, dot, selectRing, capRing, ghostDot, pinLine, pinHead, label, baseY, r, dotR, lake, _ghostEligible: true };
+    return { group, dot, selectRing, alertRing, ghostDot, pinLine, pinHead, label, baseY, r, dotR, lake, _ghostEligible: true };
   }
 
   function setMarkerHoverVisual(m, on) {
@@ -322,8 +321,8 @@ const Map3D = (() => {
     });
   }
 
-  /* CAP 示警範圍：只畫選取中的湖。半透明色塊加粗外框，仿氣象警報圖。 */
-  function buildCapAreaRing() {
+  /* 範圍圈：只畫選取中的湖。半透明色塊加粗外框。 */
+  function buildAreaRing() {
     const group = new THREE.Group();
 
     const fillGeo = new THREE.CircleGeometry(1, 64);
@@ -349,7 +348,7 @@ const Map3D = (() => {
   }
 
   /* 水體範圍多邊形（見 dashboard/data/inundation.js）。跟下面的
-     capAreaRing（圓形示意）是同一件事的兩種畫法、互斥顯示：選取的湖泊
+     areaRing（圓形示意）是同一件事的兩種畫法、互斥顯示：選取的湖泊
      有多邊形資料就優先畫多邊形，沒有就退回圓形示意。這份資料檔可能來自
      兩種來源，各自標了 synthetic 欄位區分：
        · pipeline/assess/dashboard_export.py 產生的合成地形示範
@@ -357,7 +356,7 @@ const Map3D = (() => {
          （光學 NDWI）對真實影像跑出的偵測結果（synthetic: false）。目前馬太鞍溪／
          bl071 是 SAR 8/21 A 級候選
      實際是哪一種、門檻/日期區間等細節，看資料裡的 note 欄位。 */
-  function buildCapAreaPoly() {
+  function buildAreaPoly() {
     const group = new THREE.Group();
     const fillMat = new THREE.MeshBasicMaterial({
       color: COL.jade, transparent: true, opacity: 0.22, side: THREE.DoubleSide, depthWrite: false,
@@ -365,7 +364,7 @@ const Map3D = (() => {
     const fillMesh = new THREE.Mesh(new THREE.BufferGeometry(), fillMat);
     const borderMat = new THREE.LineBasicMaterial({ color: COL.jade, transparent: true, opacity: 0.9 });
     const borderLine = new THREE.LineLoop(new THREE.BufferGeometry(), borderMat);
-    borderLine.position.z = 0.002; // 同樣的 z-fighting 防範，理由跟 buildCapAreaRing 的 border 一致
+    borderLine.position.z = 0.002; // 同樣的 z-fighting 防範，理由跟 buildAreaRing 的 border 一致
     group.add(fillMesh, borderLine);
     group.rotation.x = -Math.PI / 2;
     group.visible = false;
@@ -375,79 +374,78 @@ const Map3D = (() => {
 
   /* 把 (lon,lat) 多邊形頂點轉成相對於標記位置的本地形狀座標，重建幾何體。
      group 會整體旋轉 -90°(貼地)：旋轉前的本地 (shapeX, shapeY, 0)，旋轉後
-     會變成世界座標 (shapeX, 0, -shapeY)（見 buildCapAreaRing 註解推導）。
+     會變成世界座標 (shapeX, 0, -shapeY)（見 buildAreaRing 註解推導）。
      圓形因為旋轉對稱看不出差異，多邊形則必須算對這個負號，
      否則畫出來的形狀會整個左右鏡射、跟湖的實際地形對不上。 */
-  function updateCapAreaPolyGeometry(polygonLonLat, markerWorld) {
+  function updateAreaPolyGeometry(polygonLonLat, markerWorld) {
     const shapePoints = polygonLonLat.map(([lon, lat]) => {
       const w = lonLatToWorld(lon, lat);
       return new THREE.Vector2(w.x - markerWorld.x, -(w.z - markerWorld.z));
     });
     const shape = new THREE.Shape(shapePoints);
 
-    capAreaPoly.fillMesh.geometry.dispose();
-    capAreaPoly.fillMesh.geometry = new THREE.ShapeGeometry(shape);
+    areaPoly.fillMesh.geometry.dispose();
+    areaPoly.fillMesh.geometry = new THREE.ShapeGeometry(shape);
 
     const borderPts = shapePoints.map(p => new THREE.Vector3(p.x, p.y, 0));
-    capAreaPoly.borderLine.geometry.dispose();
-    capAreaPoly.borderLine.geometry = new THREE.BufferGeometry().setFromPoints(borderPts);
+    areaPoly.borderLine.geometry.dispose();
+    areaPoly.borderLine.geometry = new THREE.BufferGeometry().setFromPoints(borderPts);
   }
 
-  function applyCapAreaVisibility() {
-    if (!capAreaRing) return;
-    const active = lastCapArea && layers.capArea;
-    const m = active ? markers.get(lastCapArea.lakeId) : null;
+  function applyAreaVisibility() {
+    if (!areaRing) return;
+    const active = lastArea && layers.area;
+    const m = active ? markers.get(lastArea.lakeId) : null;
     if (!active || !m) {
-      capAreaRing.visible = false;
-      if (capAreaPoly) capAreaPoly.group.visible = false;
+      areaRing.visible = false;
+      if (areaPoly) areaPoly.group.visible = false;
       return;
     }
 
-    const hasPolygon = Array.isArray(lastCapArea.polygonLonLat) && lastCapArea.polygonLonLat.length >= 3;
+    const hasPolygon = Array.isArray(lastArea.polygonLonLat) && lastArea.polygonLonLat.length >= 3;
 
-    if (hasPolygon && capAreaPoly) {
-      if (capAreaPolyKey !== lastCapArea.lakeId) {
-        updateCapAreaPolyGeometry(lastCapArea.polygonLonLat, m.group.position);
-        capAreaPolyKey = lastCapArea.lakeId;
+    if (hasPolygon && areaPoly) {
+      if (areaPolyKey !== lastArea.lakeId) {
+        updateAreaPolyGeometry(lastArea.polygonLonLat, m.group.position);
+        areaPolyKey = lastArea.lakeId;
       }
-      capAreaPoly.group.position.set(m.group.position.x, m.group.position.y + 0.02, m.group.position.z);
-      capAreaPoly.group.visible = true;
-      capAreaRing.visible = false;
+      areaPoly.group.position.set(m.group.position.x, m.group.position.y + 0.02, m.group.position.z);
+      areaPoly.group.visible = true;
+      areaRing.visible = false;
       return;
     }
 
-    if (capAreaPoly) capAreaPoly.group.visible = false;
-    const radiusWorld = Math.max(0.05, kmToWorldUnits(lastCapArea.radiusKm));
-    capAreaRing.position.set(m.group.position.x, m.group.position.y + 0.02, m.group.position.z);
-    capAreaRing.scale.set(radiusWorld, radiusWorld, 1);
-    capAreaRing.visible = true;
+    if (areaPoly) areaPoly.group.visible = false;
+    const radiusWorld = Math.max(0.05, kmToWorldUnits(lastArea.radiusKm));
+    areaRing.position.set(m.group.position.x, m.group.position.y + 0.02, m.group.position.z);
+    areaRing.scale.set(radiusWorld, radiusWorld, 1);
+    areaRing.visible = true;
   }
 
-  /* lakeId=null 代表目前選取的事件沒有可示警的 CAP 範圍（例如尚無風險評估），
-     這時候就不畫圈，不要硬套一個沒有意義的範圍。 */
-  function setCapArea(lakeId, radiusKm, polygonLonLat) {
-    lastCapArea = lakeId ? { lakeId, radiusKm: radiusKm || 3, polygonLonLat: polygonLonLat || null } : null;
-    applyCapAreaVisibility();
+  /* lakeId=null 代表目前選取的湖沒有偵測範圍，這時候就不畫，不要硬套一個沒有意義的範圍。 */
+  function setArea(lakeId, radiusKm, polygonLonLat) {
+    lastArea = lakeId ? { lakeId, radiusKm: radiusKm || 3, polygonLonLat: polygonLonLat || null } : null;
+    applyAreaVisibility();
   }
 
   /* ── 圖層開關（任務六）────────────────────
      points/highRisk 套用到既有標記，labels 強制顯示全部點位名稱，
-     capArea 控制上面的示警範圍圈；全部立即套用一次，不需要重新 setLakes。 */
+     area 控制上面的偵測範圍；全部立即套用一次，不需要重新 setLakes。 */
   function setLayers(partial) {
     layers = { ...layers, ...partial };
     markers.forEach((m, id) => {
       m.group.visible = layers.points;
-      m.capRing.visible = layers.points && layers.highRisk && !!m._highRisk;
+      m.alertRing.visible = layers.points && layers.highRisk && !!m._highRisk;
       const showLabel = m._active || id === hoveredId || layers.labels;
       m.label.classList.toggle('is-visible', layers.points && showLabel);
     });
-    applyCapAreaVisibility();
+    applyAreaVisibility();
   }
 
 
-  /* capArea：{ lakeId, radiusKm } | null，代表目前選取事件是否要畫出
-     CAP 示警範圍圈；null 就是「沒有可用的 CAP 範圍」，不畫。 */
-  function sync({ selectedId, visibleIds, highRiskIds, capArea }) {
+  /* area：{ lakeId, polygonLonLat } | null，代表目前選取的湖是否要畫出
+     偵測範圍；null 就是沒有可用的範圍，不畫。 */
+  function sync({ selectedId, visibleIds, highRiskIds, area }) {
     currentSelectedId = selectedId || null;
     markers.forEach((m, id) => {
       const visible = !visibleIds || visibleIds.has(id);
@@ -464,11 +462,11 @@ const Map3D = (() => {
       m.label.classList.toggle('is-dim', dim);
       const highRisk = !!(highRiskIds && highRiskIds.has(id));
       m._highRisk = highRisk;
-      m.capRing.visible = layers.highRisk && highRisk;
+      m.alertRing.visible = layers.highRisk && highRisk;
       if (m.ghostDot) m._ghostEligible = visible;
     });
-    setCapArea(capArea ? capArea.lakeId : null, capArea ? capArea.radiusKm : null,
-      capArea ? capArea.polygonLonLat : null);
+    setArea(area ? area.lakeId : null, area ? area.radiusKm : null,
+      area ? area.polygonLonLat : null);
   }
 
   function hoverMarker(id) {
@@ -715,7 +713,7 @@ const Map3D = (() => {
     });
   }
 
-  /* ── 動畫迴圈：CAP 環旋轉 + 脈動 ──────────── */
+  /* ── 動畫迴圈：高風險環旋轉 + 脈動 ──────────── */
   function animate() {
     requestAnimationFrame(animate);
     clock += 0.016;
@@ -724,9 +722,9 @@ const Map3D = (() => {
       updateCamera();
     }
     markers.forEach(m => {
-      if (m.capRing.visible) {
-        m.capRing.rotation.z += 0.012;
-        m.capRing.material.opacity = 0.55 + Math.sin(clock * 2.4) * 0.35;
+      if (m.alertRing.visible) {
+        m.alertRing.rotation.z += 0.012;
+        m.alertRing.material.opacity = 0.55 + Math.sin(clock * 2.4) * 0.35;
       }
       if (m.ghostDot && m.ghostDot.visible) {
         m.ghostDot.material.opacity = 0.65 + Math.sin(clock * 3.2) * 0.25;
@@ -785,8 +783,8 @@ const Map3D = (() => {
     markerGroup = new THREE.Group();
     scene.add(markerGroup);
 
-    capAreaRing = buildCapAreaRing();
-    capAreaPoly = buildCapAreaPoly();
+    areaRing = buildAreaRing();
+    areaPoly = buildAreaPoly();
 
     resetView();
     bindControls();

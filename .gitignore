@@ -30,6 +30,10 @@ data/raw/*
 !data/raw/risk/*.txt
 !data/raw/risk/*.json
 
+# 事件研判情境設定（地點＋影像期別）
+!data/raw/scenarios/
+!data/raw/scenarios/*.json
+
 # 中繼產物可重新產生，不進版控
 data/derived/*
 !data/derived/final_*.json

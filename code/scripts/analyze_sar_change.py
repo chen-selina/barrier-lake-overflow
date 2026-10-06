@@ -245,7 +245,7 @@ def main() -> None:
                 "source": "sentinel1_sar",
                 "grade": top["grade"],
                 "detectedOn": date_txt,
-                "sourceLabel": f"Sentinel-1 SAR 判定之疑似堰塞湖範圍（{top['grade']} 級，{date_txt}）",
+                "sourceLabel": f"Sentinel-1 SAR 偵測到的新增水體範圍（證據強度 {top['grade']} 級，{date_txt}）",
                 "note": (f"Sentinel-1 SAR 事件前後變化偵測（{args.pre_label} → {date_txt}，"
                          f"{args.orbit}），{top['grade']} 級候選，新增水體 {top['areaHectare']} 公頃，"
                          f"距壩址座標 {top.get('distanceFromDamM')} 公尺。"

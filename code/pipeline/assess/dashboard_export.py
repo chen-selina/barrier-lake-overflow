@@ -3,7 +3,7 @@
 淹沒結果 → dashboard/data/inundation.js
 
 本檔的示範是用合成地形產生多邊形，輸出會標 synthetic: true，
-cap.js 不會把它放進 CAP。真實偵測結果由 scripts/analyze_ndwi_change.py 寫入
+儀表板地圖只畫 synthetic: false 的範圍。真實偵測結果由 scripts/analyze_ndwi_change.py 寫入
 （synthetic: false）。
 
 網格座標轉經緯度用等距圓柱近似（1° 緯度 ≈ 111.32 km），和 map3d.js 相同，

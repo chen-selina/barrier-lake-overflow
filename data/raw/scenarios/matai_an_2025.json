@@ -1,0 +1,47 @@
+{
+  "id": "matai_an_2025",
+  "name": "馬太鞍溪 · 2025 薇帕颱風",
+  "kind": "positive",
+  "description": "壩址周圍 4 km 窗格，Sentinel-1 降軌 105 逐期回放。湖於 2025-07-21 17:54 形成，2025-09-23 溢流潰決。",
+  "center": [121.29752, 23.70061],
+  "windowKm": 4.0,
+  "revisitDays": 6,
+  "trigger": {
+    "label": "薇帕颱風外圍環流",
+    "time": "2025-07-21T17:54:00+08:00",
+    "source": "observations.csv（bl071）"
+  },
+  "context": [
+    "薇帕颱風外圍環流，2025-07-21 起連日豪雨",
+    "區域曾受 2024-04-03 花蓮地震（規模 7.2）影響"
+  ],
+  "observationsLakeId": "bl071",
+  "referenceLakeId": "bl071",
+  "referenceLabel": "清冊壩址（事後登載，僅供對照）",
+  "passes": [
+    {
+      "file": "final_0722.json",
+      "time": "2025-07-22T21:52:00+00:00",
+      "recheckTime": "2025-07-28T21:51:00+00:00",
+      "evidenceImage": "docs/evidence/bl071_sar_0722.png"
+    },
+    {
+      "file": "final_0728.json",
+      "time": "2025-07-28T21:51:00+00:00",
+      "recheckTime": "2025-08-03T21:52:00+00:00",
+      "evidenceImage": "docs/evidence/bl071_sar_0728.png"
+    },
+    {
+      "file": "final_0821.json",
+      "time": "2025-08-21T21:51:00+00:00",
+      "recheckTime": "2025-08-27T21:52:00+00:00",
+      "evidenceImage": "docs/evidence/bl071_sar_0821.png"
+    },
+    {
+      "file": "final_0827.json",
+      "time": "2025-08-27T21:52:00+00:00",
+      "recheckTime": null,
+      "evidenceImage": "docs/evidence/bl071_sar_0827.png"
+    }
+  ]
+}

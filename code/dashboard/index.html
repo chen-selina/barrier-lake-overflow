@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>全台堰塞湖清冊 · 空間分析</title>
+  <title>堰塞湖事件研判平台</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
@@ -18,11 +18,61 @@
   <!-- 第一層：系統名稱與資料狀態 -->
   <div class="statusbar">
     <div class="wrap">
-      <span class="sysname"><span class="pulse"></span>堰塞湖快速評估系統</span>
+      <span class="sysname"><span class="pulse"></span>堰塞湖事件研判平台</span>
+      <span class="stat-meta">事件研判 → 優先排序 → 人工查證 → 任務編排</span>
+      <span class="spacer"></span>
+      <a class="stat-link" href="#duty">值班佇列</a>
+      <a class="stat-link" href="#inventory">全台清冊</a>
+    </div>
+  </div>
+
+  <!-- 值班佇列：事件研判與任務編排（duty.js） -->
+  <section class="duty" id="duty" aria-labelledby="dutyTitle">
+    <div class="wrap">
+      <div class="duty-head">
+        <div class="duty-title">
+          <span class="label">值班佇列 · 事件研判回放</span>
+          <h2 id="dutyTitle">—</h2>
+          <p class="duty-desc" id="dutyDesc">—</p>
+        </div>
+        <ul class="duty-principles">
+          <li><b>SAR 提供證據</b>，不直接下結論</li>
+          <li><b>系統整理與排序</b>，人員做最後判斷</li>
+          <li><b>只有 SAR 證據時</b>，研判信心最高到「中」</li>
+        </ul>
+      </div>
+
+      <div class="scen-tabs" id="scenTabs" role="group" aria-label="情境"></div>
+
+      <ol class="flow" aria-label="處理流程">
+        <li>多源資料</li><li>疑似事件</li><li>證據融合</li><li>優先排序</li><li>人工查證</li><li>任務編排</li>
+      </ol>
+
+      <div class="snap-rail" id="snapRail" role="tablist" aria-label="回放時點（每一期衛星過境）"></div>
+
+      <div class="duty-board">
+        <div class="panel queue-panel">
+          <div class="panel-head">
+            <h2 id="queueTitle">—</h2>
+            <span class="head-note" id="queueNote">—</span>
+          </div>
+          <div class="queue" id="queue"></div>
+          <div class="minimap-wrap">
+            <svg id="minimap" role="img" aria-label="分析窗格內各事件的位置與 SAR 新增水體範圍"></svg>
+            <p class="map-note" id="minimapNote"></p>
+          </div>
+        </div>
+        <div class="panel ev-panel" id="evCard"></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="inv-divider" id="inventory">
+    <div class="wrap">
+      <h2>全台清冊 · 歷史紀錄與風險背景</h2>
+      <span class="stat-meta">清冊總計 <b data-bind="countAll">—</b> 處</span>
       <span class="stat-meta">風險快照：<b data-bind="riskSnapshotDate">—</b></span>
       <span class="stat-meta">風險資料來源：<b data-bind="riskSource">農村水保署／ERA5-Land</b></span>
-      <span class="spacer"></span>
-      <span class="stat-meta">清冊總計 <b data-bind="countAll">—</b> 處</span>
     </div>
   </div>
 
@@ -37,7 +87,7 @@
       </label>
       <button class="livebar-btn" id="cwaFetchBtn" type="button">更新即時風險</button>
       <span class="livebar-status" id="liveStatus">尚未更新，目前顯示的是打包時的批次快照。</span>
-      <span class="capbar-info" tabindex="0" title="由瀏覽器直接呼叫 CWA 開放資料 API。金鑰只留在這台電腦，勾選「記住」才會存進瀏覽器。留空會改用訓練平均值。">i</span>
+      <span class="info-dot" tabindex="0" title="由瀏覽器直接呼叫 CWA 開放資料 API。金鑰只留在這台電腦，勾選「記住」才會存進瀏覽器。留空會改用訓練平均值。">i</span>
     </div>
   </div>
 
@@ -67,17 +117,6 @@
     </div>
   </div>
 
-  <!-- CAP 示警橫幅：僅在有高風險湖泊時顯示 -->
-  <div class="capbar" id="capBar" hidden>
-    <div class="wrap capbar-inner">
-      <span class="capbar-badge">CAP 示警</span>
-      <span class="capbar-text" data-bind="capBarText">—</span>
-      <span class="capbar-info" tabindex="0" title="批次風險快照，非現地實測，詳見各湖 CAP 區塊">i</span>
-      <button class="capbar-viewall" id="capBarViewAll" type="button">查看全部</button>
-      <div class="capbar-chips" id="capBarChips"></div>
-    </div>
-  </div>
-
   <main class="wrap">
 
     <!-- 主視圖 -->
@@ -98,10 +137,10 @@
               <span class="lc-title">圖層</span>
               <label><input type="checkbox" id="layerPoints" checked>堰塞湖點位</label>
               <label><input type="checkbox" id="layerHighRisk" checked>高風險標記</label>
-              <label><input type="checkbox" id="layerCapArea" checked>CAP 示警範圍</label>
+              <label><input type="checkbox" id="layerArea" checked>SAR 偵測範圍</label>
               <label><input type="checkbox" id="layerLabels">點位名稱</label>
             </div>
-            <div class="cap-preview-note">示警範圍：多數湖泊為壩址周圍 3 km 示意；馬太鞍溪為 Sentinel-1 SAR 判定之疑似堰塞湖範圍</div>
+            <div class="area-note">SAR 偵測範圍：目前只有馬太鞍溪，為 Sentinel-1 偵測到的新增水體（證據，非判定）</div>
 
             <div class="map-hover-card" id="mapHoverCard" hidden></div>
 
@@ -115,7 +154,7 @@
             <span><i class="key k-stable"></i>存在已穩定</span>
             <span><i class="key k-gone"></i>已消失</span>
             <span class="sep"></span>
-            <span class="scale"><i class="key sz-s"></i><i class="key sz-m"></i><i class="key sz-l"></i>蓄水量</span>
+            <span class="scale"><i class="key sz-s"></i><i class="key sz-m"></i><i class="key sz-l"></i>蓄水量（清冊登載）</span>
           </div>
         </div>
       </div>
@@ -125,7 +164,6 @@
           <div class="badges">
             <span class="badge badge-status" data-bind="statusBadge">—</span>
             <span class="badge badge-risk" data-bind="riskBadge" hidden></span>
-            <span class="badge badge-cap" hidden>CAP TEST</span>
           </div>
           <h1 data-bind="name">—</h1>
           <span class="where" data-bind="where">—</span>
@@ -162,7 +200,6 @@
           <dl class="facts" id="facts"></dl>
         </details>
 
-        <div class="cap-block" id="capBlock"></div>
       </div>
     </section>
 
@@ -213,10 +250,6 @@
           <span class="label">關鍵字</span>
           <input type="search" id="searchInput" class="search-input" placeholder="名稱、縣市、鄉鎮、地標…" aria-label="關鍵字搜尋">
         </div>
-        <div class="filter-group">
-          <span class="label">CAP</span>
-          <label class="cap-toggle-label"><input type="checkbox" id="hasCapToggle">只看有 CAP 草稿</label>
-        </div>
         <button class="reset" id="resetBtn" type="button" hidden>清除全部</button>
       </div>
 
@@ -248,7 +281,7 @@
 
   <footer>
     <div class="wrap">
-      <span>堰塞湖快速評估系統 · OSSInt 2026</span>
+      <span>堰塞湖事件研判平台 · OSSInt 2026</span>
       <span>清冊：農業部農村發展及水土保持署 · 座標由 TWD97 TM2 轉 WGS84</span>
     </div>
   </footer>
@@ -257,10 +290,11 @@
   <script src="data/risk.js"></script>
   <script src="data/terrain.js"></script>
   <script src="data/inundation.js"></script>
-  <script src="cap.js"></script>
   <script src="vendor/three.min.js"></script>
   <script src="map3d.js"></script>
+  <script src="data/events.js"></script>
   <script src="app.js"></script>
+  <script src="duty.js"></script>
   <script src="live.js"></script>
 </body>
 

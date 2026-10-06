@@ -124,38 +124,13 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 .kpi-card .sub{font-size:11.5px;color:var(--moss)}
 @media (max-width:1199px){.kpi-grid{grid-template-columns:repeat(2,1fr)}}
 
-/* ── CAP 示警橫幅 ── */
-.capbar{
-  border-bottom:1px solid var(--clay);
-  background:linear-gradient(180deg,rgba(194,80,60,.14),transparent);
-}
-.capbar-inner{
-  display:flex;align-items:center;gap:14px;flex-wrap:wrap;
-  padding-top:10px;padding-bottom:10px;
-}
-.capbar-badge{
-  font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;
-  color:var(--clay);border:1px solid var(--clay);padding:2px 9px;
-  white-space:nowrap;text-transform:uppercase;
-}
-.capbar-text{font-size:13.5px;color:var(--fog)}
-.capbar-info{
+/* ── 資訊小圓點（hover 看說明）── */
+.info-dot{
   width:15px;height:15px;border-radius:50%;border:1px solid var(--line-strong);
   color:var(--moss);font-family:var(--mono);font-size:10px;
   display:inline-flex;align-items:center;justify-content:center;cursor:help;
 }
-.capbar-info:hover,.capbar-info:focus-visible{color:var(--fog);border-color:var(--jade)}
-.capbar-viewall{
-  font-family:var(--mono);font-size:11.5px;color:var(--jade);
-  border-bottom:1px solid var(--jade-dim);padding-bottom:1px;white-space:nowrap;
-}
-.capbar-viewall:hover{color:var(--snow);border-color:var(--snow)}
-.capbar-chips{display:flex;gap:8px;flex-wrap:wrap;margin-left:auto}
-.capbar-chip{
-  font-family:var(--mono);font-size:11.5px;color:var(--clay);
-  border:1px solid var(--clay);padding:2px 10px;transition:background .16s ease;
-}
-.capbar-chip:hover{background:rgba(194,80,60,.16);color:var(--snow)}
+.info-dot:hover,.info-dot:focus-visible{color:var(--fog);border-color:var(--jade)}
 
 
 /* ── 版面 ── */
@@ -235,15 +210,15 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 .layer-control label{display:flex;align-items:center;gap:7px;margin-top:5px;cursor:pointer;white-space:nowrap}
 .layer-control input{accent-color:var(--jade)}
 
-/* CAP 示警範圍示意提醒（避免被誤認為正式淹水模擬） */
-.cap-preview-note{
+/* SAR 偵測範圍說明（避免被誤認為正式淹水模擬） */
+.area-note{
   position:absolute;bottom:10px;left:10px;right:10px;z-index:2;
   font-family:var(--mono);font-size:10px;color:var(--moss);
   background:rgba(15,22,19,.72);border:1px solid var(--line-strong);
   padding:5px 9px;backdrop-filter:blur(3px);
 }
 
-/* 地圖 hover 資訊卡（任務十一）：只放摘要，不放完整 CAP 內容 */
+/* 地圖 hover 資訊卡（任務十一）：只放摘要 */
 .map-hover-card{
   position:absolute;top:0;left:0;z-index:3;pointer-events:none;
   background:rgba(15,22,19,.92);border:1px solid var(--line-strong);
@@ -289,8 +264,6 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 .badge-risk.is-low{background:var(--jade-dim);color:var(--snow)}
 .badge-risk.is-none{border:1px solid var(--ochre);color:var(--ochre)}
 .badge-risk.is-na{border:1px solid var(--line-strong);color:var(--moss)}
-/* CAP TEST：中性小標，避免與風險等級搶視覺 */
-.badge-cap{border:1px solid var(--line-strong);color:var(--moss)}
 .detail-head h1{
   font-family:var(--wide);font-variation-settings:'wdth' 108,'wght' 700;
   font-size:clamp(22px,3vw,34px);color:var(--snow);line-height:1.2;
@@ -437,11 +410,6 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 .search-input::placeholder{color:var(--moss)}
 .search-input:focus-visible{outline:1px solid var(--jade);outline-offset:-1px}
 
-.cap-toggle-label{
-  display:flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11.5px;
-  color:var(--moss);cursor:pointer;white-space:nowrap;padding:5px 0;
-}
-.cap-toggle-label input{accent-color:var(--jade)}
 
 /* 已啟用篩選條件的 chips，個別可清除 + 統一的「清除全部」按鈕 */
 .active-chips{display:flex;gap:8px;flex-wrap:wrap;margin:-6px 0 16px}
@@ -497,7 +465,7 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 .pill.risk-pill.is-none{border-color:var(--ochre);color:var(--ochre)}
 .pill.risk-pill.is-na{border-color:var(--line-strong);color:var(--moss)}
 
-/* ── 成因敘述（重用於判定依據卡與 CAP 技術層的展開區塊）── */
+/* ── 成因敘述（判定依據卡的展開區塊）── */
 .narr-text{font-size:14.5px;line-height:1.95;color:var(--fog);max-width:60ch}
 .narr-empty{font-size:13.5px;color:var(--moss)}
 .narr-rules{margin-top:14px}
@@ -516,60 +484,15 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 }
 .narr-rules li::before{content:"·";position:absolute;left:2px;color:var(--jade-dim)}
 
-/* ── CAP 示警草稿（詳情面板） ── */
-.cap-block{border-top:1px solid var(--line);padding:clamp(16px,2.2vw,26px)}
-.cap-summary-card{
-  border:1px solid var(--line-strong);background:rgba(255,255,255,.02);
-  padding:14px 16px;
-}
-.cs-head{display:flex;align-items:center;gap:10px;margin-bottom:10px}
-.cs-title{
-  font-family:var(--wide);font-variation-settings:'wdth' 105,'wght' 700;
-  font-size:13.5px;color:var(--snow);
-}
-.cap-status-test{
-  font-family:var(--mono);font-size:10px;letter-spacing:.1em;
-  color:var(--abyss);background:var(--ochre);padding:2px 8px;text-transform:uppercase;
-}
-.cs-row{font-size:13px;color:var(--fog);margin-bottom:4px}
-.cs-row b{color:var(--snow);font-weight:500}
-.cap-primary-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
-.cap-btn{
+/* ── 按鈕 ── */
+.btn{
   font-family:var(--mono);font-size:11.5px;padding:6px 14px;
   border:1px solid var(--jade-dim);color:var(--jade);transition:background .16s ease;
 }
-.cap-btn:hover{background:rgba(63,169,160,.12);color:var(--snow)}
-.cap-btn:disabled{border-color:var(--line-strong);color:var(--moss);cursor:not-allowed}
-.cap-btn.ghost{border-color:var(--line-strong);color:var(--moss)}
-.cap-btn.ghost:hover{color:var(--fog);background:transparent}
-.cap-disclaimer{font-family:var(--mono);font-size:10.5px;color:var(--moss);margin-top:10px}
-
-/* 技術層：沿用 .narr-rules 的展開視覺，內縮一層以呈現層級 */
-.cap-tech{margin-top:14px;border-top:1px solid var(--line);padding-top:12px}
-
-.cap-fields{
-  display:grid;grid-template-columns:auto 1fr;column-gap:16px;row-gap:6px;
-  margin-bottom:14px;padding:12px 14px;border:1px solid var(--line);
-  background:rgba(255,255,255,.02);
-}
-.cap-field{display:contents}
-.cap-field dt{
-  font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--moss);
-  white-space:nowrap;padding-top:1px;
-}
-.cap-field dd{margin:0;font-size:13px;color:var(--fog)}
-
-.cap-text-block{margin-bottom:12px}
-.cap-text-label{
-  display:block;font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;
-  text-transform:uppercase;color:var(--moss);margin-bottom:3px;
-}
-.cap-desc{font-size:13.5px;line-height:1.9;color:var(--fog);max-width:62ch;margin:0}
-.cap-instruction{
-  font-size:13.5px;line-height:1.9;color:var(--snow);max-width:62ch;margin:0;
-  padding:10px 12px;border-left:2px solid var(--jade-dim);background:rgba(63,169,160,.06);
-}
-.cap-basis{margin-bottom:14px}
+.btn:hover{background:rgba(63,169,160,.12);color:var(--snow)}
+.btn:disabled{border-color:var(--line-strong);color:var(--moss);cursor:not-allowed}
+.btn.ghost{border-color:var(--line-strong);color:var(--moss)}
+.btn.ghost:hover{color:var(--fog);background:transparent}
 
 .empty{
   padding:30px;text-align:center;color:var(--moss);font-size:14px;
@@ -603,8 +526,6 @@ footer .wrap{
   .facts{grid-template-columns:1fr}
   .facts dt{border-bottom:none;padding-bottom:0}
   .facts dd{padding-left:clamp(12px,1.6vw,20px)}
-  .cap-fields{grid-template-columns:1fr}
-  .cap-field dt{padding-top:6px}
 }
 @media (max-width:720px){
   .readout{grid-template-columns:1fr}
@@ -618,7 +539,7 @@ footer .wrap{
   *{animation:none!important;transition:none!important}
 }
 
-/* ── 短暫成功提示（任務十三，例如 CAP XML 下載完成）── */
+/* ── 短暫成功提示（例如複製任務單、儲存查證紀錄）── */
 .toast{
   position:fixed;left:50%;bottom:28px;z-index:100;
   transform:translate(-50%,12px);opacity:0;
@@ -628,3 +549,215 @@ footer .wrap{
   pointer-events:none;
 }
 .toast.is-visible{opacity:1;transform:translate(-50%,0)}
+
+/* ════════════════════════════════════════
+   值班佇列 · 事件研判（duty.js）
+   優先等級：陶紅=高　琥珀=中　苔綠=低
+   ════════════════════════════════════════ */
+.stat-link{
+  font-family:var(--mono);font-size:12px;color:var(--jade);text-decoration:none;
+  border-bottom:1px solid var(--jade-dim);white-space:nowrap;
+}
+.stat-link:hover{color:var(--snow);border-color:var(--snow)}
+
+.duty{border-bottom:1px solid var(--line);padding:clamp(22px,3vw,36px) 0 clamp(28px,4vw,48px)}
+.duty-head{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap;margin-bottom:16px}
+.duty-title h2{
+  font-family:var(--wide);font-variation-settings:'wdth' 108,'wght' 700;
+  font-size:clamp(20px,2.4vw,28px);color:var(--snow);line-height:1.25;margin:4px 0 4px;
+}
+.duty-desc{font-size:13px;color:var(--moss);max-width:70ch}
+.duty-principles{list-style:none;display:grid;gap:3px;font-size:12.5px;color:var(--moss)}
+.duty-principles li::before{content:"— ";color:var(--jade-dim)}
+.duty-principles b{color:var(--fog);font-weight:500}
+
+.scen-tabs{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+.scen-pending{font-family:var(--mono);font-size:11px;color:var(--ochre)}
+
+/* 流程條 */
+.flow{
+  list-style:none;display:flex;flex-wrap:wrap;margin-bottom:14px;
+  font-family:var(--mono);font-size:11px;color:var(--moss);
+}
+.flow li{padding:4px 12px 4px 0;white-space:nowrap}
+.flow li:not(:last-child)::after{content:"→";margin-left:12px;color:var(--jade-dim)}
+
+/* 回放時點 */
+.snap-rail{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+  gap:1px;background:var(--line);border:1px solid var(--line);margin-bottom:16px;
+}
+.snap{
+  background:var(--stone);padding:10px 14px;text-align:left;
+  display:grid;gap:2px;transition:background .16s ease;
+}
+.snap:hover{background:var(--raised)}
+.snap.is-on{background:var(--raised);box-shadow:inset 0 -2px 0 var(--jade)}
+.snap:focus-visible{outline:1px solid var(--jade);outline-offset:-1px}
+.snap-time{font-family:var(--wide);font-variation-settings:'wdth' 110,'wght' 700;font-size:15px;color:var(--snow)}
+.snap-what{font-size:11.5px;color:var(--fog);line-height:1.5}
+.snap-since{font-family:var(--mono);font-size:10.5px;color:var(--moss)}
+.snap-counts{display:flex;gap:4px;margin-top:4px}
+.snap-counts i{
+  font-style:normal;font-family:var(--mono);font-size:10.5px;min-width:22px;text-align:center;
+  padding:0 5px;border:1px solid var(--line-strong);color:var(--moss);
+}
+.snap-counts .c-high{border-color:var(--clay);color:var(--clay)}
+.snap-counts .c-medium{border-color:var(--ochre);color:var(--ochre)}
+
+.duty-board{
+  display:grid;grid-template-columns:minmax(340px,.8fr) minmax(420px,1.2fr);
+  gap:1px;background:var(--line);border:1px solid var(--line);align-items:stretch;
+}
+
+/* 佇列 */
+.queue{display:grid;gap:12px;padding:12px}
+.q-group{display:grid;gap:1px;background:var(--line);border:1px solid var(--line)}
+.q-group-head{
+  display:flex;justify-content:space-between;align-items:center;background:var(--abyss);
+  padding:6px 12px;font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;color:var(--moss);
+}
+.q-group-head b{font-weight:500;color:var(--fog)}
+.g-high .q-group-head span{color:var(--clay)}
+.g-medium .q-group-head span{color:var(--ochre)}
+.q-item{
+  background:var(--stone);width:100%;text-align:left;padding:10px 12px 10px 14px;
+  display:grid;grid-template-columns:34px 1fr auto;gap:10px;align-items:center;
+  border-left:3px solid var(--line-strong);transition:background .16s ease;
+}
+.q-item:hover{background:var(--raised)}
+.q-item.is-active{background:var(--raised);box-shadow:inset 0 0 0 1px var(--jade-dim)}
+.q-item:focus-visible{outline:none;box-shadow:inset 0 0 0 1px var(--jade)}
+.q-item.p-high{border-left-color:var(--clay)}
+.q-item.p-medium{border-left-color:var(--ochre)}
+.q-item.p-low{border-left-color:var(--moss)}
+.g-low .q-item,.g-excluded .q-item{opacity:.78}
+.g-low .q-item.is-active,.g-excluded .q-item.is-active{opacity:1}
+.q-id{font-family:var(--wide);font-variation-settings:'wdth' 110,'wght' 700;font-size:15px;color:var(--snow)}
+.q-main{display:grid;gap:1px;min-width:0}
+.q-action{font-weight:700;color:var(--snow);font-size:13.5px}
+.q-pers{font-weight:400;font-family:var(--mono);font-size:10.5px;color:var(--moss);margin-left:8px}
+.q-meta{font-family:var(--mono);font-size:11px;color:var(--moss)}
+.q-tags{display:flex;flex-direction:column;gap:3px;align-items:flex-end}
+.q-tag{font-family:var(--mono);font-size:10px;padding:1px 7px;border:1px solid var(--line-strong);color:var(--moss);white-space:nowrap}
+.q-tag.is-new{border-color:var(--jade-dim);color:var(--jade)}
+.q-tag.is-human{border-color:var(--fog);color:var(--snow)}
+.q-empty{padding:16px}
+
+/* 窗格小地圖 */
+.minimap-wrap{padding:0 12px 14px}
+#minimap{width:100%;max-width:420px;display:block;margin:0 auto;aspect-ratio:1;background:var(--abyss);border:1px solid var(--line)}
+.mm-grid{stroke:var(--line);stroke-width:1}
+.mm-ref path{stroke:var(--fog);stroke-width:1.6}
+.mm-ref text{font-family:var(--mono);font-size:10px;fill:var(--fog)}
+.mm-ref text,.mm-ev text{paint-order:stroke;stroke:var(--abyss);stroke-width:3px;stroke-linejoin:round}
+.mm-ev{cursor:pointer}
+.mm-ev polygon{fill-opacity:.4;stroke-width:1.2}
+.mm-ev circle{stroke:var(--abyss);stroke-width:1}
+.mm-ev text{font-family:var(--mono);font-size:11px;fill:var(--fog)}
+.mm-ev.p-high polygon,.mm-ev.p-high circle{fill:var(--clay);stroke:var(--clay)}
+.mm-ev.p-medium polygon,.mm-ev.p-medium circle{fill:var(--ochre);stroke:var(--ochre)}
+.mm-ev.p-low polygon,.mm-ev.p-low circle{fill:var(--moss);stroke:var(--moss)}
+.mm-ev.is-sel polygon{stroke:var(--snow);stroke-width:2;fill-opacity:.6}
+.mm-ev.is-sel circle{stroke:var(--snow);stroke-width:2}
+.mm-ev.is-sel text{fill:var(--snow);font-weight:700}
+.mm-ev:focus-visible{outline:none}
+.mm-ev:focus-visible circle{stroke:var(--jade);stroke-width:2}
+.mm-scale line{stroke:var(--fog);stroke-width:2}
+.mm-scale text,.mm-north{font-family:var(--mono);font-size:10px;fill:var(--moss)}
+
+/* 事件卡 */
+.ev-empty{padding:28px}
+.ev-pri{color:var(--snow)}
+.ev-pri.p-high{background:var(--clay)}
+.ev-pri.p-medium{background:var(--ochre);color:var(--abyss)}
+.ev-pri.p-low{background:var(--jade-dim)}
+.ev-human{border:1px solid var(--snow);color:var(--snow)}
+.ev-summary{
+  margin:0 clamp(16px,2.2vw,26px) 16px;padding:12px 16px;
+  font-size:15px;line-height:1.85;color:var(--snow);
+  border-left:3px solid var(--line-strong);background:rgba(255,255,255,.03);
+}
+.ev-summary.p-high{border-left-color:var(--clay);background:rgba(194,80,60,.08)}
+.ev-summary.p-medium{border-left-color:var(--ochre);background:rgba(201,138,46,.08)}
+.ev-readout .num{font-size:clamp(15px,1.6vw,19px)}
+.ev-readout .num.t-high{color:var(--clay)}
+.ev-readout .num.t-medium{color:var(--ochre)}
+.ev-readout .sub{font-size:11.5px;line-height:1.5}
+
+.ev-conflict{
+  margin:16px clamp(16px,2.2vw,26px) 0;padding:10px 14px;
+  border:1px dashed var(--ochre);font-size:13px;color:var(--fog);line-height:1.8;
+}
+.at{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;color:var(--jade);text-transform:uppercase;margin-bottom:8px;display:block}
+.ev-conflict .at{color:var(--ochre)}
+
+.ev-cols{
+  display:grid;grid-template-columns:1fr 1fr;gap:18px;
+  margin:16px clamp(16px,2.2vw,26px) 0;
+}
+.ev-list{list-style:none;display:grid;gap:5px;font-size:13px;line-height:1.65}
+.ev-list li{display:grid;grid-template-columns:16px 1fr;gap:4px;color:var(--fog)}
+.ev-list .mk{font-family:var(--mono);color:var(--moss)}
+.ev-list .ev-support .mk{color:var(--jade)}
+.ev-list .ev-against .mk{color:var(--clay)}
+.ev-list .ev-against{color:var(--snow)}
+.ev-list .ev-context{color:var(--moss)}
+.ev-gaps li{color:var(--moss)}
+.ev-gaps .mk{color:var(--ochre)}
+
+.ev-tasks{display:grid;gap:6px}
+.ev-tasks li b{display:block;font-weight:700;color:var(--snow);font-size:13.5px;line-height:1.6}
+.ev-tasks li span{display:block;font-size:12px;color:var(--moss);line-height:1.6}
+.ev-copy{margin-top:12px}
+
+/* 人工查證 */
+.verify{margin:0 clamp(16px,2.2vw,26px) 16px;padding:14px 16px;border:1px solid var(--line-strong)}
+.vf-saved{font-size:13px;color:var(--fog);padding:8px 10px;margin-bottom:10px;background:rgba(255,255,255,.03);border-left:2px solid var(--fog)}
+.vf-saved b{color:var(--snow)}
+.vf-saved p{margin-top:4px}
+.vf-at{display:block;font-family:var(--mono);font-size:10.5px;color:var(--moss);margin-top:2px}
+.vf-verdicts{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;color:var(--fog);margin-bottom:10px}
+.vf-verdicts label{display:flex;gap:6px;align-items:center;cursor:pointer}
+.vf-verdicts input{accent-color:var(--jade)}
+.vf-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.vf-input{
+  font:inherit;font-size:12.5px;background:var(--raised);color:var(--snow);
+  border:1px solid var(--line-strong);padding:6px 10px;min-width:0;flex:1 1 120px;
+}
+.vf-input.vf-wide{flex:3 1 240px}
+.vf-input::placeholder{color:var(--moss)}
+.vf-input:focus{outline:none;border-color:var(--jade)}
+.vf-actions{display:flex;gap:10px;flex-wrap:wrap}
+.vf-note{font-family:var(--mono);font-size:10.5px;color:var(--moss);margin-top:10px;line-height:1.7}
+
+/* 偵測紀錄表 */
+.ev-dets{width:100%;border-collapse:collapse;font-size:12.5px;margin-bottom:6px}
+.ev-dets th{
+  text-align:left;font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;font-weight:400;
+  color:var(--moss);border-bottom:1px solid var(--line-strong);padding:4px 8px 4px 0;
+}
+.ev-dets td{padding:6px 8px 6px 0;border-bottom:1px solid var(--line);color:var(--fog);font-family:var(--mono)}
+.ev-dets .re-persistent{color:var(--jade)}
+.ev-dets .re-not_persistent{color:var(--clay)}
+.ev-dets .re-pending{color:var(--ochre)}
+.ev-dets a{color:var(--jade)}
+.ev-inv{margin-top:14px}
+
+/* 清冊分隔 */
+.inv-divider{border-bottom:1px solid var(--line);background:var(--stone)}
+.inv-divider .wrap{display:flex;align-items:baseline;gap:clamp(14px,2.4vw,28px);flex-wrap:wrap;padding-top:14px;padding-bottom:14px}
+.inv-divider h2{
+  font-family:var(--wide);font-variation-settings:'wdth' 105,'wght' 600;
+  font-size:16px;color:var(--snow);margin-right:auto;
+}
+
+@media (max-width:1199px){
+  .duty-board{grid-template-columns:1fr}
+}
+@media (max-width:720px){
+  .ev-cols{grid-template-columns:1fr}
+  .ev-readout{grid-template-columns:repeat(2,1fr)}
+  .q-item{grid-template-columns:30px 1fr}
+  .q-tags{grid-column:2;flex-direction:row;align-items:flex-start}
+}
