@@ -15,6 +15,40 @@
     "薇帕颱風外圍環流，2025-07-21 起連日豪雨",
     "區域曾受 2024-04-03 花蓮地震（規模 7.2）影響"
   ],
+  "externalEvidence": [
+    {
+      "time": "2025-07-24T23:59:00+08:00",
+      "kind": "optical",
+      "lonLat": [121.29752, 23.70061],
+      "radiusM": 600,
+      "text": "農村水保署以 Planet 光學衛星影像發現堰塞湖，當日成立應變小組",
+      "source": "維基百科「花蓮馬太鞍溪堰塞湖災害」（引農村水保署發布）",
+      "url": "https://zh.wikipedia.org/zh-tw/花蓮馬太鞍溪堰塞湖災害"
+    },
+    {
+      "time": "2025-07-27T23:59:00+08:00",
+      "kind": "aerial",
+      "lonLat": [121.29752, 23.70061],
+      "radiusM": 600,
+      "text": "航遙分署航拍取得清晰堰塞湖畫面，推估崩塌量約 2 億 m³、壩高約 200 m",
+      "source": "維基百科「花蓮馬太鞍溪堰塞湖災害」",
+      "url": "https://zh.wikipedia.org/zh-tw/花蓮馬太鞍溪堰塞湖災害"
+    },
+    {
+      "time": "2025-08-20T23:59:00+08:00",
+      "kind": "official",
+      "lonLat": [121.29752, 23.70061],
+      "radiusM": 600,
+      "text": "官方估蓄水量 4,800 萬 m³，滿水位 9,100 萬 m³",
+      "source": "維基百科「花蓮馬太鞍溪堰塞湖災害」",
+      "url": "https://zh.wikipedia.org/zh-tw/花蓮馬太鞍溪堰塞湖災害"
+    }
+  ],
+  "exposure": {
+    "text": "下游為光復鄉市區與台 9 線馬太鞍溪橋；9/21 撤離範圍為光復鄉、鳳林鎮、萬榮鄉共 1,800 戶、8,000 多人（事後資料，僅供規模參考）",
+    "source": "維基百科「花蓮馬太鞍溪堰塞湖災害」；NCDR 馬太鞍溪堰塞湖災害全紀錄",
+    "url": "https://den.ncdr.nat.gov.tw/special/%E9%A6%AC%E5%A4%AA%E9%9E%8D/index.html"
+  },
   "observationsLakeId": "bl071",
   "referenceLakeId": "bl071",
   "referenceLabel": "清冊壩址（事後登載，僅供對照）",

@@ -5,11 +5,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>堰塞湖事件研判平台</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link
-    href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..125,400..800&family=Noto+Sans+TC:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap"
-    rel="stylesheet">
+  <!-- 字型放在本機（scripts/vendor_fonts.py），會場離線也能正常顯示 -->
+  <link rel="stylesheet" href="vendor/fonts/fonts.css">
   <link rel="stylesheet" href="styles.css">
 </head>
 
@@ -168,6 +165,8 @@
           <h1 data-bind="name">—</h1>
           <span class="where" data-bind="where">—</span>
         </div>
+
+        <div class="replay-note" id="replayNote" hidden></div>
 
         <div class="decision-summary" id="decisionSummary"></div>
 

@@ -160,6 +160,13 @@ window.EVENT_SCENARIOS = [
         "kind": "context",
         "status": "context",
         "text": "區域曾受 2024-04-03 花蓮地震（規模 7.2）影響"
+       },
+       {
+        "kind": "exposure",
+        "status": "context",
+        "text": "下游為光復鄉市區與台 9 線馬太鞍溪橋；9/21 撤離範圍為光復鄉、鳳林鎮、萬榮鄉共 1,800 戶、8,000 多人（事後資料，僅供規模參考）",
+        "source": "維基百科「花蓮馬太鞍溪堰塞湖災害」；NCDR 馬太鞍溪堰塞湖災害全紀錄",
+        "url": "https://den.ncdr.nat.gov.tw/special/%E9%A6%AC%E5%A4%AA%E9%9E%8D/index.html"
        }
       ],
       "gaps": [
@@ -174,10 +181,6 @@ window.EVENT_SCENARIOS = [
        {
         "kind": "optical",
         "text": "光學影像：尚未調閱（颱風期間多雲，雲散後可調 Sentinel-2）"
-       },
-       {
-        "kind": "exposure",
-        "text": "下游保全對象：尚未串接（可接 BigGIS、內政部道路與聚落圖層）"
        },
        {
         "kind": "field",
@@ -213,9 +216,9 @@ window.EVENT_SCENARIOS = [
        "spatial.landslide",
        "spatial.blockage",
        "history.nearby",
+       "exposure.known",
        "gap.rain",
        "gap.optical",
-       "gap.exposure",
        "priority.medium.pending"
       ]
      },
@@ -320,6 +323,13 @@ window.EVENT_SCENARIOS = [
         "kind": "context",
         "status": "context",
         "text": "區域曾受 2024-04-03 花蓮地震（規模 7.2）影響"
+       },
+       {
+        "kind": "exposure",
+        "status": "context",
+        "text": "下游為光復鄉市區與台 9 線馬太鞍溪橋；9/21 撤離範圍為光復鄉、鳳林鎮、萬榮鄉共 1,800 戶、8,000 多人（事後資料，僅供規模參考）",
+        "source": "維基百科「花蓮馬太鞍溪堰塞湖災害」；NCDR 馬太鞍溪堰塞湖災害全紀錄",
+        "url": "https://den.ncdr.nat.gov.tw/special/%E9%A6%AC%E5%A4%AA%E9%9E%8D/index.html"
        }
       ],
       "gaps": [
@@ -334,10 +344,6 @@ window.EVENT_SCENARIOS = [
        {
         "kind": "optical",
         "text": "光學影像：尚未調閱（颱風期間多雲，雲散後可調 Sentinel-2）"
-       },
-       {
-        "kind": "exposure",
-        "text": "下游保全對象：尚未串接（可接 BigGIS、內政部道路與聚落圖層）"
        },
        {
         "kind": "field",
@@ -373,9 +379,9 @@ window.EVENT_SCENARIOS = [
        "spatial.landslide",
        "spatial.blockage",
        "history.nearby",
+       "exposure.known",
        "gap.rain",
        "gap.optical",
-       "gap.exposure",
        "priority.medium.pending"
       ]
      }
@@ -388,8 +394,8 @@ window.EVENT_SCENARIOS = [
     "since": "距觸發約 7 天",
     "nextPass": "8/4",
     "counts": {
-     "high": 0,
-     "medium": 1,
+     "high": 1,
+     "medium": 0,
      "low": 2
     },
     "newCount": 1,
@@ -508,18 +514,19 @@ window.EVENT_SCENARIOS = [
         ]
        }
       ],
-      "priority": "medium",
-      "priorityText": "中優先",
-      "action": "建議人工確認",
-      "confidence": "低",
+      "priority": "high",
+      "priorityText": "高優先",
+      "action": "建議立即查證",
+      "confidence": "高",
       "confidenceReasons": [
-       "只有單期 SAR，尚未複核"
+       "SAR 與他單位光學或航拍成果一致（獨立來源）",
+       "外部來源：維基百科「花蓮馬太鞍溪堰塞湖災害」"
       ],
       "persistence": "pending",
       "persistenceText": "待複核",
       "grade": "B",
       "scale": "中",
-      "summary": "E3 需要人工確認：單期 SAR 出現約 5.8 公頃的疑似新增水體，空間條件符合，但尚未複核；建議 8/4 下一期過境複核，暫不派遣 UAV。",
+      "summary": "E3 值得優先查證：6 項證據一致（SAR 新增水體、貼河道、附近崩塌、堵塞型態、他單位光學影像、他單位航拍），其中光學或航拍來自其他單位、與 SAR 互相獨立；目前缺少現地證據，建議下一步 UAV 現地查證並取得他單位既有判釋成果。",
       "evidence": [
        {
         "kind": "sar",
@@ -555,24 +562,33 @@ window.EVENT_SCENARIOS = [
         "kind": "context",
         "status": "context",
         "text": "區域曾受 2024-04-03 花蓮地震（規模 7.2）影響"
+       },
+       {
+        "kind": "optical",
+        "status": "support",
+        "text": "7/24 農村水保署以 Planet 光學衛星影像發現堰塞湖，當日成立應變小組",
+        "source": "維基百科「花蓮馬太鞍溪堰塞湖災害」（引農村水保署發布）",
+        "url": "https://zh.wikipedia.org/zh-tw/花蓮馬太鞍溪堰塞湖災害"
+       },
+       {
+        "kind": "aerial",
+        "status": "support",
+        "text": "7/27 航遙分署航拍取得清晰堰塞湖畫面，推估崩塌量約 2 億 m³、壩高約 200 m",
+        "source": "維基百科「花蓮馬太鞍溪堰塞湖災害」",
+        "url": "https://zh.wikipedia.org/zh-tw/花蓮馬太鞍溪堰塞湖災害"
+       },
+       {
+        "kind": "exposure",
+        "status": "context",
+        "text": "下游為光復鄉市區與台 9 線馬太鞍溪橋；9/21 撤離範圍為光復鄉、鳳林鎮、萬榮鄉共 1,800 戶、8,000 多人（事後資料，僅供規模參考）",
+        "source": "維基百科「花蓮馬太鞍溪堰塞湖災害」；NCDR 馬太鞍溪堰塞湖災害全紀錄",
+        "url": "https://den.ncdr.nat.gov.tw/special/%E9%A6%AC%E5%A4%AA%E9%9E%8D/index.html"
        }
       ],
       "gaps": [
        {
-        "kind": "persistence",
-        "text": "尚未複核：單期影像無法排除陰影或濕土誤判（下一期 8/4）"
-       },
-       {
         "kind": "rain",
         "text": "形成期間雨量：尚未取得測站資料（CWA 歷史雨量待補）"
-       },
-       {
-        "kind": "optical",
-        "text": "光學影像：尚未調閱（颱風期間多雲，雲散後可調 Sentinel-2）"
-       },
-       {
-        "kind": "exposure",
-        "text": "下游保全對象：尚未串接（可接 BigGIS、內政部道路與聚落圖層）"
        },
        {
         "kind": "field",
@@ -582,20 +598,20 @@ window.EVENT_SCENARIOS = [
       "conflicts": [],
       "tasks": [
        {
-        "label": "值班人員判讀 SAR 證據圖",
-        "reason": "確認暗區是否在河谷底、是否為崩塌坡面陰影"
+        "label": "UAV／現地查證壩體與湖面",
+        "reason": "SAR 只能看到水面，壩體高度、材料與溢流風險要現地確認"
        },
        {
-        "label": "排下一期 SAR 複核（8/4）",
-        "reason": "A 級需要兩期一致；單期出現的暗區多數會在複核時消失"
+        "label": "取得他單位既有光學判釋與航拍成果",
+        "reason": "已有其他單位發布的成果，直接串接，不重做"
        },
        {
-        "label": "調閱光學影像（雲況許可時）",
-        "reason": "SAR 以外的獨立證據"
+        "label": "通報主管機關（農村水保署）並評估下游保全對象",
+        "reason": "下游已有聚落與橋梁"
        },
        {
-        "label": "暫不派遣 UAV",
-        "reason": "目前只有單期 SAR，先以複核過濾誤報，避免浪費現地人力"
+        "label": "持續 SAR 監測（下一期 8/4）",
+        "reason": "同時完成 SAR 持續性複核"
        },
        {
         "label": "補查形成期間雨量",
@@ -608,10 +624,11 @@ window.EVENT_SCENARIOS = [
        "spatial.landslide",
        "spatial.blockage",
        "history.nearby",
+       "external.optical",
+       "external.aerial",
+       "exposure.known",
        "gap.rain",
-       "gap.optical",
-       "gap.exposure",
-       "priority.medium.pending"
+       "priority.high.corroborated"
       ]
      },
      {
@@ -742,6 +759,13 @@ window.EVENT_SCENARIOS = [
         "kind": "context",
         "status": "context",
         "text": "區域曾受 2024-04-03 花蓮地震（規模 7.2）影響"
+       },
+       {
+        "kind": "exposure",
+        "status": "context",
+        "text": "下游為光復鄉市區與台 9 線馬太鞍溪橋；9/21 撤離範圍為光復鄉、鳳林鎮、萬榮鄉共 1,800 戶、8,000 多人（事後資料，僅供規模參考）",
+        "source": "維基百科「花蓮馬太鞍溪堰塞湖災害」；NCDR 馬太鞍溪堰塞湖災害全紀錄",
+        "url": "https://den.ncdr.nat.gov.tw/special/%E9%A6%AC%E5%A4%AA%E9%9E%8D/index.html"
        }
       ],
       "gaps": [
@@ -752,10 +776,6 @@ window.EVENT_SCENARIOS = [
        {
         "kind": "optical",
         "text": "光學影像：尚未調閱（颱風期間多雲，雲散後可調 Sentinel-2）"
-       },
-       {
-        "kind": "exposure",
-        "text": "下游保全對象：尚未串接（可接 BigGIS、內政部道路與聚落圖層）"
        },
        {
         "kind": "field",
@@ -781,9 +801,9 @@ window.EVENT_SCENARIOS = [
        "spatial.landslide",
        "spatial.blockage",
        "history.nearby",
+       "exposure.known",
        "gap.rain",
        "gap.optical",
-       "gap.exposure",
        "conflict.spatial_vs_persistence",
        "priority.low.failed"
       ]
@@ -896,6 +916,13 @@ window.EVENT_SCENARIOS = [
         "kind": "context",
         "status": "context",
         "text": "區域曾受 2024-04-03 花蓮地震（規模 7.2）影響"
+       },
+       {
+        "kind": "exposure",
+        "status": "context",
+        "text": "下游為光復鄉市區與台 9 線馬太鞍溪橋；9/21 撤離範圍為光復鄉、鳳林鎮、萬榮鄉共 1,800 戶、8,000 多人（事後資料，僅供規模參考）",
+        "source": "維基百科「花蓮馬太鞍溪堰塞湖災害」；NCDR 馬太鞍溪堰塞湖災害全紀錄",
+        "url": "https://den.ncdr.nat.gov.tw/special/%E9%A6%AC%E5%A4%AA%E9%9E%8D/index.html"
        }
       ],
       "gaps": [
@@ -906,10 +933,6 @@ window.EVENT_SCENARIOS = [
        {
         "kind": "optical",
         "text": "光學影像：尚未調閱（颱風期間多雲，雲散後可調 Sentinel-2）"
-       },
-       {
-        "kind": "exposure",
-        "text": "下游保全對象：尚未串接（可接 BigGIS、內政部道路與聚落圖層）"
        },
        {
         "kind": "field",
@@ -935,9 +958,9 @@ window.EVENT_SCENARIOS = [
        "spatial.landslide",
        "spatial.blockage",
        "history.nearby",
+       "exposure.known",
        "gap.rain",
        "gap.optical",
-       "gap.exposure",
        "conflict.spatial_vs_persistence",
        "priority.low.failed"
       ]
@@ -1075,16 +1098,16 @@ window.EVENT_SCENARIOS = [
       "priority": "high",
       "priorityText": "高優先",
       "action": "建議立即查證",
-      "confidence": "中",
+      "confidence": "高",
       "confidenceReasons": [
-       "SAR 1 期一致",
-       "證據只有 SAR 一種來源，最高到「中」；需光學或現地證據才能到「高」"
+       "SAR 與他單位光學或航拍成果一致（獨立來源）",
+       "外部來源：維基百科「花蓮馬太鞍溪堰塞湖災害」"
       ],
       "persistence": "confirmed",
       "persistenceText": "已確認持續",
       "grade": "A",
       "scale": "中",
-      "summary": "E3 值得優先查證：5 項證據一致（SAR 新增水體、跨期持續、貼河道、附近崩塌、堵塞型態）；目前缺少光學影像與現地證據，建議下一步 UAV 現地查證並調閱光學影像。",
+      "summary": "E3 值得優先查證：7 項證據一致（SAR 新增水體、跨期持續、貼河道、附近崩塌、堵塞型態、他單位光學影像、他單位航拍），其中光學或航拍來自其他單位、與 SAR 互相獨立；目前缺少現地證據，建議下一步 UAV 現地查證並取得他單位既有判釋成果。",
       "evidence": [
        {
         "kind": "sar",
@@ -1125,20 +1148,33 @@ window.EVENT_SCENARIOS = [
         "kind": "context",
         "status": "context",
         "text": "區域曾受 2024-04-03 花蓮地震（規模 7.2）影響"
+       },
+       {
+        "kind": "optical",
+        "status": "support",
+        "text": "7/24 農村水保署以 Planet 光學衛星影像發現堰塞湖，當日成立應變小組",
+        "source": "維基百科「花蓮馬太鞍溪堰塞湖災害」（引農村水保署發布）",
+        "url": "https://zh.wikipedia.org/zh-tw/花蓮馬太鞍溪堰塞湖災害"
+       },
+       {
+        "kind": "aerial",
+        "status": "support",
+        "text": "7/27 航遙分署航拍取得清晰堰塞湖畫面，推估崩塌量約 2 億 m³、壩高約 200 m",
+        "source": "維基百科「花蓮馬太鞍溪堰塞湖災害」",
+        "url": "https://zh.wikipedia.org/zh-tw/花蓮馬太鞍溪堰塞湖災害"
+       },
+       {
+        "kind": "exposure",
+        "status": "context",
+        "text": "下游為光復鄉市區與台 9 線馬太鞍溪橋；9/21 撤離範圍為光復鄉、鳳林鎮、萬榮鄉共 1,800 戶、8,000 多人（事後資料，僅供規模參考）",
+        "source": "維基百科「花蓮馬太鞍溪堰塞湖災害」；NCDR 馬太鞍溪堰塞湖災害全紀錄",
+        "url": "https://den.ncdr.nat.gov.tw/special/%E9%A6%AC%E5%A4%AA%E9%9E%8D/index.html"
        }
       ],
       "gaps": [
        {
         "kind": "rain",
         "text": "形成期間雨量：尚未取得測站資料（CWA 歷史雨量待補）"
-       },
-       {
-        "kind": "optical",
-        "text": "光學影像：尚未調閱（颱風期間多雲，雲散後可調 Sentinel-2）"
-       },
-       {
-        "kind": "exposure",
-        "text": "下游保全對象：尚未串接（可接 BigGIS、內政部道路與聚落圖層）"
        },
        {
         "kind": "field",
@@ -1152,12 +1188,12 @@ window.EVENT_SCENARIOS = [
         "reason": "SAR 只能看到水面，壩體高度、材料與溢流風險要現地確認"
        },
        {
-        "label": "調閱最新光學影像",
-        "reason": "SAR 陡坡遮罩會擋掉約四成湖面，面積偏低，需光學影像確認範圍"
+        "label": "取得他單位既有光學判釋與航拍成果",
+        "reason": "已有其他單位發布的成果，直接串接，不重做"
        },
        {
         "label": "通報主管機關（農村水保署）並評估下游保全對象",
-        "reason": "下游聚落、道路圖層尚未串接"
+        "reason": "下游已有聚落與橋梁"
        },
        {
         "label": "持續 SAR 監測（下一期 8/10）",
@@ -1174,9 +1210,10 @@ window.EVENT_SCENARIOS = [
        "spatial.landslide",
        "spatial.blockage",
        "history.nearby",
+       "external.optical",
+       "external.aerial",
+       "exposure.known",
        "gap.rain",
-       "gap.optical",
-       "gap.exposure",
        "priority.high.confirmed"
       ]
      },
@@ -1308,6 +1345,13 @@ window.EVENT_SCENARIOS = [
         "kind": "context",
         "status": "context",
         "text": "區域曾受 2024-04-03 花蓮地震（規模 7.2）影響"
+       },
+       {
+        "kind": "exposure",
+        "status": "context",
+        "text": "下游為光復鄉市區與台 9 線馬太鞍溪橋；9/21 撤離範圍為光復鄉、鳳林鎮、萬榮鄉共 1,800 戶、8,000 多人（事後資料，僅供規模參考）",
+        "source": "維基百科「花蓮馬太鞍溪堰塞湖災害」；NCDR 馬太鞍溪堰塞湖災害全紀錄",
+        "url": "https://den.ncdr.nat.gov.tw/special/%E9%A6%AC%E5%A4%AA%E9%9E%8D/index.html"
        }
       ],
       "gaps": [
@@ -1318,10 +1362,6 @@ window.EVENT_SCENARIOS = [
        {
         "kind": "optical",
         "text": "光學影像：尚未調閱（颱風期間多雲，雲散後可調 Sentinel-2）"
-       },
-       {
-        "kind": "exposure",
-        "text": "下游保全對象：尚未串接（可接 BigGIS、內政部道路與聚落圖層）"
        },
        {
         "kind": "field",
@@ -1347,9 +1387,9 @@ window.EVENT_SCENARIOS = [
        "spatial.landslide",
        "spatial.blockage",
        "history.nearby",
+       "exposure.known",
        "gap.rain",
        "gap.optical",
-       "gap.exposure",
        "conflict.spatial_vs_persistence",
        "priority.low.failed"
       ]
@@ -1462,6 +1502,13 @@ window.EVENT_SCENARIOS = [
         "kind": "context",
         "status": "context",
         "text": "區域曾受 2024-04-03 花蓮地震（規模 7.2）影響"
+       },
+       {
+        "kind": "exposure",
+        "status": "context",
+        "text": "下游為光復鄉市區與台 9 線馬太鞍溪橋；9/21 撤離範圍為光復鄉、鳳林鎮、萬榮鄉共 1,800 戶、8,000 多人（事後資料，僅供規模參考）",
+        "source": "維基百科「花蓮馬太鞍溪堰塞湖災害」；NCDR 馬太鞍溪堰塞湖災害全紀錄",
+        "url": "https://den.ncdr.nat.gov.tw/special/%E9%A6%AC%E5%A4%AA%E9%9E%8D/index.html"
        }
       ],
       "gaps": [
@@ -1472,10 +1519,6 @@ window.EVENT_SCENARIOS = [
        {
         "kind": "optical",
         "text": "光學影像：尚未調閱（颱風期間多雲，雲散後可調 Sentinel-2）"
-       },
-       {
-        "kind": "exposure",
-        "text": "下游保全對象：尚未串接（可接 BigGIS、內政部道路與聚落圖層）"
        },
        {
         "kind": "field",
@@ -1501,9 +1544,9 @@ window.EVENT_SCENARIOS = [
        "spatial.landslide",
        "spatial.blockage",
        "history.nearby",
+       "exposure.known",
        "gap.rain",
        "gap.optical",
-       "gap.exposure",
        "conflict.spatial_vs_persistence",
        "priority.low.failed"
       ]
@@ -1754,16 +1797,16 @@ window.EVENT_SCENARIOS = [
       "priority": "high",
       "priorityText": "高優先",
       "action": "建議立即查證",
-      "confidence": "中",
+      "confidence": "高",
       "confidenceReasons": [
-       "SAR 2 期一致",
-       "證據只有 SAR 一種來源，最高到「中」；需光學或現地證據才能到「高」"
+       "SAR 與他單位光學或航拍成果一致（獨立來源）",
+       "外部來源：維基百科「花蓮馬太鞍溪堰塞湖災害」"
       ],
       "persistence": "confirmed",
       "persistenceText": "已確認持續",
       "grade": "A",
       "scale": "大",
-      "summary": "E3 值得優先查證：6 項證據一致（SAR 新增水體、跨期持續、貼河道、附近崩塌、堵塞型態、面積擴大）；目前缺少光學影像與現地證據，建議下一步 UAV 現地查證並調閱光學影像。",
+      "summary": "E3 值得優先查證：8 項證據一致（SAR 新增水體、跨期持續、貼河道、附近崩塌、堵塞型態、面積擴大、他單位光學影像、他單位航拍），其中光學或航拍來自其他單位、與 SAR 互相獨立；目前缺少現地證據，建議下一步 UAV 現地查證並取得他單位既有判釋成果。",
       "evidence": [
        {
         "kind": "sar",
@@ -1809,20 +1852,40 @@ window.EVENT_SCENARIOS = [
         "kind": "context",
         "status": "context",
         "text": "區域曾受 2024-04-03 花蓮地震（規模 7.2）影響"
+       },
+       {
+        "kind": "optical",
+        "status": "support",
+        "text": "7/24 農村水保署以 Planet 光學衛星影像發現堰塞湖，當日成立應變小組",
+        "source": "維基百科「花蓮馬太鞍溪堰塞湖災害」（引農村水保署發布）",
+        "url": "https://zh.wikipedia.org/zh-tw/花蓮馬太鞍溪堰塞湖災害"
+       },
+       {
+        "kind": "aerial",
+        "status": "support",
+        "text": "7/27 航遙分署航拍取得清晰堰塞湖畫面，推估崩塌量約 2 億 m³、壩高約 200 m",
+        "source": "維基百科「花蓮馬太鞍溪堰塞湖災害」",
+        "url": "https://zh.wikipedia.org/zh-tw/花蓮馬太鞍溪堰塞湖災害"
+       },
+       {
+        "kind": "official",
+        "status": "context",
+        "text": "8/20 官方估蓄水量 4,800 萬 m³，滿水位 9,100 萬 m³",
+        "source": "維基百科「花蓮馬太鞍溪堰塞湖災害」",
+        "url": "https://zh.wikipedia.org/zh-tw/花蓮馬太鞍溪堰塞湖災害"
+       },
+       {
+        "kind": "exposure",
+        "status": "context",
+        "text": "下游為光復鄉市區與台 9 線馬太鞍溪橋；9/21 撤離範圍為光復鄉、鳳林鎮、萬榮鄉共 1,800 戶、8,000 多人（事後資料，僅供規模參考）",
+        "source": "維基百科「花蓮馬太鞍溪堰塞湖災害」；NCDR 馬太鞍溪堰塞湖災害全紀錄",
+        "url": "https://den.ncdr.nat.gov.tw/special/%E9%A6%AC%E5%A4%AA%E9%9E%8D/index.html"
        }
       ],
       "gaps": [
        {
         "kind": "rain",
         "text": "形成期間雨量：尚未取得測站資料（CWA 歷史雨量待補）"
-       },
-       {
-        "kind": "optical",
-        "text": "光學影像：尚未調閱（颱風期間多雲，雲散後可調 Sentinel-2）"
-       },
-       {
-        "kind": "exposure",
-        "text": "下游保全對象：尚未串接（可接 BigGIS、內政部道路與聚落圖層）"
        },
        {
         "kind": "field",
@@ -1836,12 +1899,12 @@ window.EVENT_SCENARIOS = [
         "reason": "SAR 只能看到水面，壩體高度、材料與溢流風險要現地確認"
        },
        {
-        "label": "調閱最新光學影像",
-        "reason": "SAR 陡坡遮罩會擋掉約四成湖面，面積偏低，需光學影像確認範圍"
+        "label": "取得他單位既有光學判釋與航拍成果",
+        "reason": "已有其他單位發布的成果，直接串接，不重做"
        },
        {
         "label": "通報主管機關（農村水保署）並評估下游保全對象",
-        "reason": "下游聚落、道路圖層尚未串接"
+        "reason": "下游已有聚落與橋梁"
        },
        {
         "label": "持續 SAR 監測（下一期 8/28）",
@@ -1859,9 +1922,11 @@ window.EVENT_SCENARIOS = [
        "spatial.blockage",
        "trend.growing",
        "history.nearby",
+       "external.optical",
+       "external.aerial",
+       "external.official",
+       "exposure.known",
        "gap.rain",
-       "gap.optical",
-       "gap.exposure",
        "priority.high.confirmed"
       ]
      },
@@ -1970,6 +2035,13 @@ window.EVENT_SCENARIOS = [
         "kind": "context",
         "status": "context",
         "text": "區域曾受 2024-04-03 花蓮地震（規模 7.2）影響"
+       },
+       {
+        "kind": "exposure",
+        "status": "context",
+        "text": "下游為光復鄉市區與台 9 線馬太鞍溪橋；9/21 撤離範圍為光復鄉、鳳林鎮、萬榮鄉共 1,800 戶、8,000 多人（事後資料，僅供規模參考）",
+        "source": "維基百科「花蓮馬太鞍溪堰塞湖災害」；NCDR 馬太鞍溪堰塞湖災害全紀錄",
+        "url": "https://den.ncdr.nat.gov.tw/special/%E9%A6%AC%E5%A4%AA%E9%9E%8D/index.html"
        }
       ],
       "gaps": [
@@ -1984,10 +2056,6 @@ window.EVENT_SCENARIOS = [
        {
         "kind": "optical",
         "text": "光學影像：尚未調閱（颱風期間多雲，雲散後可調 Sentinel-2）"
-       },
-       {
-        "kind": "exposure",
-        "text": "下游保全對象：尚未串接（可接 BigGIS、內政部道路與聚落圖層）"
        },
        {
         "kind": "field",
@@ -2023,9 +2091,9 @@ window.EVENT_SCENARIOS = [
        "spatial.landslide",
        "spatial.blockage",
        "history.nearby",
+       "exposure.known",
        "gap.rain",
        "gap.optical",
-       "gap.exposure",
        "priority.medium.pending"
       ]
      },
@@ -2122,6 +2190,13 @@ window.EVENT_SCENARIOS = [
         "kind": "context",
         "status": "context",
         "text": "區域曾受 2024-04-03 花蓮地震（規模 7.2）影響"
+       },
+       {
+        "kind": "exposure",
+        "status": "context",
+        "text": "下游為光復鄉市區與台 9 線馬太鞍溪橋；9/21 撤離範圍為光復鄉、鳳林鎮、萬榮鄉共 1,800 戶、8,000 多人（事後資料，僅供規模參考）",
+        "source": "維基百科「花蓮馬太鞍溪堰塞湖災害」；NCDR 馬太鞍溪堰塞湖災害全紀錄",
+        "url": "https://den.ncdr.nat.gov.tw/special/%E9%A6%AC%E5%A4%AA%E9%9E%8D/index.html"
        }
       ],
       "gaps": [
@@ -2136,10 +2211,6 @@ window.EVENT_SCENARIOS = [
        {
         "kind": "optical",
         "text": "光學影像：尚未調閱（颱風期間多雲，雲散後可調 Sentinel-2）"
-       },
-       {
-        "kind": "exposure",
-        "text": "下游保全對象：尚未串接（可接 BigGIS、內政部道路與聚落圖層）"
        },
        {
         "kind": "field",
@@ -2175,9 +2246,9 @@ window.EVENT_SCENARIOS = [
        "spatial.landslide",
        "spatial.blockage",
        "history.nearby",
+       "exposure.known",
        "gap.rain",
        "gap.optical",
-       "gap.exposure",
        "priority.medium.pending"
       ]
      },
@@ -2309,6 +2380,13 @@ window.EVENT_SCENARIOS = [
         "kind": "context",
         "status": "context",
         "text": "區域曾受 2024-04-03 花蓮地震（規模 7.2）影響"
+       },
+       {
+        "kind": "exposure",
+        "status": "context",
+        "text": "下游為光復鄉市區與台 9 線馬太鞍溪橋；9/21 撤離範圍為光復鄉、鳳林鎮、萬榮鄉共 1,800 戶、8,000 多人（事後資料，僅供規模參考）",
+        "source": "維基百科「花蓮馬太鞍溪堰塞湖災害」；NCDR 馬太鞍溪堰塞湖災害全紀錄",
+        "url": "https://den.ncdr.nat.gov.tw/special/%E9%A6%AC%E5%A4%AA%E9%9E%8D/index.html"
        }
       ],
       "gaps": [
@@ -2319,10 +2397,6 @@ window.EVENT_SCENARIOS = [
        {
         "kind": "optical",
         "text": "光學影像：尚未調閱（颱風期間多雲，雲散後可調 Sentinel-2）"
-       },
-       {
-        "kind": "exposure",
-        "text": "下游保全對象：尚未串接（可接 BigGIS、內政部道路與聚落圖層）"
        },
        {
         "kind": "field",
@@ -2348,9 +2422,9 @@ window.EVENT_SCENARIOS = [
        "spatial.landslide",
        "spatial.blockage",
        "history.nearby",
+       "exposure.known",
        "gap.rain",
        "gap.optical",
-       "gap.exposure",
        "conflict.spatial_vs_persistence",
        "priority.low.failed"
       ]
@@ -2463,6 +2537,13 @@ window.EVENT_SCENARIOS = [
         "kind": "context",
         "status": "context",
         "text": "區域曾受 2024-04-03 花蓮地震（規模 7.2）影響"
+       },
+       {
+        "kind": "exposure",
+        "status": "context",
+        "text": "下游為光復鄉市區與台 9 線馬太鞍溪橋；9/21 撤離範圍為光復鄉、鳳林鎮、萬榮鄉共 1,800 戶、8,000 多人（事後資料，僅供規模參考）",
+        "source": "維基百科「花蓮馬太鞍溪堰塞湖災害」；NCDR 馬太鞍溪堰塞湖災害全紀錄",
+        "url": "https://den.ncdr.nat.gov.tw/special/%E9%A6%AC%E5%A4%AA%E9%9E%8D/index.html"
        }
       ],
       "gaps": [
@@ -2473,10 +2554,6 @@ window.EVENT_SCENARIOS = [
        {
         "kind": "optical",
         "text": "光學影像：尚未調閱（颱風期間多雲，雲散後可調 Sentinel-2）"
-       },
-       {
-        "kind": "exposure",
-        "text": "下游保全對象：尚未串接（可接 BigGIS、內政部道路與聚落圖層）"
        },
        {
         "kind": "field",
@@ -2502,9 +2579,9 @@ window.EVENT_SCENARIOS = [
        "spatial.landslide",
        "spatial.blockage",
        "history.nearby",
+       "exposure.known",
        "gap.rain",
        "gap.optical",
-       "gap.exposure",
        "conflict.spatial_vs_persistence",
        "priority.low.failed"
       ]
@@ -2674,16 +2751,16 @@ window.EVENT_SCENARIOS = [
       "priority": "high",
       "priorityText": "高優先",
       "action": "建議立即查證",
-      "confidence": "中",
+      "confidence": "高",
       "confidenceReasons": [
-       "SAR 3 期一致",
-       "證據只有 SAR 一種來源，最高到「中」；需光學或現地證據才能到「高」"
+       "SAR 與他單位光學或航拍成果一致（獨立來源）",
+       "外部來源：維基百科「花蓮馬太鞍溪堰塞湖災害」"
       ],
       "persistence": "confirmed",
       "persistenceText": "已確認持續",
       "grade": "A",
       "scale": "大",
-      "summary": "E3 值得優先查證：6 項證據一致（SAR 新增水體、跨期持續、貼河道、附近崩塌、堵塞型態、面積擴大）；目前缺少光學影像與現地證據，建議下一步 UAV 現地查證並調閱光學影像。",
+      "summary": "E3 值得優先查證：8 項證據一致（SAR 新增水體、跨期持續、貼河道、附近崩塌、堵塞型態、面積擴大、他單位光學影像、他單位航拍），其中光學或航拍來自其他單位、與 SAR 互相獨立；目前缺少現地證據，建議下一步 UAV 現地查證並取得他單位既有判釋成果。",
       "evidence": [
        {
         "kind": "sar",
@@ -2729,20 +2806,40 @@ window.EVENT_SCENARIOS = [
         "kind": "context",
         "status": "context",
         "text": "區域曾受 2024-04-03 花蓮地震（規模 7.2）影響"
+       },
+       {
+        "kind": "optical",
+        "status": "support",
+        "text": "7/24 農村水保署以 Planet 光學衛星影像發現堰塞湖，當日成立應變小組",
+        "source": "維基百科「花蓮馬太鞍溪堰塞湖災害」（引農村水保署發布）",
+        "url": "https://zh.wikipedia.org/zh-tw/花蓮馬太鞍溪堰塞湖災害"
+       },
+       {
+        "kind": "aerial",
+        "status": "support",
+        "text": "7/27 航遙分署航拍取得清晰堰塞湖畫面，推估崩塌量約 2 億 m³、壩高約 200 m",
+        "source": "維基百科「花蓮馬太鞍溪堰塞湖災害」",
+        "url": "https://zh.wikipedia.org/zh-tw/花蓮馬太鞍溪堰塞湖災害"
+       },
+       {
+        "kind": "official",
+        "status": "context",
+        "text": "8/20 官方估蓄水量 4,800 萬 m³，滿水位 9,100 萬 m³",
+        "source": "維基百科「花蓮馬太鞍溪堰塞湖災害」",
+        "url": "https://zh.wikipedia.org/zh-tw/花蓮馬太鞍溪堰塞湖災害"
+       },
+       {
+        "kind": "exposure",
+        "status": "context",
+        "text": "下游為光復鄉市區與台 9 線馬太鞍溪橋；9/21 撤離範圍為光復鄉、鳳林鎮、萬榮鄉共 1,800 戶、8,000 多人（事後資料，僅供規模參考）",
+        "source": "維基百科「花蓮馬太鞍溪堰塞湖災害」；NCDR 馬太鞍溪堰塞湖災害全紀錄",
+        "url": "https://den.ncdr.nat.gov.tw/special/%E9%A6%AC%E5%A4%AA%E9%9E%8D/index.html"
        }
       ],
       "gaps": [
        {
         "kind": "rain",
         "text": "形成期間雨量：尚未取得測站資料（CWA 歷史雨量待補）"
-       },
-       {
-        "kind": "optical",
-        "text": "光學影像：尚未調閱（颱風期間多雲，雲散後可調 Sentinel-2）"
-       },
-       {
-        "kind": "exposure",
-        "text": "下游保全對象：尚未串接（可接 BigGIS、內政部道路與聚落圖層）"
        },
        {
         "kind": "field",
@@ -2756,12 +2853,12 @@ window.EVENT_SCENARIOS = [
         "reason": "SAR 只能看到水面，壩體高度、材料與溢流風險要現地確認"
        },
        {
-        "label": "調閱最新光學影像",
-        "reason": "SAR 陡坡遮罩會擋掉約四成湖面，面積偏低，需光學影像確認範圍"
+        "label": "取得他單位既有光學判釋與航拍成果",
+        "reason": "已有其他單位發布的成果，直接串接，不重做"
        },
        {
         "label": "通報主管機關（農村水保署）並評估下游保全對象",
-        "reason": "下游聚落、道路圖層尚未串接"
+        "reason": "下游已有聚落與橋梁"
        },
        {
         "label": "持續 SAR 監測（下一期 9/3）",
@@ -2779,9 +2876,11 @@ window.EVENT_SCENARIOS = [
        "spatial.blockage",
        "trend.growing",
        "history.nearby",
+       "external.optical",
+       "external.aerial",
+       "external.official",
+       "exposure.known",
        "gap.rain",
-       "gap.optical",
-       "gap.exposure",
        "priority.high.confirmed"
       ]
      },
@@ -2913,6 +3012,13 @@ window.EVENT_SCENARIOS = [
         "kind": "context",
         "status": "context",
         "text": "區域曾受 2024-04-03 花蓮地震（規模 7.2）影響"
+       },
+       {
+        "kind": "exposure",
+        "status": "context",
+        "text": "下游為光復鄉市區與台 9 線馬太鞍溪橋；9/21 撤離範圍為光復鄉、鳳林鎮、萬榮鄉共 1,800 戶、8,000 多人（事後資料，僅供規模參考）",
+        "source": "維基百科「花蓮馬太鞍溪堰塞湖災害」；NCDR 馬太鞍溪堰塞湖災害全紀錄",
+        "url": "https://den.ncdr.nat.gov.tw/special/%E9%A6%AC%E5%A4%AA%E9%9E%8D/index.html"
        }
       ],
       "gaps": [
@@ -2923,10 +3029,6 @@ window.EVENT_SCENARIOS = [
        {
         "kind": "optical",
         "text": "光學影像：尚未調閱（颱風期間多雲，雲散後可調 Sentinel-2）"
-       },
-       {
-        "kind": "exposure",
-        "text": "下游保全對象：尚未串接（可接 BigGIS、內政部道路與聚落圖層）"
        },
        {
         "kind": "field",
@@ -2952,9 +3054,9 @@ window.EVENT_SCENARIOS = [
        "spatial.landslide",
        "spatial.blockage",
        "history.nearby",
+       "exposure.known",
        "gap.rain",
        "gap.optical",
-       "gap.exposure",
        "conflict.spatial_vs_persistence",
        "priority.low.failed"
       ]
@@ -3067,6 +3169,13 @@ window.EVENT_SCENARIOS = [
         "kind": "context",
         "status": "context",
         "text": "區域曾受 2024-04-03 花蓮地震（規模 7.2）影響"
+       },
+       {
+        "kind": "exposure",
+        "status": "context",
+        "text": "下游為光復鄉市區與台 9 線馬太鞍溪橋；9/21 撤離範圍為光復鄉、鳳林鎮、萬榮鄉共 1,800 戶、8,000 多人（事後資料，僅供規模參考）",
+        "source": "維基百科「花蓮馬太鞍溪堰塞湖災害」；NCDR 馬太鞍溪堰塞湖災害全紀錄",
+        "url": "https://den.ncdr.nat.gov.tw/special/%E9%A6%AC%E5%A4%AA%E9%9E%8D/index.html"
        }
       ],
       "gaps": [
@@ -3077,10 +3186,6 @@ window.EVENT_SCENARIOS = [
        {
         "kind": "optical",
         "text": "光學影像：尚未調閱（颱風期間多雲，雲散後可調 Sentinel-2）"
-       },
-       {
-        "kind": "exposure",
-        "text": "下游保全對象：尚未串接（可接 BigGIS、內政部道路與聚落圖層）"
        },
        {
         "kind": "field",
@@ -3106,9 +3211,9 @@ window.EVENT_SCENARIOS = [
        "spatial.landslide",
        "spatial.blockage",
        "history.nearby",
+       "exposure.known",
        "gap.rain",
        "gap.optical",
-       "gap.exposure",
        "conflict.spatial_vs_persistence",
        "priority.low.failed"
       ]
@@ -3225,6 +3330,13 @@ window.EVENT_SCENARIOS = [
         "kind": "context",
         "status": "context",
         "text": "區域曾受 2024-04-03 花蓮地震（規模 7.2）影響"
+       },
+       {
+        "kind": "exposure",
+        "status": "context",
+        "text": "下游為光復鄉市區與台 9 線馬太鞍溪橋；9/21 撤離範圍為光復鄉、鳳林鎮、萬榮鄉共 1,800 戶、8,000 多人（事後資料，僅供規模參考）",
+        "source": "維基百科「花蓮馬太鞍溪堰塞湖災害」；NCDR 馬太鞍溪堰塞湖災害全紀錄",
+        "url": "https://den.ncdr.nat.gov.tw/special/%E9%A6%AC%E5%A4%AA%E9%9E%8D/index.html"
        }
       ],
       "gaps": [
@@ -3235,10 +3347,6 @@ window.EVENT_SCENARIOS = [
        {
         "kind": "optical",
         "text": "光學影像：尚未調閱（颱風期間多雲，雲散後可調 Sentinel-2）"
-       },
-       {
-        "kind": "exposure",
-        "text": "下游保全對象：尚未串接（可接 BigGIS、內政部道路與聚落圖層）"
        },
        {
         "kind": "field",
@@ -3264,9 +3372,9 @@ window.EVENT_SCENARIOS = [
        "spatial.landslide",
        "spatial.blockage",
        "history.nearby",
+       "exposure.known",
        "gap.rain",
        "gap.optical",
-       "gap.exposure",
        "conflict.spatial_vs_persistence",
        "priority.low.failed"
       ]
@@ -3371,6 +3479,13 @@ window.EVENT_SCENARIOS = [
         "kind": "context",
         "status": "context",
         "text": "區域曾受 2024-04-03 花蓮地震（規模 7.2）影響"
+       },
+       {
+        "kind": "exposure",
+        "status": "context",
+        "text": "下游為光復鄉市區與台 9 線馬太鞍溪橋；9/21 撤離範圍為光復鄉、鳳林鎮、萬榮鄉共 1,800 戶、8,000 多人（事後資料，僅供規模參考）",
+        "source": "維基百科「花蓮馬太鞍溪堰塞湖災害」；NCDR 馬太鞍溪堰塞湖災害全紀錄",
+        "url": "https://den.ncdr.nat.gov.tw/special/%E9%A6%AC%E5%A4%AA%E9%9E%8D/index.html"
        }
       ],
       "gaps": [
@@ -3381,10 +3496,6 @@ window.EVENT_SCENARIOS = [
        {
         "kind": "optical",
         "text": "光學影像：尚未調閱（颱風期間多雲，雲散後可調 Sentinel-2）"
-       },
-       {
-        "kind": "exposure",
-        "text": "下游保全對象：尚未串接（可接 BigGIS、內政部道路與聚落圖層）"
        },
        {
         "kind": "field",
@@ -3410,9 +3521,9 @@ window.EVENT_SCENARIOS = [
        "spatial.landslide",
        "spatial.blockage",
        "history.nearby",
+       "exposure.known",
        "gap.rain",
        "gap.optical",
-       "gap.exposure",
        "conflict.spatial_vs_persistence",
        "priority.low.failed"
       ]

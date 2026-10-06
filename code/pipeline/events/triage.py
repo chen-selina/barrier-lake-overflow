@@ -8,14 +8,16 @@ rules_fired，跟 attribution 一樣可以對回是哪條規則產生的。
 優先等級（決策表，依序比對）：
     持續性中斷   前期已確認蓄水、最新一期卻未見         → 高　建議立即查證（可能潰決或排空）
     已確認持續   多期 SAR 一致且附近有崩塌（A 級）        → 高　建議立即查證
+    多源一致     單期 SAR（B 級）＋他單位光學或航拍成果    → 高　建議立即查證
     待複核       單期 SAR，空間條件符合（B 級）            → 中　建議人工確認
     待複核       單期 SAR，附近無崩塌訊號（C 級）          → 低　暫時觀察
     複核未持續   下一期同位置水體 IoU 未達門檻              → 低　暫時觀察
 同一等級內依面積由大到小排。
 
 研判信心（高／中／低）：
-    證據只有 SAR 時最高到「中」。要到「高」需要 SAR 以外的獨立證據
-    （人工查證、光學影像），這部分由值班人員在儀表板上補。
+    證據只有 SAR 時最高到「中」。要到「高」需要 SAR 以外的獨立證據：
+    他單位已發布的光學或航拍成果（情境檔 externalEvidence），或值班人員在
+    儀表板上記錄的人工查證。
 """
 
 from __future__ import annotations
@@ -33,6 +35,7 @@ SCALE_MEDIUM_HA = 1.0          # 1～10 公頃為「中」，以下為「小」
 GROWING_RATIO = 1.5            # 最新面積 ≥ 首次 × 此值視為擴大
 SHRINKING_RATIO = 0.67
 HISTORY_RADIUS_KM = 10.0       # 歷史災害的搜尋半徑
+INDEPENDENT_KINDS = ("optical", "aerial")   # 算「SAR 以外的獨立證據」的外部成果種類
 
 PRIORITY_TEXT = {"high": "高優先", "medium": "中優先", "low": "低優先"}
 PRIORITY_RANK = {"high": 0, "medium": 1, "low": 2}
@@ -44,7 +47,8 @@ PERSISTENCE_TEXT = {
     "lost": "持續性中斷",
 }
 SHORT_NAME = {"sar": "SAR 新增水體", "persistence": "跨期持續", "river": "貼河道",
-              "landslide": "附近崩塌", "terrain": "堵塞型態", "trend": "面積擴大"}
+              "landslide": "附近崩塌", "terrain": "堵塞型態", "trend": "面積擴大",
+              "optical": "他單位光學影像", "aerial": "他單位航拍"}
 
 
 # 時間
@@ -109,6 +113,9 @@ class Context:
     context_lines: list = field(default_factory=list)
     history: list = field(default_factory=list)   # [{"name", "year", "distanceKm"}]
     reference_lon_lat: Optional[tuple] = None
+    # 他單位已發布、時間在 as_of 以前且位置對得上的成果：[{"time", "kind", "text", "source", "url"}]
+    external: list = field(default_factory=list)
+    exposure: Optional[dict] = None               # 下游保全對象：{"text", "source", "url"}
 
 
 # 判定
@@ -270,17 +277,32 @@ def assess(label: str, dets: list, ctx: Context) -> Assessment:
     for line in ctx.context_lines:
         evidence.append({"kind": "context", "status": "context", "text": line})
 
+    # 他單位既有成果：光學、航拍算獨立證據，其餘（官方估算等）列為背景
+    for x in ctx.external:
+        rules.append(f"external.{x['kind']}")
+        evidence.append({"kind": x["kind"],
+                         "status": "support" if x["kind"] in INDEPENDENT_KINDS else "context",
+                         "text": f"{tw_date(x['time'])} {x['text']}",
+                         "source": x.get("source"), "url": x.get("url")})
+    corroborated = any(x["kind"] in INDEPENDENT_KINDS for x in ctx.external)
+    if ctx.exposure:
+        rules.append("exposure.known")
+        evidence.append({"kind": "exposure", "status": "context", "text": ctx.exposure["text"],
+                         "source": ctx.exposure.get("source"), "url": ctx.exposure.get("url")})
+
     # ── 證據缺口
     gaps = []
-    if pers == "pending":
+    if pers == "pending" and not corroborated:
         gaps.append({"kind": "persistence", "text": f"尚未複核：單期影像無法排除陰影或濕土誤判（下一期 {next_pass}）"})
     if not ctx.rain_available:
         rules.append("gap.rain")
         gaps.append({"kind": "rain", "text": "形成期間雨量：尚未取得測站資料（CWA 歷史雨量待補）"})
-    rules.append("gap.optical")
-    gaps.append({"kind": "optical", "text": "光學影像：尚未調閱（颱風期間多雲，雲散後可調 Sentinel-2）"})
-    rules.append("gap.exposure")
-    gaps.append({"kind": "exposure", "text": "下游保全對象：尚未串接（可接 BigGIS、內政部道路與聚落圖層）"})
+    if not corroborated:
+        rules.append("gap.optical")
+        gaps.append({"kind": "optical", "text": "光學影像：尚未調閱（颱風期間多雲，雲散後可調 Sentinel-2）"})
+    if not ctx.exposure:
+        rules.append("gap.exposure")
+        gaps.append({"kind": "exposure", "text": "下游保全對象：尚未串接（可接 BigGIS、內政部道路與聚落圖層）"})
     gaps.append({"kind": "field", "text": "人工查證：尚未進行"})
 
     # ── 證據衝突
@@ -304,15 +326,21 @@ def assess(label: str, dets: list, ctx: Context) -> Assessment:
             {"label": "調閱最新光學影像", "reason": "確認湖面是否仍在，排除 SAR 遮罩造成的漏偵"},
             {"label": "通報主管機關（農村水保署）", "reason": "下游保全對象尚未串接，需由主管機關評估"},
         ]
-    elif pers == "confirmed" and grade == "A":
+    elif (pers == "confirmed" and grade == "A") or (pers == "pending" and grade == "B" and corroborated):
         priority = "high"
-        rules.append("priority.high.confirmed")
+        rules.append("priority.high." + ("confirmed" if pers == "confirmed" else "corroborated"))
+        optical_task = (
+            {"label": "取得他單位既有光學判釋與航拍成果", "reason": "已有其他單位發布的成果，直接串接，不重做"}
+            if corroborated else
+            {"label": "調閱最新光學影像", "reason": "SAR 陡坡遮罩會擋掉約四成湖面，面積偏低，需光學影像確認範圍"})
         tasks += [
             {"label": "UAV／現地查證壩體與湖面", "reason": "SAR 只能看到水面，壩體高度、材料與溢流風險要現地確認"},
-            {"label": "調閱最新光學影像", "reason": "SAR 陡坡遮罩會擋掉約四成湖面，面積偏低，需光學影像確認範圍"},
-            {"label": "通報主管機關（農村水保署）並評估下游保全對象", "reason": "下游聚落、道路圖層尚未串接"},
+            optical_task,
+            {"label": "通報主管機關（農村水保署）並評估下游保全對象",
+             "reason": "下游已有聚落與橋梁" if ctx.exposure else "下游聚落、道路圖層尚未串接"},
             {"label": f"持續 SAR 監測（下一期 {next_pass}）",
-             "reason": "追蹤湖面變化" + ("；目前面積擴大中" if trend == "growing" else "")},
+             "reason": ("追蹤湖面變化" + ("；目前面積擴大中" if trend == "growing" else ""))
+             if pers == "confirmed" else "同時完成 SAR 持續性複核"},
         ]
     elif pers == "pending" and grade == "B":
         priority = "medium"
@@ -338,7 +366,12 @@ def assess(label: str, dets: list, ctx: Context) -> Assessment:
         tasks.append({"label": "補查形成期間雨量", "reason": "確認觸發條件；目前觀測表此欄空白"})
 
     # ── 研判信心
-    if pers == "confirmed":
+    if corroborated and pers in ("confirmed", "pending"):
+        confidence = "高"
+        sources = "、".join(sorted({x["source"].split("（")[0] for x in ctx.external
+                                    if x["kind"] in INDEPENDENT_KINDS and x.get("source")}))
+        conf_reasons = ["SAR 與他單位光學或航拍成果一致（獨立來源）"] + ([f"外部來源：{sources}"] if sources else [])
+    elif pers == "confirmed":
         confidence = "中"
         conf_reasons = [f"SAR {len(dets)} 期一致", "證據只有 SAR 一種來源，最高到「中」；需光學或現地證據才能到「高」"]
     elif pers == "failed":
@@ -350,8 +383,12 @@ def assess(label: str, dets: list, ctx: Context) -> Assessment:
                         else ["前後期結果不一致，需人工判斷"])
 
     # ── 一句話摘要
-    support = [SHORT_NAME[e["kind"]] for e in evidence if e["status"] == "support"]
-    if priority == "high" and pers == "confirmed":
+    support = list(dict.fromkeys(SHORT_NAME[e["kind"]] for e in evidence if e["status"] == "support"))
+    if priority == "high" and corroborated:
+        summary = (f"{label} 值得優先查證：{len(support)} 項證據一致（{'、'.join(support)}），"
+                   f"其中光學或航拍來自其他單位、與 SAR 互相獨立；目前缺少現地證據，"
+                   f"建議下一步 UAV 現地查證並取得他單位既有判釋成果。")
+    elif priority == "high" and pers == "confirmed":
         summary = (f"{label} 值得優先查證：{len(support)} 項證據一致（{'、'.join(support)}）；"
                    f"目前缺少光學影像與現地證據，建議下一步 UAV 現地查證並調閱光學影像。")
     elif priority == "high":

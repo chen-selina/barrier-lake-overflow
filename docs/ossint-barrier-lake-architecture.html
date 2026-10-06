@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>山水為證：堰塞湖快速評估系統架構報告 — OSSInt 2026</title>
+<title>山水為證：堰塞湖事件研判平台架構報告 — OSSInt 2026</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700;900&family=Noto+Sans+TC:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -237,8 +237,8 @@
     <div class="meta-strip">
       <div><span class="k">競賽</span><span class="v">OSSInt 2026 黑客松</span></div>
       <div><span class="k">賽道</span><span class="v">災害防救</span></div>
-      <div><span class="k">文件版本</span><span class="v">v0.1 草案</span></div>
-      <div><span class="k">日期</span><span class="v">2026-07-15</span></div>
+      <div><span class="k">文件版本</span><span class="v">v0.2 決賽調整</span></div>
+      <div><span class="k">日期</span><span class="v">2026-10-06（初版 2026-07-15）</span></div>
     </div>
   </div>
 </header>
@@ -256,7 +256,7 @@
     <li><span class="no">06</span><a href="#s6">判定層：堰塞湖確認</a></li>
     <li><span class="no">07</span><a href="#s7">量化層：蓄水量與壩體</a></li>
     <li><span class="no">08</span><a href="#s8">影響層：淹沒模擬與暴露</a></li>
-    <li><span class="no">09</span><a href="#s9">應用層：CAP 示警與儀表板</a></li>
+    <li><span class="no">09</span><a href="#s9">應用層：事件佇列與值班儀表板</a></li>
     <li><span class="no">10</span><a href="#s10">驗證計畫：歷史事件回測</a></li>
     <li><span class="no">11</span><a href="#s11">技術棧、算力與成本</a></li>
     <li><span class="no">12</span><a href="#s12">開發時程與里程碑</a></li>
@@ -268,11 +268,11 @@
   <div class="sec-mark"><span class="bench"><span>01</span></span><h2>問題背景與系統定位</h2></div>
   <p class="lead">2025 年 9 月，樺加沙颱風期間馬太鞍溪堰塞湖溢流，重創花蓮光復地區。這起事件暴露了台灣山區災害鏈的一個結構性缺口：地震與豪雨在深山造成的大規模崩塌可能堵河成湖，但從<strong>形成、發現、監測到溢流預警</strong>，目前高度依賴人力巡查與航拍——而災害發生時，往往正是道路中斷、直升機無法起飛的時候。</p>
   <p>更關鍵的矛盾是：堰塞湖最常形成於颱風豪雨期間，此時<strong>光學衛星與航拍全被雲層遮蔽</strong>。合成孔徑雷達（SAR）穿透雲雨的能力，使衛星遙測成為極端天氣下唯一可靠的眼睛。</p>
-  <p>這個「高度依賴人力」的缺口不是假設——2026 年 6 月，NCDR 對萬里溪堰塞湖的應變正是具體寫照：透過每日派遣 UAV 空拍、人力佈設水位計、結合福衛八號影像監測，最終完成兩次預防性撤離、213 人安全撤離。這套人力密集的應變模式證明有效，但也正是本專案希望自動化取代的場景——把高頻率的人力巡查，轉換成事件觸發式的自動化監測流程。</p>
-  <p>本系統的定位：<strong>事件觸發式的堰塞湖全自動評估管線</strong>。地震或豪雨達門檻即自動圈定高風險集水區、調度衛星影像，偵測新生崩塌與河道新增水體，以 DEM 量化蓄水量與壩體規模，模擬潰壩淹沒範圍與暴露人口，並以 CAP 標準格式輸出示警——從觸發到初步評估報告，目標在影像取得後 2 小時內完成。</p>
+  <p>這個「高度依賴人力」的缺口不是假設——2026 年 6 月，NCDR 對萬里溪堰塞湖的應變正是具體寫照：透過每日派遣 UAV 空拍、人力佈設水位計、結合福衛八號影像監測，最終完成兩次預防性撤離、213 人安全撤離。這套應變模式證明有效；本專案不是要取代它，而是讓值班人員不必自己從大量資料裡找答案。</p>
+  <p>本系統的定位：<strong>事件研判與任務編排平台</strong>。把衛星偵測結果與其他單位已發布的成果整理成事件佇列，每個事件附上證據、證據缺口、優先等級與建議任務；系統負責整理與排序，值班人員做最後判斷。</p>
   <div class="note">
-    <span class="tag">設計原則</span>
-    全系統以 100% 免費開放資料建構，主要流程可在單機執行；輸出直接採用災防示警標準格式（CAP），與 NCDR 既有示警體系無縫接軌——呼應競賽「成品必須能在現實環境運行」的核心精神。
+    <span class="tag">決賽版調整（2026-10）</span>
+    初版規劃為「全自動評估管線＋CAP 示警」。決賽前依建議調整：（1）不重做政府已有的判釋能力，而是串接既有成果；（2）SAR 只提供證據，不直接下結論；（3）不做全自動警報，採人機協作（Human-in-the-loop）；（4）SAR 事件只給相對規模與信心等級，不報精確蓄水量；（5）CAP 示警輸出已移除。以下 02～08 節保留初版技術規劃，作為偵測與量化模組的背景說明；實作狀態以 README 為準。
   </div>
 </section>
 
@@ -341,8 +341,8 @@
         <line x1="360" y1="346" x2="428" y2="346" stroke="#6E6852" stroke-width="1.2" marker-end="url(#ah)"/>
 
         <rect x="432" y="320" width="150" height="52" fill="#2C2A1E"/>
-        <text x="507" y="342" text-anchor="middle" font-weight="700" fill="#FCFBF6">CAP 示警</text>
-        <text x="507" y="361" text-anchor="middle" font-size="12" fill="#D8D2BF">儀表板 · NCDR</text>
+        <text x="507" y="342" text-anchor="middle" font-weight="700" fill="#FCFBF6">事件佇列</text>
+        <text x="507" y="361" text-anchor="middle" font-size="12" fill="#D8D2BF">人工查證 · 任務</text>
       </g>
     </svg>
     <div class="fig-cap">FIG. 1 — 事件觸發式管線：藍框為觸發與資料模組，白框為分析模組</div>
@@ -512,11 +512,12 @@
 
 <!-- ══════════ 09 ══════════ -->
 <section id="s9">
-  <div class="sec-mark"><span class="bench"><span>09</span></span><h2>應用層：CAP 示警與儀表板</h2></div>
+  <div class="sec-mark"><span class="bench"><span>09</span></span><h2>應用層：事件佇列與值班儀表板</h2></div>
   <ul class="plain">
-    <li><strong>CAP 輸出</strong> — 每個確認事件自動產生 CAP 1.2 格式示警（含事件位置、信心分級、蓄水量區間、預估影響範圍多邊形），格式完全依循 NCDR 災害示警平台規範——demo 時可展示「本系統的輸出可直接進入國家示警體系」。</li>
-    <li><strong>指揮儀表板</strong>（MapLibre GL）— 3D 地形上疊崩塌區、湖面範圍時序、淹沒模擬動畫、暴露統計卡片；每個數字可點開追溯至來源影像與計算參數。</li>
-    <li><strong>監測報告</strong> — 每景新影像處理完自動產出 PDF 簡報（湖面變化、水位趨勢、風險指標更新），模擬應變中心的實際作業節奏。</li>
+    <li><strong>事件佇列</strong> — 逐期 SAR 偵測結果跨期追蹤成事件，依決策表排出「建議立即查證／建議人工確認／暫時觀察」；每個事件列出證據、證據缺口、證據衝突與建議任務（UAV 現地查證、調閱光學、排下一期複核、暫不派遣）。規則見 <code>docs/events.md</code>。</li>
+    <li><strong>串接既有成果</strong> — 他單位已發布的光學判釋、航拍成果以時間與位置對到事件，算作 SAR 以外的獨立證據。研判信心只有 SAR 時最高到「中」，有獨立證據或人工查證才到「高」。</li>
+    <li><strong>人工查證與任務單</strong> — 值班人員記錄確認／持續觀察／排除，系統研判不被覆寫；每個事件可複製成任務單。</li>
+    <li><strong>逐期回放</strong> — 以馬太鞍溪 2025 為例，每一期衛星過境是一個時點，只用當時已取得的資料，成功案例與誤報在同一段回放中呈現。</li>
   </ul>
 </section>
 
@@ -574,7 +575,7 @@
       <tr><td><span class="m">08 中旬</span></td><td>水體萃取 + 崩塌振幅比值偵測 + 陰影遮罩</td><td>馬太鞍溪形成期首次偵測回放</td></tr>
       <tr><td><span class="m">08 下旬</span></td><td>DEM 量化模組（水位反演、蓄水量、壩高）+ bathtub 淹沒快估</td><td>蓄水量估算 vs 官方值比對</td></tr>
       <tr><td><span class="m">09 上旬</span></td><td>撰寫提案書（含回測證據）；<strong>09-10 截止投件</strong></td><td>提案書</td></tr>
-      <tr><td><span class="m">輔導期</span></td><td>相干性偵測升級、一維水動力模擬、CAP 介接、儀表板完整化、0403 回測</td><td>決賽成品</td></tr>
+      <tr><td><span class="m">輔導期</span></td><td>事件佇列與人工查證、串接他單位既有成果、負案例驗證（原規劃之 CAP 介接已取消）</td><td>決賽成品</td></tr>
       <tr><td><span class="m">11 月</span></td><td>決選簡報：馬太鞍溪事件全程回放 live demo</td><td>簡報 + 展示</td></tr>
     </tbody>
   </table>

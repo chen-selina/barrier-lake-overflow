@@ -114,6 +114,17 @@ def nearby_history(lakes: list, lon_lat: tuple, before: datetime,
     return sorted(out, key=lambda h: h["year"])
 
 
+def matching_external(scenario: dict, lon_lat: tuple, as_of: datetime) -> list:
+    """情境檔 externalEvidence 中，as_of 以前已發布、且位置在 radiusM 內的他單位成果。"""
+    out = []
+    for x in scenario.get("externalEvidence", []):
+        t = _t(x["time"])
+        if t > as_of or distance_m(lon_lat, tuple(x["lonLat"])) > x.get("radiusM", 600):
+            continue
+        out.append({**x, "time": t})
+    return sorted(out, key=lambda x: x["time"])
+
+
 def _snapshot_label(t: datetime, analyzed: set, rechecks: dict, trigger: Optional[datetime]) -> dict:
     parts = []
     if t in analyzed:
@@ -171,6 +182,8 @@ def build_scenario(scenario: dict, derived: Path = DERIVED,
             ctx = T.Context(
                 **ctx_base,
                 history=nearby_history(lakes, latest.lon_lat, t, scenario.get("referenceLakeId")),
+                external=matching_external(scenario, latest.lon_lat, t),
+                exposure=scenario.get("exposure"),
             )
             a = T.assess(ev["id"], dets, ctx)
             card = {

@@ -103,6 +103,33 @@ class TestTriageRules(unittest.TestCase):
         self.assertIn("gap.rain", T.assess("E1", [d], ctx(T0)).rules_fired)
         self.assertNotIn("gap.rain", T.assess("E1", [d], ctx(T0, rain=True)).rules_fired)
 
+    def test_external_optical_corroborates_single_pass(self):
+        c = ctx(T0)
+        c.external = [{"time": T0, "kind": "optical", "text": "光學影像可見湖面", "source": "某單位"}]
+        a = T.assess("E1", [det(T0, cand())], c)
+        self.assertEqual((a.priority, a.confidence), ("high", "高"))
+        self.assertNotIn("gap.optical", a.rules_fired)
+        self.assertNotIn("暫不派遣 UAV", [t["label"] for t in a.tasks])
+
+    def test_official_estimate_alone_is_not_independent(self):
+        c = ctx(T0)
+        c.external = [{"time": T0, "kind": "official", "text": "官方估蓄水量", "source": "某單位"}]
+        a = T.assess("E1", [det(T0, cand())], c)
+        self.assertEqual((a.priority, a.confidence), ("medium", "低"))
+
+    def test_external_does_not_rescue_failed_recheck(self):
+        c = ctx(T0 + DAY6)
+        c.external = [{"time": T0, "kind": "optical", "text": "x", "source": "y"}]
+        a = T.assess("E1", [det(T0, cand(persistent=False))], c)
+        self.assertEqual(a.priority, "low")
+
+    def test_exposure_replaces_gap(self):
+        c = ctx(T0)
+        c.exposure = {"text": "下游有聚落", "source": "s"}
+        a = T.assess("E1", [det(T0, cand())], c)
+        self.assertNotIn("gap.exposure", a.rules_fired)
+        self.assertIn("exposure.known", a.rules_fired)
+
     def test_empty_detections(self):
         with self.assertRaises(ValueError):
             T.assess("E1", [], ctx(T0))
@@ -126,6 +153,18 @@ class TestTracking(unittest.TestCase):
         passes = [self._pass(T0, [cand(121.3075, 23.7092)]),
                   self._pass(T0 + DAY6, [cand(121.3104, 23.7079)])]   # 約 330 m
         self.assertEqual(len(B.track(passes)), 2)
+
+
+class TestMatchingExternal(unittest.TestCase):
+
+    SCEN = {"externalEvidence": [
+        {"time": T0.isoformat(), "kind": "optical", "lonLat": [121.30, 23.70], "radiusM": 600, "text": "a"},
+    ]}
+
+    def test_time_and_radius(self):
+        self.assertEqual(len(B.matching_external(self.SCEN, (121.30, 23.70), T0)), 1)
+        self.assertEqual(B.matching_external(self.SCEN, (121.30, 23.70), T0 - DAY6), [])
+        self.assertEqual(B.matching_external(self.SCEN, (121.31, 23.70), T0), [])   # 約 1 km
 
 
 class TestNegativeScenario(unittest.TestCase):
@@ -178,9 +217,17 @@ class TestMataiAnReplay(unittest.TestCase):
         self.assertEqual(p["high"], [])
         self.assertEqual(len(p["medium"]), 2)
 
-    def test_lake_upgrades_after_recheck(self):
-        self.assertEqual(self._by_priority("7/29 05:51")["medium"], ["E3"])
+    def test_lake_high_on_first_sar_pass_because_of_external_evidence(self):
+        # 7/29 SAR 首次偵測，尚未複核；但 7/24 光學、7/27 航拍已發布，多源一致
+        e3 = next(e for e in self.snaps["7/29 05:51"]["events"] if e["id"] == "E3")
+        self.assertEqual((e3["priority"], e3["persistence"], e3["confidence"]), ("high", "pending", "高"))
+        self.assertIn("priority.high.corroborated", e3["rulesFired"])
         self.assertEqual(self._by_priority("8/4 05:52")["high"], ["E3"])
+
+    def test_external_evidence_not_used_before_published(self):
+        # 7/23 時光學（7/24）還沒發布；E1、E2 也離壩址太遠，不會對到
+        for e in self.snaps["7/23 05:52"]["events"]:
+            self.assertFalse(any(r.startswith("external.") for r in e["rulesFired"]))
 
     def test_lake_is_near_reference_dam(self):
         e3 = self.snaps["8/22 05:51"]["events"][0]

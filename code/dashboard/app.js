@@ -414,11 +414,30 @@ function renderDetail() {
   if (!lake) return;
 
   renderEventHeader(lake);
+  renderReplayNote(lake);
   renderDecisionSummary(lake);
   renderConclusion(lake);
   renderActionCard(lake);
   renderEvidenceCard(lake);
   renderBasicFacts(lake);
+}
+
+/* 有事件回放的湖：提醒下方風險快照跟回放的事件期間不同時，避免兩邊結果被直接比較 */
+function renderReplayNote(lake) {
+  const box = $('#replayNote');
+  if (!box) return;
+  const scen = (window.EVENT_SCENARIOS || []).find(s => s.reference && s.reference.lakeId === lake.id);
+  if (!scen) { box.hidden = true; return; }
+  const snaps = scen.snapshots;
+  const period = snaps.length ? `${snaps[0].label.split(' ')[0]}～${snaps[snaps.length - 1].label.split(' ')[0]}` : '';
+  const riskDate = lake.risk ? fmtDateOnly(lake.risk.date) : null;
+  box.hidden = false;
+  box.innerHTML = `
+    <b>此湖有事件回放：${scen.name}（${period}）</b>
+    <span>${riskDate
+      ? `下方風險為 ${riskDate} 的批次模型快照，跟事件回放的時間不同，兩者不能直接比較；事件期間的研判以值班佇列為準。`
+      : '事件期間的研判以值班佇列為準。'}</span>
+    <a href="#duty">回到值班佇列</a>`;
 }
 
 // 存續狀態和風險等級分開顯示
@@ -496,7 +515,7 @@ function renderConclusion(lake) {
   box.innerHTML = `
     <div class="line1">風險模型：${conclusionHeadline(lake)}</div>
     <div class="line2">主要依據：${drivers.length ? drivers.join('、') : '清冊登載之存續狀態'}</div>
-    ${lake.risk ? '<div class="line3">限制：本結果為批次模型推論，仍須配合現地觀測。</div>' : ''}`;
+    ${lake.risk ? `<div class="line3">限制：本結果為 ${fmtDateOnly(lake.risk.date)} 的批次模型推論，仍須配合現地觀測。</div>` : ''}`;
 }
 
 function splitInstruction(text) {
@@ -579,7 +598,9 @@ function renderBasicFacts(lake) {
     ['觸發事件', lake.event || '未記載', !lake.event],
     ['地標', lake.landmark || '未記載', !lake.landmark],
     ['坐落區位', lake.setting || '未記載', !lake.setting],
-    ['潰決時間', lake.breachDate || '無紀錄', !lake.breachDate],
+    ['潰決時間', lake.breachDate
+      ? `${lake.breachDate}${lake.statusKey === 'watch' ? '（清冊存續狀態仍登載「監測中」，依清冊原文）' : ''}`
+      : '無紀錄', !lake.breachDate],
     ['潰決原因', lake.breachCause || '無紀錄', !lake.breachCause],
     ['清冊項次', `#${lake.seq}`, false, true]
   ];

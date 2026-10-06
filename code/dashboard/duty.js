@@ -270,8 +270,10 @@ const Duty = (() => {
       ev.human ? `<span class="badge ev-human">${VERDICTS[ev.human.verdict].tag}</span>` : '',
     ].join('');
 
+    const src = e => e.source
+      ? ` <a class="ev-src" href="${esc(e.url || '#')}" target="_blank" rel="noopener" title="${esc(e.source)}">來源</a>` : '';
     const evidence = ev.evidence.map(e => `
-      <li class="ev-${e.status}"><span class="mk" aria-hidden="true">${EVIDENCE_MARK[e.status]}</span>${esc(e.text)}</li>`).join('');
+      <li class="ev-${e.status}"><span class="mk" aria-hidden="true">${EVIDENCE_MARK[e.status]}</span><span>${esc(e.text)}${src(e)}</span></li>`).join('');
     const gaps = ev.gaps.map(g => `<li><span class="mk" aria-hidden="true">?</span>${esc(g.text)}</li>`).join('');
 
     const dets = ev.detections.map(d => {
