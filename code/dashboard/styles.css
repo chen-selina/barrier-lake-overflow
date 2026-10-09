@@ -701,6 +701,17 @@ footer .wrap{
 .at{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;color:var(--jade);text-transform:uppercase;margin-bottom:8px;display:block}
 .ev-conflict .at{color:var(--ochre)}
 
+/* 事後查證：與系統研判區隔，用虛線框與霧白 */
+.ev-hindsight{
+  margin:16px clamp(16px,2.2vw,26px) 0;padding:10px 14px;
+  border:1px dashed var(--fog);background:rgba(188,205,194,.05);font-size:13px;color:var(--fog);line-height:1.8;
+}
+.ev-hindsight .at{color:var(--fog)}
+.ev-hindsight b{color:var(--snow);font-size:14px}
+.ev-hindsight .hs-links{display:flex;flex-wrap:wrap;gap:14px;margin-top:4px;font-size:12px;color:var(--moss)}
+.ev-hindsight .hs-links a{color:var(--jade)}
+.q-tag.is-hindsight{border-style:dashed;border-color:var(--fog);color:var(--snow)}
+
 .ev-cols{
   display:grid;grid-template-columns:1fr 1fr;gap:18px;
   margin:16px clamp(16px,2.2vw,26px) 0;

@@ -27,6 +27,7 @@ import subprocess
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Optional
 
 CODE = Path(__file__).resolve().parents[1]
 REPO = CODE.parent
@@ -35,6 +36,38 @@ DERIVED = REPO / "data" / "derived"
 SCENARIOS = REPO / "data" / "raw" / "scenarios"
 
 MAX_WATER_SLOPE_DEG = "35"   # 與 run_sar_all.bat 相同，不為負案例調整
+
+# 重跑時從既有情境檔保留的人工整理欄位（說明、外部證據、事後查證等），
+# 只有影像期別（passes）與地點等由程式重新產生。
+CURATED_KEYS = ("description", "context", "trigger", "externalEvidence", "exposure", "hindsight",
+                "observationsLakeId", "referenceLakeId", "referenceLabel")
+
+
+def merge_scenario(new: dict, old: Optional[dict], description_given: bool) -> dict:
+    """
+    把既有情境檔裡人工整理的欄位併進新產生的情境；passes 的 evidenceImage 依檔名保留。
+
+    >>> old = {"description": "人工說明", "hindsight": [{"text": "誤報"}],
+    ...        "passes": [{"file": "a.json", "evidenceImage": "docs/evidence/x.png"}]}
+    >>> new = {"description": "自動", "passes": [{"file": "a.json", "evidenceImage": None}]}
+    >>> m = merge_scenario(new, old, description_given=False)
+    >>> m["description"], m["hindsight"][0]["text"], m["passes"][0]["evidenceImage"]
+    ('人工說明', '誤報', 'docs/evidence/x.png')
+    >>> merge_scenario(new, old, description_given=True)["description"]
+    '自動'
+    """
+    if not old:
+        return new
+    out = dict(new)
+    for k in CURATED_KEYS:
+        if k == "description" and description_given:
+            continue
+        if old.get(k) not in (None, "", []):
+            out[k] = old[k]
+    images = {p["file"]: p.get("evidenceImage") for p in old.get("passes", [])}
+    out["passes"] = [{**p, "evidenceImage": p.get("evidenceImage") or images.get(p["file"])}
+                     for p in new.get("passes", [])]
+    return out
 
 
 def scene_files(name: str, raw: Path) -> list:
@@ -115,6 +148,10 @@ def main() -> None:
     }
     SCENARIOS.mkdir(parents=True, exist_ok=True)
     path = SCENARIOS / f"{args.name}.json"
+    old = json.loads(path.read_text(encoding="utf-8")) if path.exists() else None
+    scenario = merge_scenario(scenario, old, description_given=bool(args.description))
+    if old:
+        print("保留既有情境檔中人工整理的欄位（說明、事後查證、外部證據等）")
     path.write_text(json.dumps(scenario, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(f"已寫出 {path}，接著跑 python -m pipeline.events.build")
 

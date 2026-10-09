@@ -12,6 +12,9 @@
 
 回放時點：每一期影像（含只拿來複核的影像）各是一個時點。某時點只用到
 當時已經拿到的影像，不會用到未來的複核結果。
+
+事後查證（情境檔 hindsight）：回放結束後才做的查證，例如負案例用光學影像確認誤報。
+依位置附到事件卡上供展示，不參與優先等級、信心等研判（回放當下系統不知道這些結果）。
 """
 
 from __future__ import annotations
@@ -125,6 +128,12 @@ def matching_external(scenario: dict, lon_lat: tuple, as_of: datetime) -> list:
     return sorted(out, key=lambda x: x["time"])
 
 
+def matching_hindsight(scenario: dict, lon_lat: tuple) -> list:
+    """情境檔 hindsight 中，位置在 radiusM 內的事後查證。只供展示，不進研判。"""
+    return [h for h in scenario.get("hindsight", [])
+            if distance_m(lon_lat, tuple(h["lonLat"])) <= h.get("radiusM", 300)]
+
+
 def _snapshot_label(t: datetime, analyzed: set, rechecks: dict, trigger: Optional[datetime]) -> dict:
     parts = []
     if t in analyzed:
@@ -209,6 +218,8 @@ def build_scenario(scenario: dict, derived: Path = DERIVED,
                                 if d.recheck_state(t) != "pending" or "IoU" not in r],
                 } for d in dets],
                 **a.to_dict(),
+                # 事後查證：回放當下系統不知道，只供展示，不影響上面的研判
+                "hindsight": matching_hindsight(scenario, latest.lon_lat),
             }
             cards.append(card)
         cards.sort(key=lambda c: (T.PRIORITY_RANK[c["priority"]], -c["areaHectare"]))

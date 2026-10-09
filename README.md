@@ -111,6 +111,7 @@
 都是看過這個結果才提出的，尚未採用。
 
 查證圖：`docs/evidence/neg2026_e1_sar.png`（SAR 與地形）、`docs/evidence/neg2026_e1_optical.png`（光學）。
+儀表板的負案例分頁會在 E1 事件卡上以「事後查證」框顯示這個結論；它只是註記，不改動系統當時的研判（見 `docs/events.md`）。
 
 ## 執行方式
 

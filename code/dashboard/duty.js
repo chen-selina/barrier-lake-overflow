@@ -109,6 +109,8 @@ const Duty = (() => {
     const tags = [];
     if (ev.isNew) tags.push('<span class="q-tag is-new">本期新增</span>');
     if (ev.human) tags.push(`<span class="q-tag is-human">${VERDICTS[ev.human.verdict].tag}</span>`);
+    (ev.hindsight || []).forEach(h => tags.push(
+      `<span class="q-tag is-hindsight v-${esc(h.verdict)}">${h.verdict === 'false_positive' ? '事後：誤報' : '事後查證'}</span>`));
     const dist = ev.distanceFromReferenceM != null ? ` · 距清冊壩址 ${ev.distanceFromReferenceM.toLocaleString()} m` : '';
     return `
       <button class="q-item p-${ev.priority} ${ev.id === st.eventId ? 'is-active' : ''}" type="button" data-id="${ev.id}">
@@ -250,6 +252,21 @@ const Duty = (() => {
     ].join('\n');
   }
 
+  /* 事後查證：回放結束後才做的查證（例如負案例的光學影像查證）。
+     只是註記，回放當下系統不知道，所以不改動上面的研判結果。 */
+  function hindsightBox(ev) {
+    if (!ev.hindsight || !ev.hindsight.length) return '';
+    return ev.hindsight.map(h => `
+      <div class="ev-hindsight v-${esc(h.verdict)}">
+        <span class="at">事後查證 · 回放當下系統不知道，不影響上方研判</span>
+        <b>${esc(h.title)}</b>
+        <p>${esc(h.text)}</p>
+        <p class="hs-links">${(h.images || []).map(im =>
+          `<a href="../../${esc(im.path)}" target="_blank" rel="noopener">${esc(im.label)}</a>`).join('')}${
+          h.method ? `<span>方法：${esc(h.method)}</span>` : ''}</p>
+      </div>`).join('');
+  }
+
   function renderCard() {
     const box = $('#evCard');
     const ev = events().find(e => e.id === st.eventId);
@@ -292,6 +309,8 @@ const Duty = (() => {
       </div>
 
       <div class="ev-summary p-${ev.priority}">${esc(ev.summary)}</div>
+
+      ${hindsightBox(ev)}
 
       <div class="decision-summary ev-readout">
         ${readCell('建議行動', ev.action, ev.priorityText, `t-${ev.priority}`)}

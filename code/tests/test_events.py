@@ -246,6 +246,16 @@ class TestMataiAnReplay(unittest.TestCase):
         self.assertTrue(hist)
         self.assertNotIn("馬太鞍", hist[0]["text"])
 
+    def test_hindsight_is_attached_but_not_used_for_triage(self):
+        hs = {"lonLat": [121.30, 23.70], "radiusM": 300, "verdict": "false_positive",
+              "title": "事後查證：誤報", "text": "光學查證不是水"}
+        near = B.matching_hindsight({"hindsight": [hs]}, (121.301, 23.700))
+        far = B.matching_hindsight({"hindsight": [hs]}, (121.31, 23.70))
+        self.assertEqual((len(near), len(far)), (1, 0))
+        # 研判只看 Detection 與 Context，事後查證不會進來
+        a = T.assess("E1", [det(T0, cand(persistent=True, iou=0.52))], ctx(T0 + DAY6, latest_pass=T0))
+        self.assertEqual(a.priority, "high")
+
     def test_write_js_roundtrip(self):
         with tempfile.TemporaryDirectory() as d:
             out = Path(d) / "events.js"

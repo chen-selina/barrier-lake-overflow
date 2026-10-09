@@ -220,7 +220,8 @@ window.EVENT_SCENARIOS = [
        "gap.rain",
        "gap.optical",
        "priority.medium.pending"
-      ]
+      ],
+      "hindsight": []
      },
      {
       "id": "E2",
@@ -383,7 +384,8 @@ window.EVENT_SCENARIOS = [
        "gap.rain",
        "gap.optical",
        "priority.medium.pending"
-      ]
+      ],
+      "hindsight": []
      }
     ]
    },
@@ -629,7 +631,8 @@ window.EVENT_SCENARIOS = [
        "exposure.known",
        "gap.rain",
        "priority.high.corroborated"
-      ]
+      ],
+      "hindsight": []
      },
      {
       "id": "E1",
@@ -806,7 +809,8 @@ window.EVENT_SCENARIOS = [
        "gap.optical",
        "conflict.spatial_vs_persistence",
        "priority.low.failed"
-      ]
+      ],
+      "hindsight": []
      },
      {
       "id": "E2",
@@ -963,7 +967,8 @@ window.EVENT_SCENARIOS = [
        "gap.optical",
        "conflict.spatial_vs_persistence",
        "priority.low.failed"
-      ]
+      ],
+      "hindsight": []
      }
     ]
    },
@@ -1215,7 +1220,8 @@ window.EVENT_SCENARIOS = [
        "exposure.known",
        "gap.rain",
        "priority.high.confirmed"
-      ]
+      ],
+      "hindsight": []
      },
      {
       "id": "E1",
@@ -1392,7 +1398,8 @@ window.EVENT_SCENARIOS = [
        "gap.optical",
        "conflict.spatial_vs_persistence",
        "priority.low.failed"
-      ]
+      ],
+      "hindsight": []
      },
      {
       "id": "E2",
@@ -1549,7 +1556,8 @@ window.EVENT_SCENARIOS = [
        "gap.optical",
        "conflict.spatial_vs_persistence",
        "priority.low.failed"
-      ]
+      ],
+      "hindsight": []
      }
     ]
    },
@@ -1928,7 +1936,8 @@ window.EVENT_SCENARIOS = [
        "exposure.known",
        "gap.rain",
        "priority.high.confirmed"
-      ]
+      ],
+      "hindsight": []
      },
      {
       "id": "E4",
@@ -2095,7 +2104,8 @@ window.EVENT_SCENARIOS = [
        "gap.rain",
        "gap.optical",
        "priority.medium.pending"
-      ]
+      ],
+      "hindsight": []
      },
      {
       "id": "E5",
@@ -2250,7 +2260,8 @@ window.EVENT_SCENARIOS = [
        "gap.rain",
        "gap.optical",
        "priority.medium.pending"
-      ]
+      ],
+      "hindsight": []
      },
      {
       "id": "E1",
@@ -2427,7 +2438,8 @@ window.EVENT_SCENARIOS = [
        "gap.optical",
        "conflict.spatial_vs_persistence",
        "priority.low.failed"
-      ]
+      ],
+      "hindsight": []
      },
      {
       "id": "E2",
@@ -2584,7 +2596,8 @@ window.EVENT_SCENARIOS = [
        "gap.optical",
        "conflict.spatial_vs_persistence",
        "priority.low.failed"
-      ]
+      ],
+      "hindsight": []
      }
     ]
    },
@@ -2882,7 +2895,8 @@ window.EVENT_SCENARIOS = [
        "exposure.known",
        "gap.rain",
        "priority.high.confirmed"
-      ]
+      ],
+      "hindsight": []
      },
      {
       "id": "E1",
@@ -3059,7 +3073,8 @@ window.EVENT_SCENARIOS = [
        "gap.optical",
        "conflict.spatial_vs_persistence",
        "priority.low.failed"
-      ]
+      ],
+      "hindsight": []
      },
      {
       "id": "E2",
@@ -3216,7 +3231,8 @@ window.EVENT_SCENARIOS = [
        "gap.optical",
        "conflict.spatial_vs_persistence",
        "priority.low.failed"
-      ]
+      ],
+      "hindsight": []
      },
      {
       "id": "E4",
@@ -3377,7 +3393,8 @@ window.EVENT_SCENARIOS = [
        "gap.optical",
        "conflict.spatial_vs_persistence",
        "priority.low.failed"
-      ]
+      ],
+      "hindsight": []
      },
      {
       "id": "E5",
@@ -3526,7 +3543,8 @@ window.EVENT_SCENARIOS = [
        "gap.optical",
        "conflict.spatial_vs_persistence",
        "priority.low.failed"
-      ]
+      ],
+      "hindsight": []
      }
     ]
    }
@@ -3536,7 +3554,7 @@ window.EVENT_SCENARIOS = [
   "id": "neg2026_matai_an",
   "name": "馬太鞍溪 · 2026 汛期（負案例）",
   "kind": "negative",
-  "description": "17 期 Sentinel-1（DESCENDING），參數與正案例相同。",
+  "description": "2026 汛期 17 期，同一窗格、同一組參數（Sentinel-1 降軌 105）；這段期間窗格內沒有新的堰塞湖。E1 位於崩塌堆積區，自 6/24 起被列為高優先，經 Sentinel-2 事後查證確認為誤報（已知失效情境：事件前地形看不到崩塌後的新地形）。E1 只有 SAR 一種證據，研判信心從未到「高」。",
   "center": [
    121.29752,
    23.70061
@@ -3712,6 +3730,29 @@ window.EVENT_SCENARIOS = [
        "gap.optical",
        "gap.exposure",
        "priority.medium.pending"
+      ],
+      "hindsight": [
+       {
+        "lonLat": [
+         121.3024,
+         23.7002
+        ],
+        "radiusM": 300,
+        "verdict": "false_positive",
+        "title": "事後查證：誤報（不是水體）",
+        "text": "以 Sentinel-2 查證 2026-06～09（晴天 7 期）：E1 範圍內的地物分類全為裸露或暗色地表，被判為水的像元 0 個；近紅外線反射 1,200～1,800，與周圍土石相近（水應低於 500）。研判為崩塌堆積區的 SAR 暗區（新陡坎的雷達陰影或平滑泥砂面），屬已知失效情境。",
+        "images": [
+         {
+          "label": "光學查證圖",
+          "path": "docs/evidence/neg2026_e1_optical.png"
+         },
+         {
+          "label": "SAR 與地形圖",
+          "path": "docs/evidence/neg2026_e1_sar.png"
+         }
+        ],
+        "method": "scripts/gee_check_s2_e1.js、scripts/check_neg_e1.py"
+       }
       ]
      }
     ]
@@ -3863,6 +3904,29 @@ window.EVENT_SCENARIOS = [
        "gap.exposure",
        "conflict.spatial_vs_persistence",
        "priority.low.failed"
+      ],
+      "hindsight": [
+       {
+        "lonLat": [
+         121.3024,
+         23.7002
+        ],
+        "radiusM": 300,
+        "verdict": "false_positive",
+        "title": "事後查證：誤報（不是水體）",
+        "text": "以 Sentinel-2 查證 2026-06～09（晴天 7 期）：E1 範圍內的地物分類全為裸露或暗色地表，被判為水的像元 0 個；近紅外線反射 1,200～1,800，與周圍土石相近（水應低於 500）。研判為崩塌堆積區的 SAR 暗區（新陡坎的雷達陰影或平滑泥砂面），屬已知失效情境。",
+        "images": [
+         {
+          "label": "光學查證圖",
+          "path": "docs/evidence/neg2026_e1_optical.png"
+         },
+         {
+          "label": "SAR 與地形圖",
+          "path": "docs/evidence/neg2026_e1_sar.png"
+         }
+        ],
+        "method": "scripts/gee_check_s2_e1.js、scripts/check_neg_e1.py"
+       }
       ]
      }
     ]
@@ -4034,6 +4098,29 @@ window.EVENT_SCENARIOS = [
        "gap.optical",
        "gap.exposure",
        "priority.medium.pending"
+      ],
+      "hindsight": [
+       {
+        "lonLat": [
+         121.3024,
+         23.7002
+        ],
+        "radiusM": 300,
+        "verdict": "false_positive",
+        "title": "事後查證：誤報（不是水體）",
+        "text": "以 Sentinel-2 查證 2026-06～09（晴天 7 期）：E1 範圍內的地物分類全為裸露或暗色地表，被判為水的像元 0 個；近紅外線反射 1,200～1,800，與周圍土石相近（水應低於 500）。研判為崩塌堆積區的 SAR 暗區（新陡坎的雷達陰影或平滑泥砂面），屬已知失效情境。",
+        "images": [
+         {
+          "label": "光學查證圖",
+          "path": "docs/evidence/neg2026_e1_optical.png"
+         },
+         {
+          "label": "SAR 與地形圖",
+          "path": "docs/evidence/neg2026_e1_sar.png"
+         }
+        ],
+        "method": "scripts/gee_check_s2_e1.js、scripts/check_neg_e1.py"
+       }
       ]
      }
     ]
@@ -4221,6 +4308,29 @@ window.EVENT_SCENARIOS = [
        "gap.optical",
        "gap.exposure",
        "priority.high.confirmed"
+      ],
+      "hindsight": [
+       {
+        "lonLat": [
+         121.3024,
+         23.7002
+        ],
+        "radiusM": 300,
+        "verdict": "false_positive",
+        "title": "事後查證：誤報（不是水體）",
+        "text": "以 Sentinel-2 查證 2026-06～09（晴天 7 期）：E1 範圍內的地物分類全為裸露或暗色地表，被判為水的像元 0 個；近紅外線反射 1,200～1,800，與周圍土石相近（水應低於 500）。研判為崩塌堆積區的 SAR 暗區（新陡坎的雷達陰影或平滑泥砂面），屬已知失效情境。",
+        "images": [
+         {
+          "label": "光學查證圖",
+          "path": "docs/evidence/neg2026_e1_optical.png"
+         },
+         {
+          "label": "SAR 與地形圖",
+          "path": "docs/evidence/neg2026_e1_sar.png"
+         }
+        ],
+        "method": "scripts/gee_check_s2_e1.js、scripts/check_neg_e1.py"
+       }
       ]
      }
     ]
@@ -4426,6 +4536,29 @@ window.EVENT_SCENARIOS = [
        "gap.optical",
        "gap.exposure",
        "priority.high.confirmed"
+      ],
+      "hindsight": [
+       {
+        "lonLat": [
+         121.3024,
+         23.7002
+        ],
+        "radiusM": 300,
+        "verdict": "false_positive",
+        "title": "事後查證：誤報（不是水體）",
+        "text": "以 Sentinel-2 查證 2026-06～09（晴天 7 期）：E1 範圍內的地物分類全為裸露或暗色地表，被判為水的像元 0 個；近紅外線反射 1,200～1,800，與周圍土石相近（水應低於 500）。研判為崩塌堆積區的 SAR 暗區（新陡坎的雷達陰影或平滑泥砂面），屬已知失效情境。",
+        "images": [
+         {
+          "label": "光學查證圖",
+          "path": "docs/evidence/neg2026_e1_optical.png"
+         },
+         {
+          "label": "SAR 與地形圖",
+          "path": "docs/evidence/neg2026_e1_sar.png"
+         }
+        ],
+        "method": "scripts/gee_check_s2_e1.js、scripts/check_neg_e1.py"
+       }
       ]
      }
     ]
@@ -4641,6 +4774,29 @@ window.EVENT_SCENARIOS = [
        "gap.optical",
        "gap.exposure",
        "priority.high.confirmed"
+      ],
+      "hindsight": [
+       {
+        "lonLat": [
+         121.3024,
+         23.7002
+        ],
+        "radiusM": 300,
+        "verdict": "false_positive",
+        "title": "事後查證：誤報（不是水體）",
+        "text": "以 Sentinel-2 查證 2026-06～09（晴天 7 期）：E1 範圍內的地物分類全為裸露或暗色地表，被判為水的像元 0 個；近紅外線反射 1,200～1,800，與周圍土石相近（水應低於 500）。研判為崩塌堆積區的 SAR 暗區（新陡坎的雷達陰影或平滑泥砂面），屬已知失效情境。",
+        "images": [
+         {
+          "label": "光學查證圖",
+          "path": "docs/evidence/neg2026_e1_optical.png"
+         },
+         {
+          "label": "SAR 與地形圖",
+          "path": "docs/evidence/neg2026_e1_sar.png"
+         }
+        ],
+        "method": "scripts/gee_check_s2_e1.js、scripts/check_neg_e1.py"
+       }
       ]
      }
     ]
@@ -4884,6 +5040,29 @@ window.EVENT_SCENARIOS = [
        "gap.optical",
        "gap.exposure",
        "priority.high.confirmed"
+      ],
+      "hindsight": [
+       {
+        "lonLat": [
+         121.3024,
+         23.7002
+        ],
+        "radiusM": 300,
+        "verdict": "false_positive",
+        "title": "事後查證：誤報（不是水體）",
+        "text": "以 Sentinel-2 查證 2026-06～09（晴天 7 期）：E1 範圍內的地物分類全為裸露或暗色地表，被判為水的像元 0 個；近紅外線反射 1,200～1,800，與周圍土石相近（水應低於 500）。研判為崩塌堆積區的 SAR 暗區（新陡坎的雷達陰影或平滑泥砂面），屬已知失效情境。",
+        "images": [
+         {
+          "label": "光學查證圖",
+          "path": "docs/evidence/neg2026_e1_optical.png"
+         },
+         {
+          "label": "SAR 與地形圖",
+          "path": "docs/evidence/neg2026_e1_sar.png"
+         }
+        ],
+        "method": "scripts/gee_check_s2_e1.js、scripts/check_neg_e1.py"
+       }
       ]
      }
     ]
@@ -5133,6 +5312,29 @@ window.EVENT_SCENARIOS = [
        "gap.optical",
        "gap.exposure",
        "priority.high.confirmed"
+      ],
+      "hindsight": [
+       {
+        "lonLat": [
+         121.3024,
+         23.7002
+        ],
+        "radiusM": 300,
+        "verdict": "false_positive",
+        "title": "事後查證：誤報（不是水體）",
+        "text": "以 Sentinel-2 查證 2026-06～09（晴天 7 期）：E1 範圍內的地物分類全為裸露或暗色地表，被判為水的像元 0 個；近紅外線反射 1,200～1,800，與周圍土石相近（水應低於 500）。研判為崩塌堆積區的 SAR 暗區（新陡坎的雷達陰影或平滑泥砂面），屬已知失效情境。",
+        "images": [
+         {
+          "label": "光學查證圖",
+          "path": "docs/evidence/neg2026_e1_optical.png"
+         },
+         {
+          "label": "SAR 與地形圖",
+          "path": "docs/evidence/neg2026_e1_sar.png"
+         }
+        ],
+        "method": "scripts/gee_check_s2_e1.js、scripts/check_neg_e1.py"
+       }
       ]
      }
     ]
@@ -5394,6 +5596,29 @@ window.EVENT_SCENARIOS = [
        "gap.optical",
        "gap.exposure",
        "priority.high.confirmed"
+      ],
+      "hindsight": [
+       {
+        "lonLat": [
+         121.3024,
+         23.7002
+        ],
+        "radiusM": 300,
+        "verdict": "false_positive",
+        "title": "事後查證：誤報（不是水體）",
+        "text": "以 Sentinel-2 查證 2026-06～09（晴天 7 期）：E1 範圍內的地物分類全為裸露或暗色地表，被判為水的像元 0 個；近紅外線反射 1,200～1,800，與周圍土石相近（水應低於 500）。研判為崩塌堆積區的 SAR 暗區（新陡坎的雷達陰影或平滑泥砂面），屬已知失效情境。",
+        "images": [
+         {
+          "label": "光學查證圖",
+          "path": "docs/evidence/neg2026_e1_optical.png"
+         },
+         {
+          "label": "SAR 與地形圖",
+          "path": "docs/evidence/neg2026_e1_sar.png"
+         }
+        ],
+        "method": "scripts/gee_check_s2_e1.js、scripts/check_neg_e1.py"
+       }
       ]
      }
     ]
@@ -5653,6 +5878,29 @@ window.EVENT_SCENARIOS = [
        "gap.optical",
        "gap.exposure",
        "priority.high.lost"
+      ],
+      "hindsight": [
+       {
+        "lonLat": [
+         121.3024,
+         23.7002
+        ],
+        "radiusM": 300,
+        "verdict": "false_positive",
+        "title": "事後查證：誤報（不是水體）",
+        "text": "以 Sentinel-2 查證 2026-06～09（晴天 7 期）：E1 範圍內的地物分類全為裸露或暗色地表，被判為水的像元 0 個；近紅外線反射 1,200～1,800，與周圍土石相近（水應低於 500）。研判為崩塌堆積區的 SAR 暗區（新陡坎的雷達陰影或平滑泥砂面），屬已知失效情境。",
+        "images": [
+         {
+          "label": "光學查證圖",
+          "path": "docs/evidence/neg2026_e1_optical.png"
+         },
+         {
+          "label": "SAR 與地形圖",
+          "path": "docs/evidence/neg2026_e1_sar.png"
+         }
+        ],
+        "method": "scripts/gee_check_s2_e1.js、scripts/check_neg_e1.py"
+       }
       ]
      }
     ]
@@ -5912,6 +6160,29 @@ window.EVENT_SCENARIOS = [
        "gap.optical",
        "gap.exposure",
        "priority.high.lost"
+      ],
+      "hindsight": [
+       {
+        "lonLat": [
+         121.3024,
+         23.7002
+        ],
+        "radiusM": 300,
+        "verdict": "false_positive",
+        "title": "事後查證：誤報（不是水體）",
+        "text": "以 Sentinel-2 查證 2026-06～09（晴天 7 期）：E1 範圍內的地物分類全為裸露或暗色地表，被判為水的像元 0 個；近紅外線反射 1,200～1,800，與周圍土石相近（水應低於 500）。研判為崩塌堆積區的 SAR 暗區（新陡坎的雷達陰影或平滑泥砂面），屬已知失效情境。",
+        "images": [
+         {
+          "label": "光學查證圖",
+          "path": "docs/evidence/neg2026_e1_optical.png"
+         },
+         {
+          "label": "SAR 與地形圖",
+          "path": "docs/evidence/neg2026_e1_sar.png"
+         }
+        ],
+        "method": "scripts/gee_check_s2_e1.js、scripts/check_neg_e1.py"
+       }
       ]
      }
     ]
@@ -6189,6 +6460,29 @@ window.EVENT_SCENARIOS = [
        "gap.optical",
        "gap.exposure",
        "priority.high.confirmed"
+      ],
+      "hindsight": [
+       {
+        "lonLat": [
+         121.3024,
+         23.7002
+        ],
+        "radiusM": 300,
+        "verdict": "false_positive",
+        "title": "事後查證：誤報（不是水體）",
+        "text": "以 Sentinel-2 查證 2026-06～09（晴天 7 期）：E1 範圍內的地物分類全為裸露或暗色地表，被判為水的像元 0 個；近紅外線反射 1,200～1,800，與周圍土石相近（水應低於 500）。研判為崩塌堆積區的 SAR 暗區（新陡坎的雷達陰影或平滑泥砂面），屬已知失效情境。",
+        "images": [
+         {
+          "label": "光學查證圖",
+          "path": "docs/evidence/neg2026_e1_optical.png"
+         },
+         {
+          "label": "SAR 與地形圖",
+          "path": "docs/evidence/neg2026_e1_sar.png"
+         }
+        ],
+        "method": "scripts/gee_check_s2_e1.js、scripts/check_neg_e1.py"
+       }
       ]
      }
     ]
@@ -6464,6 +6758,29 @@ window.EVENT_SCENARIOS = [
        "gap.optical",
        "gap.exposure",
        "priority.high.lost"
+      ],
+      "hindsight": [
+       {
+        "lonLat": [
+         121.3024,
+         23.7002
+        ],
+        "radiusM": 300,
+        "verdict": "false_positive",
+        "title": "事後查證：誤報（不是水體）",
+        "text": "以 Sentinel-2 查證 2026-06～09（晴天 7 期）：E1 範圍內的地物分類全為裸露或暗色地表，被判為水的像元 0 個；近紅外線反射 1,200～1,800，與周圍土石相近（水應低於 500）。研判為崩塌堆積區的 SAR 暗區（新陡坎的雷達陰影或平滑泥砂面），屬已知失效情境。",
+        "images": [
+         {
+          "label": "光學查證圖",
+          "path": "docs/evidence/neg2026_e1_optical.png"
+         },
+         {
+          "label": "SAR 與地形圖",
+          "path": "docs/evidence/neg2026_e1_sar.png"
+         }
+        ],
+        "method": "scripts/gee_check_s2_e1.js、scripts/check_neg_e1.py"
+       }
       ]
      }
     ]
@@ -6749,6 +7066,29 @@ window.EVENT_SCENARIOS = [
        "gap.optical",
        "gap.exposure",
        "priority.high.confirmed"
+      ],
+      "hindsight": [
+       {
+        "lonLat": [
+         121.3024,
+         23.7002
+        ],
+        "radiusM": 300,
+        "verdict": "false_positive",
+        "title": "事後查證：誤報（不是水體）",
+        "text": "以 Sentinel-2 查證 2026-06～09（晴天 7 期）：E1 範圍內的地物分類全為裸露或暗色地表，被判為水的像元 0 個；近紅外線反射 1,200～1,800，與周圍土石相近（水應低於 500）。研判為崩塌堆積區的 SAR 暗區（新陡坎的雷達陰影或平滑泥砂面），屬已知失效情境。",
+        "images": [
+         {
+          "label": "光學查證圖",
+          "path": "docs/evidence/neg2026_e1_optical.png"
+         },
+         {
+          "label": "SAR 與地形圖",
+          "path": "docs/evidence/neg2026_e1_sar.png"
+         }
+        ],
+        "method": "scripts/gee_check_s2_e1.js、scripts/check_neg_e1.py"
+       }
       ]
      }
     ]
@@ -7058,6 +7398,29 @@ window.EVENT_SCENARIOS = [
        "gap.optical",
        "gap.exposure",
        "priority.high.confirmed"
+      ],
+      "hindsight": [
+       {
+        "lonLat": [
+         121.3024,
+         23.7002
+        ],
+        "radiusM": 300,
+        "verdict": "false_positive",
+        "title": "事後查證：誤報（不是水體）",
+        "text": "以 Sentinel-2 查證 2026-06～09（晴天 7 期）：E1 範圍內的地物分類全為裸露或暗色地表，被判為水的像元 0 個；近紅外線反射 1,200～1,800，與周圍土石相近（水應低於 500）。研判為崩塌堆積區的 SAR 暗區（新陡坎的雷達陰影或平滑泥砂面），屬已知失效情境。",
+        "images": [
+         {
+          "label": "光學查證圖",
+          "path": "docs/evidence/neg2026_e1_optical.png"
+         },
+         {
+          "label": "SAR 與地形圖",
+          "path": "docs/evidence/neg2026_e1_sar.png"
+         }
+        ],
+        "method": "scripts/gee_check_s2_e1.js、scripts/check_neg_e1.py"
+       }
       ]
      }
     ]
@@ -7378,6 +7741,29 @@ window.EVENT_SCENARIOS = [
        "gap.optical",
        "gap.exposure",
        "priority.high.confirmed"
+      ],
+      "hindsight": [
+       {
+        "lonLat": [
+         121.3024,
+         23.7002
+        ],
+        "radiusM": 300,
+        "verdict": "false_positive",
+        "title": "事後查證：誤報（不是水體）",
+        "text": "以 Sentinel-2 查證 2026-06～09（晴天 7 期）：E1 範圍內的地物分類全為裸露或暗色地表，被判為水的像元 0 個；近紅外線反射 1,200～1,800，與周圍土石相近（水應低於 500）。研判為崩塌堆積區的 SAR 暗區（新陡坎的雷達陰影或平滑泥砂面），屬已知失效情境。",
+        "images": [
+         {
+          "label": "光學查證圖",
+          "path": "docs/evidence/neg2026_e1_optical.png"
+         },
+         {
+          "label": "SAR 與地形圖",
+          "path": "docs/evidence/neg2026_e1_sar.png"
+         }
+        ],
+        "method": "scripts/gee_check_s2_e1.js、scripts/check_neg_e1.py"
+       }
       ]
      }
     ]
