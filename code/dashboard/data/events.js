@@ -3531,5 +3531,3857 @@ window.EVENT_SCENARIOS = [
     ]
    }
   ]
+ },
+ {
+  "id": "neg2026_matai_an",
+  "name": "馬太鞍溪 · 2026 汛期（負案例）",
+  "kind": "negative",
+  "description": "17 期 Sentinel-1（DESCENDING），參數與正案例相同。",
+  "center": [
+   121.29752,
+   23.70061
+  ],
+  "windowKm": 4.0,
+  "reference": null,
+  "trigger": null,
+  "snapshots": [
+   {
+    "asOf": "2026-06-05T21:52:00+00:00",
+    "label": "6/6 05:52",
+    "what": "新一期 SAR 全幅偵測",
+    "since": "",
+    "nextPass": "6/12",
+    "counts": {
+     "high": 0,
+     "medium": 0,
+     "low": 0
+    },
+    "newCount": 0,
+    "events": []
+   },
+   {
+    "asOf": "2026-06-06T21:52:00+00:00",
+    "label": "6/7 05:52",
+    "what": "新一期 SAR 全幅偵測＋複核 6/6 的候選",
+    "since": "",
+    "nextPass": "6/13",
+    "counts": {
+     "high": 0,
+     "medium": 1,
+     "low": 0
+    },
+    "newCount": 1,
+    "events": [
+     {
+      "id": "E1",
+      "firstSeen": "6/7 05:52",
+      "lastSeen": "6/7 05:52",
+      "isNew": true,
+      "lonLat": [
+       121.302463,
+       23.699938
+      ],
+      "distanceFromReferenceM": null,
+      "areaHectare": 0.56,
+      "areaNote": "SAR 陡坡與陰影遮罩會擋掉部分湖面，面積偏低，視為下限",
+      "lakeFloorM": 998.0,
+      "polygonLonLat": [
+       [
+        121.30130944522723,
+        23.699533488698037
+       ],
+       [
+        121.30166877134089,
+        23.698994499527565
+       ],
+       [
+        121.30157893981247,
+        23.698994499527565
+       ],
+       [
+        121.30130944522723,
+        23.699533488698037
+       ]
+      ],
+      "detections": [
+       {
+        "passTime": "6/7 05:52",
+        "areaHectare": 0.56,
+        "recheck": "pending",
+        "recheckTime": "6/12 05:52",
+        "iou": null,
+        "evidenceImage": null,
+        "reasons": [
+         "新增水體 0.56 公頃，緊貼事件前河道",
+         "500 m 內偵測到崩塌 1.33 公頃（SAR 回波變化 ≥ 門檻）",
+         "崩塌延伸至湖底高程（998 m）附近或以下，研判土石堵塞下游河道"
+        ]
+       }
+      ],
+      "priority": "medium",
+      "priorityText": "中優先",
+      "action": "建議人工確認",
+      "confidence": "低",
+      "confidenceReasons": [
+       "只有單期 SAR，尚未複核"
+      ],
+      "persistence": "pending",
+      "persistenceText": "待複核",
+      "grade": "B",
+      "scale": "小",
+      "summary": "E1 需要人工確認：單期 SAR 出現約 0.6 公頃的疑似新增水體，空間條件符合，但尚未複核；建議 6/13 下一期過境複核，暫不派遣 UAV。",
+      "evidence": [
+       {
+        "kind": "sar",
+        "status": "support",
+        "text": "6/7 05:52 SAR 新增水體 0.56 公頃（證據強度 B 級）"
+       },
+       {
+        "kind": "river",
+        "status": "support",
+        "text": "緊貼事件前河道（DEM 填窪後 D8 河網）"
+       },
+       {
+        "kind": "landslide",
+        "status": "support",
+        "text": "500 m 內有 SAR 崩塌訊號 1.3 公頃"
+       },
+       {
+        "kind": "terrain",
+        "status": "support",
+        "text": "崩塌延伸到水體下游、湖底高程（998 m）以下，符合堵塞型態"
+       },
+       {
+        "kind": "history",
+        "status": "context",
+        "text": "10 km 內清冊另有 3 筆堰塞湖：2016 萬里溪（8.4 km）、2024 花蓮萬里溪（8.7 km）、2025 花蓮馬太鞍溪（0.5 km）"
+       }
+      ],
+      "gaps": [
+       {
+        "kind": "persistence",
+        "text": "尚未複核：單期影像無法排除陰影或濕土誤判（下一期 6/13）"
+       },
+       {
+        "kind": "rain",
+        "text": "形成期間雨量：尚未取得測站資料（CWA 歷史雨量待補）"
+       },
+       {
+        "kind": "optical",
+        "text": "光學影像：尚未調閱（颱風期間多雲，雲散後可調 Sentinel-2）"
+       },
+       {
+        "kind": "exposure",
+        "text": "下游保全對象：尚未串接（可接 BigGIS、內政部道路與聚落圖層）"
+       },
+       {
+        "kind": "field",
+        "text": "人工查證：尚未進行"
+       }
+      ],
+      "conflicts": [],
+      "tasks": [
+       {
+        "label": "值班人員判讀 SAR 證據圖",
+        "reason": "確認暗區是否在河谷底、是否為崩塌坡面陰影"
+       },
+       {
+        "label": "排下一期 SAR 複核（6/13）",
+        "reason": "A 級需要兩期一致；單期出現的暗區多數會在複核時消失"
+       },
+       {
+        "label": "調閱光學影像（雲況許可時）",
+        "reason": "SAR 以外的獨立證據"
+       },
+       {
+        "label": "暫不派遣 UAV",
+        "reason": "目前只有單期 SAR，先以複核過濾誤報，避免浪費現地人力"
+       },
+       {
+        "label": "補查形成期間雨量",
+        "reason": "確認觸發條件；目前觀測表此欄空白"
+       }
+      ],
+      "rulesFired": [
+       "persistence.pending",
+       "spatial.on_river",
+       "spatial.landslide",
+       "spatial.blockage",
+       "history.nearby",
+       "gap.rain",
+       "gap.optical",
+       "gap.exposure",
+       "priority.medium.pending"
+      ]
+     }
+    ]
+   },
+   {
+    "asOf": "2026-06-11T21:52:00+00:00",
+    "label": "6/12 05:52",
+    "what": "新一期 SAR 全幅偵測＋複核 6/7 的候選",
+    "since": "",
+    "nextPass": "6/18",
+    "counts": {
+     "high": 0,
+     "medium": 0,
+     "low": 1
+    },
+    "newCount": 0,
+    "events": [
+     {
+      "id": "E1",
+      "firstSeen": "6/7 05:52",
+      "lastSeen": "6/7 05:52",
+      "isNew": false,
+      "lonLat": [
+       121.302463,
+       23.699938
+      ],
+      "distanceFromReferenceM": null,
+      "areaHectare": 0.56,
+      "areaNote": "SAR 陡坡與陰影遮罩會擋掉部分湖面，面積偏低，視為下限",
+      "lakeFloorM": 998.0,
+      "polygonLonLat": [
+       [
+        121.30130944522723,
+        23.699533488698037
+       ],
+       [
+        121.30166877134089,
+        23.698994499527565
+       ],
+       [
+        121.30157893981247,
+        23.698994499527565
+       ],
+       [
+        121.30130944522723,
+        23.699533488698037
+       ]
+      ],
+      "detections": [
+       {
+        "passTime": "6/7 05:52",
+        "areaHectare": 0.56,
+        "recheck": "not_persistent",
+        "recheckTime": "6/12 05:52",
+        "iou": 0.17,
+        "evidenceImage": null,
+        "reasons": [
+         "新增水體 0.56 公頃，緊貼事件前河道",
+         "500 m 內偵測到崩塌 1.33 公頃（SAR 回波變化 ≥ 門檻）",
+         "崩塌延伸至湖底高程（998 m）附近或以下，研判土石堵塞下游河道",
+         "後續 1 期影像同位置水體 IoU 最高 0.17，未確認持續"
+        ]
+       }
+      ],
+      "priority": "low",
+      "priorityText": "低優先",
+      "action": "暫時觀察",
+      "confidence": "中",
+      "confidenceReasons": [
+       "複核結果明確（IoU 0.17）",
+       "證據只有 SAR 一種來源，最高到「中」"
+      ],
+      "persistence": "failed",
+      "persistenceText": "複核未持續",
+      "grade": "B",
+      "scale": "小",
+      "summary": "E1 暫時觀察：空間條件符合，但下一期複核未持續（IoU 0.17），不建議派遣任務。",
+      "evidence": [
+       {
+        "kind": "sar",
+        "status": "support",
+        "text": "6/7 05:52 SAR 新增水體 0.56 公頃（證據強度 B 級）"
+       },
+       {
+        "kind": "persistence",
+        "status": "against",
+        "text": "6/12 複核同位置水體 IoU 0.17，未持續"
+       },
+       {
+        "kind": "river",
+        "status": "support",
+        "text": "緊貼事件前河道（DEM 填窪後 D8 河網）"
+       },
+       {
+        "kind": "landslide",
+        "status": "support",
+        "text": "500 m 內有 SAR 崩塌訊號 1.3 公頃"
+       },
+       {
+        "kind": "terrain",
+        "status": "support",
+        "text": "崩塌延伸到水體下游、湖底高程（998 m）以下，符合堵塞型態"
+       },
+       {
+        "kind": "history",
+        "status": "context",
+        "text": "10 km 內清冊另有 3 筆堰塞湖：2016 萬里溪（8.4 km）、2024 花蓮萬里溪（8.7 km）、2025 花蓮馬太鞍溪（0.5 km）"
+       }
+      ],
+      "gaps": [
+       {
+        "kind": "rain",
+        "text": "形成期間雨量：尚未取得測站資料（CWA 歷史雨量待補）"
+       },
+       {
+        "kind": "optical",
+        "text": "光學影像：尚未調閱（颱風期間多雲，雲散後可調 Sentinel-2）"
+       },
+       {
+        "kind": "exposure",
+        "text": "下游保全對象：尚未串接（可接 BigGIS、內政部道路與聚落圖層）"
+       },
+       {
+        "kind": "field",
+        "text": "人工查證：尚未進行"
+       }
+      ],
+      "conflicts": [
+       "空間條件（河道、崩塌、堵塞型態）都符合，但下一期複核未持續。以持續性為準：單期暗區常見成因是崩塌後新陡崖的雷達陰影或濕土暫時變暗。"
+      ],
+      "tasks": [
+       {
+        "label": "暫時觀察，不派遣任務",
+        "reason": "下一期複核同位置水體 IoU 0.17，未持續"
+       },
+       {
+        "label": "若同位置再次出現，重新列入待複核",
+        "reason": "跨期追蹤以 250 m 內為同一事件"
+       }
+      ],
+      "rulesFired": [
+       "persistence.failed",
+       "spatial.on_river",
+       "spatial.landslide",
+       "spatial.blockage",
+       "history.nearby",
+       "gap.rain",
+       "gap.optical",
+       "gap.exposure",
+       "conflict.spatial_vs_persistence",
+       "priority.low.failed"
+      ]
+     }
+    ]
+   },
+   {
+    "asOf": "2026-06-18T21:52:00+00:00",
+    "label": "6/19 05:52",
+    "what": "新一期 SAR 全幅偵測＋複核 6/12 的候選",
+    "since": "",
+    "nextPass": "6/25",
+    "counts": {
+     "high": 0,
+     "medium": 1,
+     "low": 0
+    },
+    "newCount": 0,
+    "events": [
+     {
+      "id": "E1",
+      "firstSeen": "6/7 05:52",
+      "lastSeen": "6/19 05:52",
+      "isNew": false,
+      "lonLat": [
+       121.302721,
+       23.700126
+      ],
+      "distanceFromReferenceM": null,
+      "areaHectare": 0.57,
+      "areaNote": "SAR 陡坡與陰影遮罩會擋掉部分湖面，面積偏低，視為下限",
+      "lakeFloorM": 1005.0,
+      "polygonLonLat": [
+       [
+        121.30292641273866,
+        23.70070129856739
+       ],
+       [
+        121.30364506496595,
+        23.70070129856739
+       ],
+       [
+        121.30310607579547,
+        23.700341972453746
+       ],
+       [
+        121.30292641273866,
+        23.70070129856739
+       ]
+      ],
+      "detections": [
+       {
+        "passTime": "6/7 05:52",
+        "areaHectare": 0.56,
+        "recheck": "not_persistent",
+        "recheckTime": "6/12 05:52",
+        "iou": 0.17,
+        "evidenceImage": null,
+        "reasons": [
+         "新增水體 0.56 公頃，緊貼事件前河道",
+         "500 m 內偵測到崩塌 1.33 公頃（SAR 回波變化 ≥ 門檻）",
+         "崩塌延伸至湖底高程（998 m）附近或以下，研判土石堵塞下游河道",
+         "後續 1 期影像同位置水體 IoU 最高 0.17，未確認持續"
+        ]
+       },
+       {
+        "passTime": "6/19 05:52",
+        "areaHectare": 0.57,
+        "recheck": "pending",
+        "recheckTime": "6/24 05:52",
+        "iou": null,
+        "evidenceImage": null,
+        "reasons": [
+         "新增水體 0.57 公頃，緊貼事件前河道",
+         "500 m 內偵測到崩塌 3.84 公頃（SAR 回波變化 ≥ 門檻）",
+         "崩塌延伸至湖底高程（1005 m）附近或以下，研判土石堵塞下游河道"
+        ]
+       }
+      ],
+      "priority": "medium",
+      "priorityText": "中優先",
+      "action": "建議人工確認",
+      "confidence": "低",
+      "confidenceReasons": [
+       "只有單期 SAR，尚未複核"
+      ],
+      "persistence": "pending",
+      "persistenceText": "待複核",
+      "grade": "B",
+      "scale": "小",
+      "summary": "E1 需要人工確認：單期 SAR 出現約 0.6 公頃的疑似新增水體，空間條件符合，但尚未複核；建議 6/25 下一期過境複核，暫不派遣 UAV。",
+      "evidence": [
+       {
+        "kind": "sar",
+        "status": "support",
+        "text": "6/19 05:52 SAR 新增水體 0.57 公頃（證據強度 B 級）"
+       },
+       {
+        "kind": "river",
+        "status": "support",
+        "text": "緊貼事件前河道（DEM 填窪後 D8 河網）"
+       },
+       {
+        "kind": "landslide",
+        "status": "support",
+        "text": "500 m 內有 SAR 崩塌訊號 3.8 公頃"
+       },
+       {
+        "kind": "terrain",
+        "status": "support",
+        "text": "崩塌延伸到水體下游、湖底高程（1005 m）以下，符合堵塞型態"
+       },
+       {
+        "kind": "history",
+        "status": "context",
+        "text": "10 km 內清冊另有 3 筆堰塞湖：2016 萬里溪（8.3 km）、2024 花蓮萬里溪（8.7 km）、2025 花蓮馬太鞍溪（0.5 km）"
+       }
+      ],
+      "gaps": [
+       {
+        "kind": "persistence",
+        "text": "尚未複核：單期影像無法排除陰影或濕土誤判（下一期 6/25）"
+       },
+       {
+        "kind": "rain",
+        "text": "形成期間雨量：尚未取得測站資料（CWA 歷史雨量待補）"
+       },
+       {
+        "kind": "optical",
+        "text": "光學影像：尚未調閱（颱風期間多雲，雲散後可調 Sentinel-2）"
+       },
+       {
+        "kind": "exposure",
+        "text": "下游保全對象：尚未串接（可接 BigGIS、內政部道路與聚落圖層）"
+       },
+       {
+        "kind": "field",
+        "text": "人工查證：尚未進行"
+       }
+      ],
+      "conflicts": [],
+      "tasks": [
+       {
+        "label": "值班人員判讀 SAR 證據圖",
+        "reason": "確認暗區是否在河谷底、是否為崩塌坡面陰影"
+       },
+       {
+        "label": "排下一期 SAR 複核（6/25）",
+        "reason": "A 級需要兩期一致；單期出現的暗區多數會在複核時消失"
+       },
+       {
+        "label": "調閱光學影像（雲況許可時）",
+        "reason": "SAR 以外的獨立證據"
+       },
+       {
+        "label": "暫不派遣 UAV",
+        "reason": "目前只有單期 SAR，先以複核過濾誤報，避免浪費現地人力"
+       },
+       {
+        "label": "補查形成期間雨量",
+        "reason": "確認觸發條件；目前觀測表此欄空白"
+       }
+      ],
+      "rulesFired": [
+       "persistence.pending",
+       "spatial.on_river",
+       "spatial.landslide",
+       "spatial.blockage",
+       "history.nearby",
+       "gap.rain",
+       "gap.optical",
+       "gap.exposure",
+       "priority.medium.pending"
+      ]
+     }
+    ]
+   },
+   {
+    "asOf": "2026-06-23T21:52:00+00:00",
+    "label": "6/24 05:52",
+    "what": "新一期 SAR 全幅偵測＋複核 6/19 的候選",
+    "since": "",
+    "nextPass": "6/30",
+    "counts": {
+     "high": 1,
+     "medium": 0,
+     "low": 0
+    },
+    "newCount": 0,
+    "events": [
+     {
+      "id": "E1",
+      "firstSeen": "6/7 05:52",
+      "lastSeen": "6/24 05:52",
+      "isNew": false,
+      "lonLat": [
+       121.302622,
+       23.700021
+      ],
+      "distanceFromReferenceM": null,
+      "areaHectare": 0.63,
+      "areaNote": "SAR 陡坡與陰影遮罩會擋掉部分湖面，面積偏低，視為下限",
+      "lakeFloorM": 995.0,
+      "polygonLonLat": [
+       [
+        121.30319590732388,
+        23.700791130095805
+       ],
+       [
+        121.30364506496595,
+        23.70070129856739
+       ],
+       [
+        121.30310607579547,
+        23.700341972453746
+       ],
+       [
+        121.30319590732388,
+        23.700791130095805
+       ]
+      ],
+      "detections": [
+       {
+        "passTime": "6/7 05:52",
+        "areaHectare": 0.56,
+        "recheck": "not_persistent",
+        "recheckTime": "6/12 05:52",
+        "iou": 0.17,
+        "evidenceImage": null,
+        "reasons": [
+         "新增水體 0.56 公頃，緊貼事件前河道",
+         "500 m 內偵測到崩塌 1.33 公頃（SAR 回波變化 ≥ 門檻）",
+         "崩塌延伸至湖底高程（998 m）附近或以下，研判土石堵塞下游河道",
+         "後續 1 期影像同位置水體 IoU 最高 0.17，未確認持續"
+        ]
+       },
+       {
+        "passTime": "6/19 05:52",
+        "areaHectare": 0.57,
+        "recheck": "persistent",
+        "recheckTime": "6/24 05:52",
+        "iou": 0.38,
+        "evidenceImage": null,
+        "reasons": [
+         "新增水體 0.57 公頃，緊貼事件前河道",
+         "500 m 內偵測到崩塌 3.84 公頃（SAR 回波變化 ≥ 門檻）",
+         "崩塌延伸至湖底高程（1005 m）附近或以下，研判土石堵塞下游河道",
+         "後續 1 期影像同位置水體 IoU 最高 0.38，持續蓄水"
+        ]
+       },
+       {
+        "passTime": "6/24 05:52",
+        "areaHectare": 0.63,
+        "recheck": "pending",
+        "recheckTime": "6/25 05:52",
+        "iou": null,
+        "evidenceImage": null,
+        "reasons": [
+         "新增水體 0.63 公頃，緊貼事件前河道",
+         "500 m 內偵測到崩塌 7.89 公頃（SAR 回波變化 ≥ 門檻）",
+         "崩塌延伸至湖底高程（995 m）附近或以下，研判土石堵塞下游河道"
+        ]
+       }
+      ],
+      "priority": "high",
+      "priorityText": "高優先",
+      "action": "建議立即查證",
+      "confidence": "中",
+      "confidenceReasons": [
+       "SAR 3 期一致",
+       "證據只有 SAR 一種來源，最高到「中」；需光學或現地證據才能到「高」"
+      ],
+      "persistence": "confirmed",
+      "persistenceText": "已確認持續",
+      "grade": "A",
+      "scale": "小",
+      "summary": "E1 值得優先查證：5 項證據一致（SAR 新增水體、跨期持續、貼河道、附近崩塌、堵塞型態）；目前缺少光學影像與現地證據，建議下一步 UAV 現地查證並調閱光學影像。",
+      "evidence": [
+       {
+        "kind": "sar",
+        "status": "support",
+        "text": "6/24 05:52 SAR 新增水體 0.63 公頃（證據強度 A 級）"
+       },
+       {
+        "kind": "persistence",
+        "status": "support",
+        "text": "6/24 複核同位置仍有水體（IoU 0.38），共 3 期偵測到"
+       },
+       {
+        "kind": "river",
+        "status": "support",
+        "text": "緊貼事件前河道（DEM 填窪後 D8 河網）"
+       },
+       {
+        "kind": "landslide",
+        "status": "support",
+        "text": "500 m 內有 SAR 崩塌訊號 7.9 公頃"
+       },
+       {
+        "kind": "terrain",
+        "status": "support",
+        "text": "崩塌延伸到水體下游、湖底高程（995 m）以下，符合堵塞型態"
+       },
+       {
+        "kind": "history",
+        "status": "context",
+        "text": "10 km 內清冊另有 3 筆堰塞湖：2016 萬里溪（8.3 km）、2024 花蓮萬里溪（8.7 km）、2025 花蓮馬太鞍溪（0.5 km）"
+       }
+      ],
+      "gaps": [
+       {
+        "kind": "rain",
+        "text": "形成期間雨量：尚未取得測站資料（CWA 歷史雨量待補）"
+       },
+       {
+        "kind": "optical",
+        "text": "光學影像：尚未調閱（颱風期間多雲，雲散後可調 Sentinel-2）"
+       },
+       {
+        "kind": "exposure",
+        "text": "下游保全對象：尚未串接（可接 BigGIS、內政部道路與聚落圖層）"
+       },
+       {
+        "kind": "field",
+        "text": "人工查證：尚未進行"
+       }
+      ],
+      "conflicts": [],
+      "tasks": [
+       {
+        "label": "UAV／現地查證壩體與湖面",
+        "reason": "SAR 只能看到水面，壩體高度、材料與溢流風險要現地確認"
+       },
+       {
+        "label": "調閱最新光學影像",
+        "reason": "SAR 陡坡遮罩會擋掉約四成湖面，面積偏低，需光學影像確認範圍"
+       },
+       {
+        "label": "通報主管機關（農村水保署）並評估下游保全對象",
+        "reason": "下游聚落、道路圖層尚未串接"
+       },
+       {
+        "label": "持續 SAR 監測（下一期 6/30）",
+        "reason": "追蹤湖面變化"
+       },
+       {
+        "label": "補查形成期間雨量",
+        "reason": "確認觸發條件；目前觀測表此欄空白"
+       }
+      ],
+      "rulesFired": [
+       "persistence.confirmed",
+       "spatial.on_river",
+       "spatial.landslide",
+       "spatial.blockage",
+       "history.nearby",
+       "gap.rain",
+       "gap.optical",
+       "gap.exposure",
+       "priority.high.confirmed"
+      ]
+     }
+    ]
+   },
+   {
+    "asOf": "2026-06-24T21:52:00+00:00",
+    "label": "6/25 05:52",
+    "what": "新一期 SAR 全幅偵測＋複核 6/24 的候選",
+    "since": "",
+    "nextPass": "7/1",
+    "counts": {
+     "high": 1,
+     "medium": 0,
+     "low": 0
+    },
+    "newCount": 0,
+    "events": [
+     {
+      "id": "E1",
+      "firstSeen": "6/7 05:52",
+      "lastSeen": "6/25 05:52",
+      "isNew": false,
+      "lonLat": [
+       121.302814,
+       23.700177
+      ],
+      "distanceFromReferenceM": null,
+      "areaHectare": 0.69,
+      "areaNote": "SAR 陡坡與陰影遮罩會擋掉部分湖面，面積偏低，視為下限",
+      "lakeFloorM": 997.0,
+      "polygonLonLat": [
+       [
+        121.30373489649436,
+        23.70007247786851
+       ],
+       [
+        121.30310607579547,
+        23.700341972453746
+       ],
+       [
+        121.30337557038071,
+        23.700970793152628
+       ],
+       [
+        121.30355523343754,
+        23.700970793152628
+       ],
+       [
+        121.30373489649436,
+        23.70007247786851
+       ]
+      ],
+      "detections": [
+       {
+        "passTime": "6/7 05:52",
+        "areaHectare": 0.56,
+        "recheck": "not_persistent",
+        "recheckTime": "6/12 05:52",
+        "iou": 0.17,
+        "evidenceImage": null,
+        "reasons": [
+         "新增水體 0.56 公頃，緊貼事件前河道",
+         "500 m 內偵測到崩塌 1.33 公頃（SAR 回波變化 ≥ 門檻）",
+         "崩塌延伸至湖底高程（998 m）附近或以下，研判土石堵塞下游河道",
+         "後續 1 期影像同位置水體 IoU 最高 0.17，未確認持續"
+        ]
+       },
+       {
+        "passTime": "6/19 05:52",
+        "areaHectare": 0.57,
+        "recheck": "persistent",
+        "recheckTime": "6/24 05:52",
+        "iou": 0.38,
+        "evidenceImage": null,
+        "reasons": [
+         "新增水體 0.57 公頃，緊貼事件前河道",
+         "500 m 內偵測到崩塌 3.84 公頃（SAR 回波變化 ≥ 門檻）",
+         "崩塌延伸至湖底高程（1005 m）附近或以下，研判土石堵塞下游河道",
+         "後續 1 期影像同位置水體 IoU 最高 0.38，持續蓄水"
+        ]
+       },
+       {
+        "passTime": "6/24 05:52",
+        "areaHectare": 0.63,
+        "recheck": "persistent",
+        "recheckTime": "6/25 05:52",
+        "iou": 0.4,
+        "evidenceImage": null,
+        "reasons": [
+         "新增水體 0.63 公頃，緊貼事件前河道",
+         "500 m 內偵測到崩塌 7.89 公頃（SAR 回波變化 ≥ 門檻）",
+         "崩塌延伸至湖底高程（995 m）附近或以下，研判土石堵塞下游河道",
+         "後續 1 期影像同位置水體 IoU 最高 0.40，持續蓄水"
+        ]
+       },
+       {
+        "passTime": "6/25 05:52",
+        "areaHectare": 0.69,
+        "recheck": "pending",
+        "recheckTime": "7/1 05:52",
+        "iou": null,
+        "evidenceImage": null,
+        "reasons": [
+         "新增水體 0.69 公頃，緊貼事件前河道",
+         "500 m 內偵測到崩塌 7.73 公頃（SAR 回波變化 ≥ 門檻）",
+         "崩塌延伸至湖底高程（997 m）附近或以下，研判土石堵塞下游河道"
+        ]
+       }
+      ],
+      "priority": "high",
+      "priorityText": "高優先",
+      "action": "建議立即查證",
+      "confidence": "中",
+      "confidenceReasons": [
+       "SAR 4 期一致",
+       "證據只有 SAR 一種來源，最高到「中」；需光學或現地證據才能到「高」"
+      ],
+      "persistence": "confirmed",
+      "persistenceText": "已確認持續",
+      "grade": "A",
+      "scale": "小",
+      "summary": "E1 值得優先查證：5 項證據一致（SAR 新增水體、跨期持續、貼河道、附近崩塌、堵塞型態）；目前缺少光學影像與現地證據，建議下一步 UAV 現地查證並調閱光學影像。",
+      "evidence": [
+       {
+        "kind": "sar",
+        "status": "support",
+        "text": "6/25 05:52 SAR 新增水體 0.69 公頃（證據強度 A 級）"
+       },
+       {
+        "kind": "persistence",
+        "status": "support",
+        "text": "6/25 複核同位置仍有水體（IoU 0.40），共 4 期偵測到"
+       },
+       {
+        "kind": "river",
+        "status": "support",
+        "text": "緊貼事件前河道（DEM 填窪後 D8 河網）"
+       },
+       {
+        "kind": "landslide",
+        "status": "support",
+        "text": "500 m 內有 SAR 崩塌訊號 7.7 公頃"
+       },
+       {
+        "kind": "terrain",
+        "status": "support",
+        "text": "崩塌延伸到水體下游、湖底高程（997 m）以下，符合堵塞型態"
+       },
+       {
+        "kind": "history",
+        "status": "context",
+        "text": "10 km 內清冊另有 3 筆堰塞湖：2016 萬里溪（8.3 km）、2024 花蓮萬里溪（8.7 km）、2025 花蓮馬太鞍溪（0.5 km）"
+       }
+      ],
+      "gaps": [
+       {
+        "kind": "rain",
+        "text": "形成期間雨量：尚未取得測站資料（CWA 歷史雨量待補）"
+       },
+       {
+        "kind": "optical",
+        "text": "光學影像：尚未調閱（颱風期間多雲，雲散後可調 Sentinel-2）"
+       },
+       {
+        "kind": "exposure",
+        "text": "下游保全對象：尚未串接（可接 BigGIS、內政部道路與聚落圖層）"
+       },
+       {
+        "kind": "field",
+        "text": "人工查證：尚未進行"
+       }
+      ],
+      "conflicts": [],
+      "tasks": [
+       {
+        "label": "UAV／現地查證壩體與湖面",
+        "reason": "SAR 只能看到水面，壩體高度、材料與溢流風險要現地確認"
+       },
+       {
+        "label": "調閱最新光學影像",
+        "reason": "SAR 陡坡遮罩會擋掉約四成湖面，面積偏低，需光學影像確認範圍"
+       },
+       {
+        "label": "通報主管機關（農村水保署）並評估下游保全對象",
+        "reason": "下游聚落、道路圖層尚未串接"
+       },
+       {
+        "label": "持續 SAR 監測（下一期 7/1）",
+        "reason": "追蹤湖面變化"
+       },
+       {
+        "label": "補查形成期間雨量",
+        "reason": "確認觸發條件；目前觀測表此欄空白"
+       }
+      ],
+      "rulesFired": [
+       "persistence.confirmed",
+       "spatial.on_river",
+       "spatial.landslide",
+       "spatial.blockage",
+       "history.nearby",
+       "gap.rain",
+       "gap.optical",
+       "gap.exposure",
+       "priority.high.confirmed"
+      ]
+     }
+    ]
+   },
+   {
+    "asOf": "2026-06-30T21:52:00+00:00",
+    "label": "7/1 05:52",
+    "what": "新一期 SAR 全幅偵測＋複核 6/25 的候選",
+    "since": "",
+    "nextPass": "7/7",
+    "counts": {
+     "high": 1,
+     "medium": 0,
+     "low": 0
+    },
+    "newCount": 0,
+    "events": [
+     {
+      "id": "E1",
+      "firstSeen": "6/7 05:52",
+      "lastSeen": "7/1 05:52",
+      "isNew": false,
+      "lonLat": [
+       121.301643,
+       23.700807
+      ],
+      "distanceFromReferenceM": null,
+      "areaHectare": 0.81,
+      "areaNote": "SAR 陡坡與陰影遮罩會擋掉部分湖面，面積偏低，視為下限",
+      "lakeFloorM": 915.0,
+      "polygonLonLat": [
+       [
+        121.30265691815342,
+        23.699533488698037
+       ],
+       [
+        121.30274674968183,
+        23.698904667999155
+       ],
+       [
+        121.30247725509659,
+        23.698994499527565
+       ],
+       [
+        121.30265691815342,
+        23.699533488698037
+       ]
+      ],
+      "detections": [
+       {
+        "passTime": "6/7 05:52",
+        "areaHectare": 0.56,
+        "recheck": "not_persistent",
+        "recheckTime": "6/12 05:52",
+        "iou": 0.17,
+        "evidenceImage": null,
+        "reasons": [
+         "新增水體 0.56 公頃，緊貼事件前河道",
+         "500 m 內偵測到崩塌 1.33 公頃（SAR 回波變化 ≥ 門檻）",
+         "崩塌延伸至湖底高程（998 m）附近或以下，研判土石堵塞下游河道",
+         "後續 1 期影像同位置水體 IoU 最高 0.17，未確認持續"
+        ]
+       },
+       {
+        "passTime": "6/19 05:52",
+        "areaHectare": 0.57,
+        "recheck": "persistent",
+        "recheckTime": "6/24 05:52",
+        "iou": 0.38,
+        "evidenceImage": null,
+        "reasons": [
+         "新增水體 0.57 公頃，緊貼事件前河道",
+         "500 m 內偵測到崩塌 3.84 公頃（SAR 回波變化 ≥ 門檻）",
+         "崩塌延伸至湖底高程（1005 m）附近或以下，研判土石堵塞下游河道",
+         "後續 1 期影像同位置水體 IoU 最高 0.38，持續蓄水"
+        ]
+       },
+       {
+        "passTime": "6/24 05:52",
+        "areaHectare": 0.63,
+        "recheck": "persistent",
+        "recheckTime": "6/25 05:52",
+        "iou": 0.4,
+        "evidenceImage": null,
+        "reasons": [
+         "新增水體 0.63 公頃，緊貼事件前河道",
+         "500 m 內偵測到崩塌 7.89 公頃（SAR 回波變化 ≥ 門檻）",
+         "崩塌延伸至湖底高程（995 m）附近或以下，研判土石堵塞下游河道",
+         "後續 1 期影像同位置水體 IoU 最高 0.40，持續蓄水"
+        ]
+       },
+       {
+        "passTime": "6/25 05:52",
+        "areaHectare": 0.69,
+        "recheck": "persistent",
+        "recheckTime": "7/1 05:52",
+        "iou": 0.36,
+        "evidenceImage": null,
+        "reasons": [
+         "新增水體 0.69 公頃，緊貼事件前河道",
+         "500 m 內偵測到崩塌 7.73 公頃（SAR 回波變化 ≥ 門檻）",
+         "崩塌延伸至湖底高程（997 m）附近或以下，研判土石堵塞下游河道",
+         "後續 1 期影像同位置水體 IoU 最高 0.36，持續蓄水"
+        ]
+       },
+       {
+        "passTime": "7/1 05:52",
+        "areaHectare": 0.81,
+        "recheck": "pending",
+        "recheckTime": "7/7 05:52",
+        "iou": null,
+        "evidenceImage": null,
+        "reasons": [
+         "新增水體 0.81 公頃，緊貼事件前河道",
+         "500 m 內偵測到崩塌 6.69 公頃（SAR 回波變化 ≥ 門檻）",
+         "崩塌延伸至湖底高程（915 m）附近或以下，研判土石堵塞下游河道"
+        ]
+       }
+      ],
+      "priority": "high",
+      "priorityText": "高優先",
+      "action": "建議立即查證",
+      "confidence": "中",
+      "confidenceReasons": [
+       "SAR 5 期一致",
+       "證據只有 SAR 一種來源，最高到「中」；需光學或現地證據才能到「高」"
+      ],
+      "persistence": "confirmed",
+      "persistenceText": "已確認持續",
+      "grade": "A",
+      "scale": "小",
+      "summary": "E1 值得優先查證：5 項證據一致（SAR 新增水體、跨期持續、貼河道、附近崩塌、堵塞型態）；目前缺少光學影像與現地證據，建議下一步 UAV 現地查證並調閱光學影像。",
+      "evidence": [
+       {
+        "kind": "sar",
+        "status": "support",
+        "text": "7/1 05:52 SAR 新增水體 0.81 公頃（證據強度 A 級）"
+       },
+       {
+        "kind": "persistence",
+        "status": "support",
+        "text": "7/1 複核同位置仍有水體（IoU 0.36），共 5 期偵測到"
+       },
+       {
+        "kind": "river",
+        "status": "support",
+        "text": "緊貼事件前河道（DEM 填窪後 D8 河網）"
+       },
+       {
+        "kind": "landslide",
+        "status": "support",
+        "text": "500 m 內有 SAR 崩塌訊號 6.7 公頃"
+       },
+       {
+        "kind": "terrain",
+        "status": "support",
+        "text": "崩塌延伸到水體下游、湖底高程（915 m）以下，符合堵塞型態"
+       },
+       {
+        "kind": "history",
+        "status": "context",
+        "text": "10 km 內清冊另有 3 筆堰塞湖：2016 萬里溪（8.4 km）、2024 花蓮萬里溪（8.6 km）、2025 花蓮馬太鞍溪（0.4 km）"
+       }
+      ],
+      "gaps": [
+       {
+        "kind": "rain",
+        "text": "形成期間雨量：尚未取得測站資料（CWA 歷史雨量待補）"
+       },
+       {
+        "kind": "optical",
+        "text": "光學影像：尚未調閱（颱風期間多雲，雲散後可調 Sentinel-2）"
+       },
+       {
+        "kind": "exposure",
+        "text": "下游保全對象：尚未串接（可接 BigGIS、內政部道路與聚落圖層）"
+       },
+       {
+        "kind": "field",
+        "text": "人工查證：尚未進行"
+       }
+      ],
+      "conflicts": [],
+      "tasks": [
+       {
+        "label": "UAV／現地查證壩體與湖面",
+        "reason": "SAR 只能看到水面，壩體高度、材料與溢流風險要現地確認"
+       },
+       {
+        "label": "調閱最新光學影像",
+        "reason": "SAR 陡坡遮罩會擋掉約四成湖面，面積偏低，需光學影像確認範圍"
+       },
+       {
+        "label": "通報主管機關（農村水保署）並評估下游保全對象",
+        "reason": "下游聚落、道路圖層尚未串接"
+       },
+       {
+        "label": "持續 SAR 監測（下一期 7/7）",
+        "reason": "追蹤湖面變化"
+       },
+       {
+        "label": "補查形成期間雨量",
+        "reason": "確認觸發條件；目前觀測表此欄空白"
+       }
+      ],
+      "rulesFired": [
+       "persistence.confirmed",
+       "spatial.on_river",
+       "spatial.landslide",
+       "spatial.blockage",
+       "history.nearby",
+       "gap.rain",
+       "gap.optical",
+       "gap.exposure",
+       "priority.high.confirmed"
+      ]
+     }
+    ]
+   },
+   {
+    "asOf": "2026-07-06T21:52:00+00:00",
+    "label": "7/7 05:52",
+    "what": "新一期 SAR 全幅偵測＋複核 7/1 的候選",
+    "since": "",
+    "nextPass": "7/13",
+    "counts": {
+     "high": 1,
+     "medium": 0,
+     "low": 0
+    },
+    "newCount": 0,
+    "events": [
+     {
+      "id": "E1",
+      "firstSeen": "6/7 05:52",
+      "lastSeen": "7/7 05:52",
+      "isNew": false,
+      "lonLat": [
+       121.302731,
+       23.699931
+      ],
+      "distanceFromReferenceM": null,
+      "areaHectare": 0.96,
+      "areaNote": "SAR 陡坡與陰影遮罩會擋掉部分湖面，面積偏低，視為下限",
+      "lakeFloorM": 1001.0,
+      "polygonLonLat": [
+       [
+        121.30355523343754,
+        23.69962332022645
+       ],
+       [
+        121.30355523343754,
+        23.70016230939692
+       ],
+       [
+        121.30301624426707,
+        23.700252140925333
+       ],
+       [
+        121.30346540190912,
+        23.70070129856739
+       ],
+       [
+        121.30364506496595,
+        23.70052163551057
+       ],
+       [
+        121.30355523343754,
+        23.69962332022645
+       ]
+      ],
+      "detections": [
+       {
+        "passTime": "6/7 05:52",
+        "areaHectare": 0.56,
+        "recheck": "not_persistent",
+        "recheckTime": "6/12 05:52",
+        "iou": 0.17,
+        "evidenceImage": null,
+        "reasons": [
+         "新增水體 0.56 公頃，緊貼事件前河道",
+         "500 m 內偵測到崩塌 1.33 公頃（SAR 回波變化 ≥ 門檻）",
+         "崩塌延伸至湖底高程（998 m）附近或以下，研判土石堵塞下游河道",
+         "後續 1 期影像同位置水體 IoU 最高 0.17，未確認持續"
+        ]
+       },
+       {
+        "passTime": "6/19 05:52",
+        "areaHectare": 0.57,
+        "recheck": "persistent",
+        "recheckTime": "6/24 05:52",
+        "iou": 0.38,
+        "evidenceImage": null,
+        "reasons": [
+         "新增水體 0.57 公頃，緊貼事件前河道",
+         "500 m 內偵測到崩塌 3.84 公頃（SAR 回波變化 ≥ 門檻）",
+         "崩塌延伸至湖底高程（1005 m）附近或以下，研判土石堵塞下游河道",
+         "後續 1 期影像同位置水體 IoU 最高 0.38，持續蓄水"
+        ]
+       },
+       {
+        "passTime": "6/24 05:52",
+        "areaHectare": 0.63,
+        "recheck": "persistent",
+        "recheckTime": "6/25 05:52",
+        "iou": 0.4,
+        "evidenceImage": null,
+        "reasons": [
+         "新增水體 0.63 公頃，緊貼事件前河道",
+         "500 m 內偵測到崩塌 7.89 公頃（SAR 回波變化 ≥ 門檻）",
+         "崩塌延伸至湖底高程（995 m）附近或以下，研判土石堵塞下游河道",
+         "後續 1 期影像同位置水體 IoU 最高 0.40，持續蓄水"
+        ]
+       },
+       {
+        "passTime": "6/25 05:52",
+        "areaHectare": 0.69,
+        "recheck": "persistent",
+        "recheckTime": "7/1 05:52",
+        "iou": 0.36,
+        "evidenceImage": null,
+        "reasons": [
+         "新增水體 0.69 公頃，緊貼事件前河道",
+         "500 m 內偵測到崩塌 7.73 公頃（SAR 回波變化 ≥ 門檻）",
+         "崩塌延伸至湖底高程（997 m）附近或以下，研判土石堵塞下游河道",
+         "後續 1 期影像同位置水體 IoU 最高 0.36，持續蓄水"
+        ]
+       },
+       {
+        "passTime": "7/1 05:52",
+        "areaHectare": 0.81,
+        "recheck": "persistent",
+        "recheckTime": "7/7 05:52",
+        "iou": 0.32,
+        "evidenceImage": null,
+        "reasons": [
+         "新增水體 0.81 公頃，緊貼事件前河道",
+         "500 m 內偵測到崩塌 6.69 公頃（SAR 回波變化 ≥ 門檻）",
+         "崩塌延伸至湖底高程（915 m）附近或以下，研判土石堵塞下游河道",
+         "後續 1 期影像同位置水體 IoU 最高 0.32，持續蓄水"
+        ]
+       },
+       {
+        "passTime": "7/7 05:52",
+        "areaHectare": 0.96,
+        "recheck": "pending",
+        "recheckTime": "7/13 05:52",
+        "iou": null,
+        "evidenceImage": null,
+        "reasons": [
+         "新增水體 0.96 公頃，緊貼事件前河道",
+         "500 m 內偵測到崩塌 8.50 公頃（SAR 回波變化 ≥ 門檻）",
+         "崩塌延伸至湖底高程（1001 m）附近或以下，研判土石堵塞下游河道"
+        ]
+       }
+      ],
+      "priority": "high",
+      "priorityText": "高優先",
+      "action": "建議立即查證",
+      "confidence": "中",
+      "confidenceReasons": [
+       "SAR 6 期一致",
+       "證據只有 SAR 一種來源，最高到「中」；需光學或現地證據才能到「高」"
+      ],
+      "persistence": "confirmed",
+      "persistenceText": "已確認持續",
+      "grade": "A",
+      "scale": "小",
+      "summary": "E1 值得優先查證：6 項證據一致（SAR 新增水體、跨期持續、貼河道、附近崩塌、堵塞型態、面積擴大）；目前缺少光學影像與現地證據，建議下一步 UAV 現地查證並調閱光學影像。",
+      "evidence": [
+       {
+        "kind": "sar",
+        "status": "support",
+        "text": "7/7 05:52 SAR 新增水體 0.96 公頃（證據強度 A 級）"
+       },
+       {
+        "kind": "persistence",
+        "status": "support",
+        "text": "7/7 複核同位置仍有水體（IoU 0.32），共 6 期偵測到"
+       },
+       {
+        "kind": "river",
+        "status": "support",
+        "text": "緊貼事件前河道（DEM 填窪後 D8 河網）"
+       },
+       {
+        "kind": "landslide",
+        "status": "support",
+        "text": "500 m 內有 SAR 崩塌訊號 8.5 公頃"
+       },
+       {
+        "kind": "terrain",
+        "status": "support",
+        "text": "崩塌延伸到水體下游、湖底高程（1001 m）以下，符合堵塞型態"
+       },
+       {
+        "kind": "trend",
+        "status": "support",
+        "text": "面積 0.6 → 1.0 公頃，擴大中"
+       },
+       {
+        "kind": "history",
+        "status": "context",
+        "text": "10 km 內清冊另有 3 筆堰塞湖：2016 萬里溪（8.3 km）、2024 花蓮萬里溪（8.7 km）、2025 花蓮馬太鞍溪（0.5 km）"
+       }
+      ],
+      "gaps": [
+       {
+        "kind": "rain",
+        "text": "形成期間雨量：尚未取得測站資料（CWA 歷史雨量待補）"
+       },
+       {
+        "kind": "optical",
+        "text": "光學影像：尚未調閱（颱風期間多雲，雲散後可調 Sentinel-2）"
+       },
+       {
+        "kind": "exposure",
+        "text": "下游保全對象：尚未串接（可接 BigGIS、內政部道路與聚落圖層）"
+       },
+       {
+        "kind": "field",
+        "text": "人工查證：尚未進行"
+       }
+      ],
+      "conflicts": [],
+      "tasks": [
+       {
+        "label": "UAV／現地查證壩體與湖面",
+        "reason": "SAR 只能看到水面，壩體高度、材料與溢流風險要現地確認"
+       },
+       {
+        "label": "調閱最新光學影像",
+        "reason": "SAR 陡坡遮罩會擋掉約四成湖面，面積偏低，需光學影像確認範圍"
+       },
+       {
+        "label": "通報主管機關（農村水保署）並評估下游保全對象",
+        "reason": "下游聚落、道路圖層尚未串接"
+       },
+       {
+        "label": "持續 SAR 監測（下一期 7/13）",
+        "reason": "追蹤湖面變化；目前面積擴大中"
+       },
+       {
+        "label": "補查形成期間雨量",
+        "reason": "確認觸發條件；目前觀測表此欄空白"
+       }
+      ],
+      "rulesFired": [
+       "persistence.confirmed",
+       "spatial.on_river",
+       "spatial.landslide",
+       "spatial.blockage",
+       "trend.growing",
+       "history.nearby",
+       "gap.rain",
+       "gap.optical",
+       "gap.exposure",
+       "priority.high.confirmed"
+      ]
+     }
+    ]
+   },
+   {
+    "asOf": "2026-07-12T21:52:00+00:00",
+    "label": "7/13 05:52",
+    "what": "新一期 SAR 全幅偵測＋複核 7/7 的候選",
+    "since": "",
+    "nextPass": "7/19",
+    "counts": {
+     "high": 1,
+     "medium": 0,
+     "low": 0
+    },
+    "newCount": 0,
+    "events": [
+     {
+      "id": "E1",
+      "firstSeen": "6/7 05:52",
+      "lastSeen": "7/13 05:52",
+      "isNew": false,
+      "lonLat": [
+       121.302487,
+       23.700041
+      ],
+      "distanceFromReferenceM": null,
+      "areaHectare": 0.88,
+      "areaNote": "SAR 陡坡與陰影遮罩會擋掉部分湖面，面積偏低，視為下限",
+      "lakeFloorM": 995.0,
+      "polygonLonLat": [
+       [
+        121.30364506496595,
+        23.700970793152628
+       ],
+       [
+        121.30310607579547,
+        23.700341972453746
+       ],
+       [
+        121.30274674968183,
+        23.700611467038982
+       ],
+       [
+        121.30364506496595,
+        23.700970793152628
+       ]
+      ],
+      "detections": [
+       {
+        "passTime": "6/7 05:52",
+        "areaHectare": 0.56,
+        "recheck": "not_persistent",
+        "recheckTime": "6/12 05:52",
+        "iou": 0.17,
+        "evidenceImage": null,
+        "reasons": [
+         "新增水體 0.56 公頃，緊貼事件前河道",
+         "500 m 內偵測到崩塌 1.33 公頃（SAR 回波變化 ≥ 門檻）",
+         "崩塌延伸至湖底高程（998 m）附近或以下，研判土石堵塞下游河道",
+         "後續 1 期影像同位置水體 IoU 最高 0.17，未確認持續"
+        ]
+       },
+       {
+        "passTime": "6/19 05:52",
+        "areaHectare": 0.57,
+        "recheck": "persistent",
+        "recheckTime": "6/24 05:52",
+        "iou": 0.38,
+        "evidenceImage": null,
+        "reasons": [
+         "新增水體 0.57 公頃，緊貼事件前河道",
+         "500 m 內偵測到崩塌 3.84 公頃（SAR 回波變化 ≥ 門檻）",
+         "崩塌延伸至湖底高程（1005 m）附近或以下，研判土石堵塞下游河道",
+         "後續 1 期影像同位置水體 IoU 最高 0.38，持續蓄水"
+        ]
+       },
+       {
+        "passTime": "6/24 05:52",
+        "areaHectare": 0.63,
+        "recheck": "persistent",
+        "recheckTime": "6/25 05:52",
+        "iou": 0.4,
+        "evidenceImage": null,
+        "reasons": [
+         "新增水體 0.63 公頃，緊貼事件前河道",
+         "500 m 內偵測到崩塌 7.89 公頃（SAR 回波變化 ≥ 門檻）",
+         "崩塌延伸至湖底高程（995 m）附近或以下，研判土石堵塞下游河道",
+         "後續 1 期影像同位置水體 IoU 最高 0.40，持續蓄水"
+        ]
+       },
+       {
+        "passTime": "6/25 05:52",
+        "areaHectare": 0.69,
+        "recheck": "persistent",
+        "recheckTime": "7/1 05:52",
+        "iou": 0.36,
+        "evidenceImage": null,
+        "reasons": [
+         "新增水體 0.69 公頃，緊貼事件前河道",
+         "500 m 內偵測到崩塌 7.73 公頃（SAR 回波變化 ≥ 門檻）",
+         "崩塌延伸至湖底高程（997 m）附近或以下，研判土石堵塞下游河道",
+         "後續 1 期影像同位置水體 IoU 最高 0.36，持續蓄水"
+        ]
+       },
+       {
+        "passTime": "7/1 05:52",
+        "areaHectare": 0.81,
+        "recheck": "persistent",
+        "recheckTime": "7/7 05:52",
+        "iou": 0.32,
+        "evidenceImage": null,
+        "reasons": [
+         "新增水體 0.81 公頃，緊貼事件前河道",
+         "500 m 內偵測到崩塌 6.69 公頃（SAR 回波變化 ≥ 門檻）",
+         "崩塌延伸至湖底高程（915 m）附近或以下，研判土石堵塞下游河道",
+         "後續 1 期影像同位置水體 IoU 最高 0.32，持續蓄水"
+        ]
+       },
+       {
+        "passTime": "7/7 05:52",
+        "areaHectare": 0.96,
+        "recheck": "persistent",
+        "recheckTime": "7/13 05:52",
+        "iou": 0.37,
+        "evidenceImage": null,
+        "reasons": [
+         "新增水體 0.96 公頃，緊貼事件前河道",
+         "500 m 內偵測到崩塌 8.50 公頃（SAR 回波變化 ≥ 門檻）",
+         "崩塌延伸至湖底高程（1001 m）附近或以下，研判土石堵塞下游河道",
+         "後續 1 期影像同位置水體 IoU 最高 0.37，持續蓄水"
+        ]
+       },
+       {
+        "passTime": "7/13 05:52",
+        "areaHectare": 0.88,
+        "recheck": "pending",
+        "recheckTime": "7/19 05:52",
+        "iou": null,
+        "evidenceImage": null,
+        "reasons": [
+         "新增水體 0.88 公頃，緊貼事件前河道",
+         "500 m 內偵測到崩塌 5.09 公頃（SAR 回波變化 ≥ 門檻）",
+         "崩塌延伸至湖底高程（995 m）附近或以下，研判土石堵塞下游河道"
+        ]
+       }
+      ],
+      "priority": "high",
+      "priorityText": "高優先",
+      "action": "建議立即查證",
+      "confidence": "中",
+      "confidenceReasons": [
+       "SAR 7 期一致",
+       "證據只有 SAR 一種來源，最高到「中」；需光學或現地證據才能到「高」"
+      ],
+      "persistence": "confirmed",
+      "persistenceText": "已確認持續",
+      "grade": "A",
+      "scale": "小",
+      "summary": "E1 值得優先查證：6 項證據一致（SAR 新增水體、跨期持續、貼河道、附近崩塌、堵塞型態、面積擴大）；目前缺少光學影像與現地證據，建議下一步 UAV 現地查證並調閱光學影像。",
+      "evidence": [
+       {
+        "kind": "sar",
+        "status": "support",
+        "text": "7/13 05:52 SAR 新增水體 0.88 公頃（證據強度 A 級）"
+       },
+       {
+        "kind": "persistence",
+        "status": "support",
+        "text": "7/13 複核同位置仍有水體（IoU 0.37），共 7 期偵測到"
+       },
+       {
+        "kind": "river",
+        "status": "support",
+        "text": "緊貼事件前河道（DEM 填窪後 D8 河網）"
+       },
+       {
+        "kind": "landslide",
+        "status": "support",
+        "text": "500 m 內有 SAR 崩塌訊號 5.1 公頃"
+       },
+       {
+        "kind": "terrain",
+        "status": "support",
+        "text": "崩塌延伸到水體下游、湖底高程（995 m）以下，符合堵塞型態"
+       },
+       {
+        "kind": "trend",
+        "status": "support",
+        "text": "面積 0.6 → 0.9 公頃，擴大中"
+       },
+       {
+        "kind": "history",
+        "status": "context",
+        "text": "10 km 內清冊另有 3 筆堰塞湖：2016 萬里溪（8.4 km）、2024 花蓮萬里溪（8.7 km）、2025 花蓮馬太鞍溪（0.5 km）"
+       }
+      ],
+      "gaps": [
+       {
+        "kind": "rain",
+        "text": "形成期間雨量：尚未取得測站資料（CWA 歷史雨量待補）"
+       },
+       {
+        "kind": "optical",
+        "text": "光學影像：尚未調閱（颱風期間多雲，雲散後可調 Sentinel-2）"
+       },
+       {
+        "kind": "exposure",
+        "text": "下游保全對象：尚未串接（可接 BigGIS、內政部道路與聚落圖層）"
+       },
+       {
+        "kind": "field",
+        "text": "人工查證：尚未進行"
+       }
+      ],
+      "conflicts": [],
+      "tasks": [
+       {
+        "label": "UAV／現地查證壩體與湖面",
+        "reason": "SAR 只能看到水面，壩體高度、材料與溢流風險要現地確認"
+       },
+       {
+        "label": "調閱最新光學影像",
+        "reason": "SAR 陡坡遮罩會擋掉約四成湖面，面積偏低，需光學影像確認範圍"
+       },
+       {
+        "label": "通報主管機關（農村水保署）並評估下游保全對象",
+        "reason": "下游聚落、道路圖層尚未串接"
+       },
+       {
+        "label": "持續 SAR 監測（下一期 7/19）",
+        "reason": "追蹤湖面變化；目前面積擴大中"
+       },
+       {
+        "label": "補查形成期間雨量",
+        "reason": "確認觸發條件；目前觀測表此欄空白"
+       }
+      ],
+      "rulesFired": [
+       "persistence.confirmed",
+       "spatial.on_river",
+       "spatial.landslide",
+       "spatial.blockage",
+       "trend.growing",
+       "history.nearby",
+       "gap.rain",
+       "gap.optical",
+       "gap.exposure",
+       "priority.high.confirmed"
+      ]
+     }
+    ]
+   },
+   {
+    "asOf": "2026-07-18T21:52:00+00:00",
+    "label": "7/19 05:52",
+    "what": "新一期 SAR 全幅偵測＋複核 7/13 的候選",
+    "since": "",
+    "nextPass": "7/25",
+    "counts": {
+     "high": 1,
+     "medium": 0,
+     "low": 0
+    },
+    "newCount": 0,
+    "events": [
+     {
+      "id": "E1",
+      "firstSeen": "6/7 05:52",
+      "lastSeen": "7/19 05:52",
+      "isNew": false,
+      "lonLat": [
+       121.302554,
+       23.700011
+      ],
+      "distanceFromReferenceM": null,
+      "areaHectare": 0.59,
+      "areaNote": "SAR 陡坡與陰影遮罩會擋掉部分湖面，面積偏低，視為下限",
+      "lakeFloorM": 995.0,
+      "polygonLonLat": [
+       [
+        121.30346540190912,
+        23.70070129856739
+       ],
+       [
+        121.30337557038071,
+        23.700252140925333
+       ],
+       [
+        121.30319590732388,
+        23.700252140925333
+       ],
+       [
+        121.30301624426707,
+        23.70070129856739
+       ],
+       [
+        121.30346540190912,
+        23.70070129856739
+       ]
+      ],
+      "detections": [
+       {
+        "passTime": "6/7 05:52",
+        "areaHectare": 0.56,
+        "recheck": "not_persistent",
+        "recheckTime": "6/12 05:52",
+        "iou": 0.17,
+        "evidenceImage": null,
+        "reasons": [
+         "新增水體 0.56 公頃，緊貼事件前河道",
+         "500 m 內偵測到崩塌 1.33 公頃（SAR 回波變化 ≥ 門檻）",
+         "崩塌延伸至湖底高程（998 m）附近或以下，研判土石堵塞下游河道",
+         "後續 1 期影像同位置水體 IoU 最高 0.17，未確認持續"
+        ]
+       },
+       {
+        "passTime": "6/19 05:52",
+        "areaHectare": 0.57,
+        "recheck": "persistent",
+        "recheckTime": "6/24 05:52",
+        "iou": 0.38,
+        "evidenceImage": null,
+        "reasons": [
+         "新增水體 0.57 公頃，緊貼事件前河道",
+         "500 m 內偵測到崩塌 3.84 公頃（SAR 回波變化 ≥ 門檻）",
+         "崩塌延伸至湖底高程（1005 m）附近或以下，研判土石堵塞下游河道",
+         "後續 1 期影像同位置水體 IoU 最高 0.38，持續蓄水"
+        ]
+       },
+       {
+        "passTime": "6/24 05:52",
+        "areaHectare": 0.63,
+        "recheck": "persistent",
+        "recheckTime": "6/25 05:52",
+        "iou": 0.4,
+        "evidenceImage": null,
+        "reasons": [
+         "新增水體 0.63 公頃，緊貼事件前河道",
+         "500 m 內偵測到崩塌 7.89 公頃（SAR 回波變化 ≥ 門檻）",
+         "崩塌延伸至湖底高程（995 m）附近或以下，研判土石堵塞下游河道",
+         "後續 1 期影像同位置水體 IoU 最高 0.40，持續蓄水"
+        ]
+       },
+       {
+        "passTime": "6/25 05:52",
+        "areaHectare": 0.69,
+        "recheck": "persistent",
+        "recheckTime": "7/1 05:52",
+        "iou": 0.36,
+        "evidenceImage": null,
+        "reasons": [
+         "新增水體 0.69 公頃，緊貼事件前河道",
+         "500 m 內偵測到崩塌 7.73 公頃（SAR 回波變化 ≥ 門檻）",
+         "崩塌延伸至湖底高程（997 m）附近或以下，研判土石堵塞下游河道",
+         "後續 1 期影像同位置水體 IoU 最高 0.36，持續蓄水"
+        ]
+       },
+       {
+        "passTime": "7/1 05:52",
+        "areaHectare": 0.81,
+        "recheck": "persistent",
+        "recheckTime": "7/7 05:52",
+        "iou": 0.32,
+        "evidenceImage": null,
+        "reasons": [
+         "新增水體 0.81 公頃，緊貼事件前河道",
+         "500 m 內偵測到崩塌 6.69 公頃（SAR 回波變化 ≥ 門檻）",
+         "崩塌延伸至湖底高程（915 m）附近或以下，研判土石堵塞下游河道",
+         "後續 1 期影像同位置水體 IoU 最高 0.32，持續蓄水"
+        ]
+       },
+       {
+        "passTime": "7/7 05:52",
+        "areaHectare": 0.96,
+        "recheck": "persistent",
+        "recheckTime": "7/13 05:52",
+        "iou": 0.37,
+        "evidenceImage": null,
+        "reasons": [
+         "新增水體 0.96 公頃，緊貼事件前河道",
+         "500 m 內偵測到崩塌 8.50 公頃（SAR 回波變化 ≥ 門檻）",
+         "崩塌延伸至湖底高程（1001 m）附近或以下，研判土石堵塞下游河道",
+         "後續 1 期影像同位置水體 IoU 最高 0.37，持續蓄水"
+        ]
+       },
+       {
+        "passTime": "7/13 05:52",
+        "areaHectare": 0.88,
+        "recheck": "persistent",
+        "recheckTime": "7/19 05:52",
+        "iou": 0.39,
+        "evidenceImage": null,
+        "reasons": [
+         "新增水體 0.88 公頃，緊貼事件前河道",
+         "500 m 內偵測到崩塌 5.09 公頃（SAR 回波變化 ≥ 門檻）",
+         "崩塌延伸至湖底高程（995 m）附近或以下，研判土石堵塞下游河道",
+         "後續 1 期影像同位置水體 IoU 最高 0.39，持續蓄水"
+        ]
+       },
+       {
+        "passTime": "7/19 05:52",
+        "areaHectare": 0.59,
+        "recheck": "pending",
+        "recheckTime": "7/25 05:52",
+        "iou": null,
+        "evidenceImage": null,
+        "reasons": [
+         "新增水體 0.59 公頃，緊貼事件前河道",
+         "500 m 內偵測到崩塌 5.75 公頃（SAR 回波變化 ≥ 門檻）",
+         "崩塌延伸至湖底高程（995 m）附近或以下，研判土石堵塞下游河道"
+        ]
+       }
+      ],
+      "priority": "high",
+      "priorityText": "高優先",
+      "action": "建議立即查證",
+      "confidence": "中",
+      "confidenceReasons": [
+       "SAR 8 期一致",
+       "證據只有 SAR 一種來源，最高到「中」；需光學或現地證據才能到「高」"
+      ],
+      "persistence": "confirmed",
+      "persistenceText": "已確認持續",
+      "grade": "A",
+      "scale": "小",
+      "summary": "E1 值得優先查證：5 項證據一致（SAR 新增水體、跨期持續、貼河道、附近崩塌、堵塞型態）；目前缺少光學影像與現地證據，建議下一步 UAV 現地查證並調閱光學影像。",
+      "evidence": [
+       {
+        "kind": "sar",
+        "status": "support",
+        "text": "7/19 05:52 SAR 新增水體 0.59 公頃（證據強度 A 級）"
+       },
+       {
+        "kind": "persistence",
+        "status": "support",
+        "text": "7/19 複核同位置仍有水體（IoU 0.39），共 8 期偵測到"
+       },
+       {
+        "kind": "river",
+        "status": "support",
+        "text": "緊貼事件前河道（DEM 填窪後 D8 河網）"
+       },
+       {
+        "kind": "landslide",
+        "status": "support",
+        "text": "500 m 內有 SAR 崩塌訊號 5.8 公頃"
+       },
+       {
+        "kind": "terrain",
+        "status": "support",
+        "text": "崩塌延伸到水體下游、湖底高程（995 m）以下，符合堵塞型態"
+       },
+       {
+        "kind": "history",
+        "status": "context",
+        "text": "10 km 內清冊另有 3 筆堰塞湖：2016 萬里溪（8.4 km）、2024 花蓮萬里溪（8.7 km）、2025 花蓮馬太鞍溪（0.5 km）"
+       }
+      ],
+      "gaps": [
+       {
+        "kind": "rain",
+        "text": "形成期間雨量：尚未取得測站資料（CWA 歷史雨量待補）"
+       },
+       {
+        "kind": "optical",
+        "text": "光學影像：尚未調閱（颱風期間多雲，雲散後可調 Sentinel-2）"
+       },
+       {
+        "kind": "exposure",
+        "text": "下游保全對象：尚未串接（可接 BigGIS、內政部道路與聚落圖層）"
+       },
+       {
+        "kind": "field",
+        "text": "人工查證：尚未進行"
+       }
+      ],
+      "conflicts": [],
+      "tasks": [
+       {
+        "label": "UAV／現地查證壩體與湖面",
+        "reason": "SAR 只能看到水面，壩體高度、材料與溢流風險要現地確認"
+       },
+       {
+        "label": "調閱最新光學影像",
+        "reason": "SAR 陡坡遮罩會擋掉約四成湖面，面積偏低，需光學影像確認範圍"
+       },
+       {
+        "label": "通報主管機關（農村水保署）並評估下游保全對象",
+        "reason": "下游聚落、道路圖層尚未串接"
+       },
+       {
+        "label": "持續 SAR 監測（下一期 7/25）",
+        "reason": "追蹤湖面變化"
+       },
+       {
+        "label": "補查形成期間雨量",
+        "reason": "確認觸發條件；目前觀測表此欄空白"
+       }
+      ],
+      "rulesFired": [
+       "persistence.confirmed",
+       "spatial.on_river",
+       "spatial.landslide",
+       "spatial.blockage",
+       "history.nearby",
+       "gap.rain",
+       "gap.optical",
+       "gap.exposure",
+       "priority.high.confirmed"
+      ]
+     }
+    ]
+   },
+   {
+    "asOf": "2026-07-24T21:52:00+00:00",
+    "label": "7/25 05:52",
+    "what": "新一期 SAR 全幅偵測＋複核 7/19 的候選",
+    "since": "",
+    "nextPass": "7/31",
+    "counts": {
+     "high": 1,
+     "medium": 0,
+     "low": 0
+    },
+    "newCount": 0,
+    "events": [
+     {
+      "id": "E1",
+      "firstSeen": "6/7 05:52",
+      "lastSeen": "7/19 05:52",
+      "isNew": false,
+      "lonLat": [
+       121.302554,
+       23.700011
+      ],
+      "distanceFromReferenceM": null,
+      "areaHectare": 0.59,
+      "areaNote": "SAR 陡坡與陰影遮罩會擋掉部分湖面，面積偏低，視為下限",
+      "lakeFloorM": 995.0,
+      "polygonLonLat": [
+       [
+        121.30346540190912,
+        23.70070129856739
+       ],
+       [
+        121.30337557038071,
+        23.700252140925333
+       ],
+       [
+        121.30319590732388,
+        23.700252140925333
+       ],
+       [
+        121.30301624426707,
+        23.70070129856739
+       ],
+       [
+        121.30346540190912,
+        23.70070129856739
+       ]
+      ],
+      "detections": [
+       {
+        "passTime": "6/7 05:52",
+        "areaHectare": 0.56,
+        "recheck": "not_persistent",
+        "recheckTime": "6/12 05:52",
+        "iou": 0.17,
+        "evidenceImage": null,
+        "reasons": [
+         "新增水體 0.56 公頃，緊貼事件前河道",
+         "500 m 內偵測到崩塌 1.33 公頃（SAR 回波變化 ≥ 門檻）",
+         "崩塌延伸至湖底高程（998 m）附近或以下，研判土石堵塞下游河道",
+         "後續 1 期影像同位置水體 IoU 最高 0.17，未確認持續"
+        ]
+       },
+       {
+        "passTime": "6/19 05:52",
+        "areaHectare": 0.57,
+        "recheck": "persistent",
+        "recheckTime": "6/24 05:52",
+        "iou": 0.38,
+        "evidenceImage": null,
+        "reasons": [
+         "新增水體 0.57 公頃，緊貼事件前河道",
+         "500 m 內偵測到崩塌 3.84 公頃（SAR 回波變化 ≥ 門檻）",
+         "崩塌延伸至湖底高程（1005 m）附近或以下，研判土石堵塞下游河道",
+         "後續 1 期影像同位置水體 IoU 最高 0.38，持續蓄水"
+        ]
+       },
+       {
+        "passTime": "6/24 05:52",
+        "areaHectare": 0.63,
+        "recheck": "persistent",
+        "recheckTime": "6/25 05:52",
+        "iou": 0.4,
+        "evidenceImage": null,
+        "reasons": [
+         "新增水體 0.63 公頃，緊貼事件前河道",
+         "500 m 內偵測到崩塌 7.89 公頃（SAR 回波變化 ≥ 門檻）",
+         "崩塌延伸至湖底高程（995 m）附近或以下，研判土石堵塞下游河道",
+         "後續 1 期影像同位置水體 IoU 最高 0.40，持續蓄水"
+        ]
+       },
+       {
+        "passTime": "6/25 05:52",
+        "areaHectare": 0.69,
+        "recheck": "persistent",
+        "recheckTime": "7/1 05:52",
+        "iou": 0.36,
+        "evidenceImage": null,
+        "reasons": [
+         "新增水體 0.69 公頃，緊貼事件前河道",
+         "500 m 內偵測到崩塌 7.73 公頃（SAR 回波變化 ≥ 門檻）",
+         "崩塌延伸至湖底高程（997 m）附近或以下，研判土石堵塞下游河道",
+         "後續 1 期影像同位置水體 IoU 最高 0.36，持續蓄水"
+        ]
+       },
+       {
+        "passTime": "7/1 05:52",
+        "areaHectare": 0.81,
+        "recheck": "persistent",
+        "recheckTime": "7/7 05:52",
+        "iou": 0.32,
+        "evidenceImage": null,
+        "reasons": [
+         "新增水體 0.81 公頃，緊貼事件前河道",
+         "500 m 內偵測到崩塌 6.69 公頃（SAR 回波變化 ≥ 門檻）",
+         "崩塌延伸至湖底高程（915 m）附近或以下，研判土石堵塞下游河道",
+         "後續 1 期影像同位置水體 IoU 最高 0.32，持續蓄水"
+        ]
+       },
+       {
+        "passTime": "7/7 05:52",
+        "areaHectare": 0.96,
+        "recheck": "persistent",
+        "recheckTime": "7/13 05:52",
+        "iou": 0.37,
+        "evidenceImage": null,
+        "reasons": [
+         "新增水體 0.96 公頃，緊貼事件前河道",
+         "500 m 內偵測到崩塌 8.50 公頃（SAR 回波變化 ≥ 門檻）",
+         "崩塌延伸至湖底高程（1001 m）附近或以下，研判土石堵塞下游河道",
+         "後續 1 期影像同位置水體 IoU 最高 0.37，持續蓄水"
+        ]
+       },
+       {
+        "passTime": "7/13 05:52",
+        "areaHectare": 0.88,
+        "recheck": "persistent",
+        "recheckTime": "7/19 05:52",
+        "iou": 0.39,
+        "evidenceImage": null,
+        "reasons": [
+         "新增水體 0.88 公頃，緊貼事件前河道",
+         "500 m 內偵測到崩塌 5.09 公頃（SAR 回波變化 ≥ 門檻）",
+         "崩塌延伸至湖底高程（995 m）附近或以下，研判土石堵塞下游河道",
+         "後續 1 期影像同位置水體 IoU 最高 0.39，持續蓄水"
+        ]
+       },
+       {
+        "passTime": "7/19 05:52",
+        "areaHectare": 0.59,
+        "recheck": "not_persistent",
+        "recheckTime": "7/25 05:52",
+        "iou": 0.1,
+        "evidenceImage": null,
+        "reasons": [
+         "新增水體 0.59 公頃，緊貼事件前河道",
+         "500 m 內偵測到崩塌 5.75 公頃（SAR 回波變化 ≥ 門檻）",
+         "崩塌延伸至湖底高程（995 m）附近或以下，研判土石堵塞下游河道",
+         "後續 1 期影像同位置水體 IoU 最高 0.10，未確認持續"
+        ]
+       }
+      ],
+      "priority": "high",
+      "priorityText": "高優先",
+      "action": "建議立即查證",
+      "confidence": "低",
+      "confidenceReasons": [
+       "前後期結果不一致，需人工判斷"
+      ],
+      "persistence": "lost",
+      "persistenceText": "持續性中斷",
+      "grade": "A",
+      "scale": "小",
+      "summary": "E1 需要立即查證：前期已確認蓄水，最新一期未再出現，可能已潰決或排空。",
+      "evidence": [
+       {
+        "kind": "sar",
+        "status": "support",
+        "text": "7/19 05:52 SAR 新增水體 0.59 公頃（證據強度 A 級）"
+       },
+       {
+        "kind": "persistence",
+        "status": "against",
+        "text": "前期已確認蓄水，最新一期同位置未再偵測到或複核未持續"
+       },
+       {
+        "kind": "river",
+        "status": "support",
+        "text": "緊貼事件前河道（DEM 填窪後 D8 河網）"
+       },
+       {
+        "kind": "landslide",
+        "status": "support",
+        "text": "500 m 內有 SAR 崩塌訊號 5.8 公頃"
+       },
+       {
+        "kind": "terrain",
+        "status": "support",
+        "text": "崩塌延伸到水體下游、湖底高程（995 m）以下，符合堵塞型態"
+       },
+       {
+        "kind": "history",
+        "status": "context",
+        "text": "10 km 內清冊另有 3 筆堰塞湖：2016 萬里溪（8.4 km）、2024 花蓮萬里溪（8.7 km）、2025 花蓮馬太鞍溪（0.5 km）"
+       }
+      ],
+      "gaps": [
+       {
+        "kind": "rain",
+        "text": "形成期間雨量：尚未取得測站資料（CWA 歷史雨量待補）"
+       },
+       {
+        "kind": "optical",
+        "text": "光學影像：尚未調閱（颱風期間多雲，雲散後可調 Sentinel-2）"
+       },
+       {
+        "kind": "exposure",
+        "text": "下游保全對象：尚未串接（可接 BigGIS、內政部道路與聚落圖層）"
+       },
+       {
+        "kind": "field",
+        "text": "人工查證：尚未進行"
+       }
+      ],
+      "conflicts": [
+       "前期多期一致，最新一期卻未見：可能是潰決、排空，也可能是陰影遮罩擋掉湖面，需人工判斷。"
+      ],
+      "tasks": [
+       {
+        "label": "立即查證是否潰決或排空",
+        "reason": "前期已確認蓄水，最新一期未見；潰決會直接影響下游"
+       },
+       {
+        "label": "調閱最新光學影像",
+        "reason": "確認湖面是否仍在，排除 SAR 遮罩造成的漏偵"
+       },
+       {
+        "label": "通報主管機關（農村水保署）",
+        "reason": "下游保全對象尚未串接，需由主管機關評估"
+       },
+       {
+        "label": "補查形成期間雨量",
+        "reason": "確認觸發條件；目前觀測表此欄空白"
+       }
+      ],
+      "rulesFired": [
+       "persistence.lost",
+       "spatial.on_river",
+       "spatial.landslide",
+       "spatial.blockage",
+       "history.nearby",
+       "gap.rain",
+       "gap.optical",
+       "gap.exposure",
+       "priority.high.lost"
+      ]
+     }
+    ]
+   },
+   {
+    "asOf": "2026-07-30T21:52:00+00:00",
+    "label": "7/31 05:52",
+    "what": "新一期 SAR 全幅偵測＋複核 7/25 的候選",
+    "since": "",
+    "nextPass": "8/6",
+    "counts": {
+     "high": 1,
+     "medium": 0,
+     "low": 0
+    },
+    "newCount": 0,
+    "events": [
+     {
+      "id": "E1",
+      "firstSeen": "6/7 05:52",
+      "lastSeen": "7/19 05:52",
+      "isNew": false,
+      "lonLat": [
+       121.302554,
+       23.700011
+      ],
+      "distanceFromReferenceM": null,
+      "areaHectare": 0.59,
+      "areaNote": "SAR 陡坡與陰影遮罩會擋掉部分湖面，面積偏低，視為下限",
+      "lakeFloorM": 995.0,
+      "polygonLonLat": [
+       [
+        121.30346540190912,
+        23.70070129856739
+       ],
+       [
+        121.30337557038071,
+        23.700252140925333
+       ],
+       [
+        121.30319590732388,
+        23.700252140925333
+       ],
+       [
+        121.30301624426707,
+        23.70070129856739
+       ],
+       [
+        121.30346540190912,
+        23.70070129856739
+       ]
+      ],
+      "detections": [
+       {
+        "passTime": "6/7 05:52",
+        "areaHectare": 0.56,
+        "recheck": "not_persistent",
+        "recheckTime": "6/12 05:52",
+        "iou": 0.17,
+        "evidenceImage": null,
+        "reasons": [
+         "新增水體 0.56 公頃，緊貼事件前河道",
+         "500 m 內偵測到崩塌 1.33 公頃（SAR 回波變化 ≥ 門檻）",
+         "崩塌延伸至湖底高程（998 m）附近或以下，研判土石堵塞下游河道",
+         "後續 1 期影像同位置水體 IoU 最高 0.17，未確認持續"
+        ]
+       },
+       {
+        "passTime": "6/19 05:52",
+        "areaHectare": 0.57,
+        "recheck": "persistent",
+        "recheckTime": "6/24 05:52",
+        "iou": 0.38,
+        "evidenceImage": null,
+        "reasons": [
+         "新增水體 0.57 公頃，緊貼事件前河道",
+         "500 m 內偵測到崩塌 3.84 公頃（SAR 回波變化 ≥ 門檻）",
+         "崩塌延伸至湖底高程（1005 m）附近或以下，研判土石堵塞下游河道",
+         "後續 1 期影像同位置水體 IoU 最高 0.38，持續蓄水"
+        ]
+       },
+       {
+        "passTime": "6/24 05:52",
+        "areaHectare": 0.63,
+        "recheck": "persistent",
+        "recheckTime": "6/25 05:52",
+        "iou": 0.4,
+        "evidenceImage": null,
+        "reasons": [
+         "新增水體 0.63 公頃，緊貼事件前河道",
+         "500 m 內偵測到崩塌 7.89 公頃（SAR 回波變化 ≥ 門檻）",
+         "崩塌延伸至湖底高程（995 m）附近或以下，研判土石堵塞下游河道",
+         "後續 1 期影像同位置水體 IoU 最高 0.40，持續蓄水"
+        ]
+       },
+       {
+        "passTime": "6/25 05:52",
+        "areaHectare": 0.69,
+        "recheck": "persistent",
+        "recheckTime": "7/1 05:52",
+        "iou": 0.36,
+        "evidenceImage": null,
+        "reasons": [
+         "新增水體 0.69 公頃，緊貼事件前河道",
+         "500 m 內偵測到崩塌 7.73 公頃（SAR 回波變化 ≥ 門檻）",
+         "崩塌延伸至湖底高程（997 m）附近或以下，研判土石堵塞下游河道",
+         "後續 1 期影像同位置水體 IoU 最高 0.36，持續蓄水"
+        ]
+       },
+       {
+        "passTime": "7/1 05:52",
+        "areaHectare": 0.81,
+        "recheck": "persistent",
+        "recheckTime": "7/7 05:52",
+        "iou": 0.32,
+        "evidenceImage": null,
+        "reasons": [
+         "新增水體 0.81 公頃，緊貼事件前河道",
+         "500 m 內偵測到崩塌 6.69 公頃（SAR 回波變化 ≥ 門檻）",
+         "崩塌延伸至湖底高程（915 m）附近或以下，研判土石堵塞下游河道",
+         "後續 1 期影像同位置水體 IoU 最高 0.32，持續蓄水"
+        ]
+       },
+       {
+        "passTime": "7/7 05:52",
+        "areaHectare": 0.96,
+        "recheck": "persistent",
+        "recheckTime": "7/13 05:52",
+        "iou": 0.37,
+        "evidenceImage": null,
+        "reasons": [
+         "新增水體 0.96 公頃，緊貼事件前河道",
+         "500 m 內偵測到崩塌 8.50 公頃（SAR 回波變化 ≥ 門檻）",
+         "崩塌延伸至湖底高程（1001 m）附近或以下，研判土石堵塞下游河道",
+         "後續 1 期影像同位置水體 IoU 最高 0.37，持續蓄水"
+        ]
+       },
+       {
+        "passTime": "7/13 05:52",
+        "areaHectare": 0.88,
+        "recheck": "persistent",
+        "recheckTime": "7/19 05:52",
+        "iou": 0.39,
+        "evidenceImage": null,
+        "reasons": [
+         "新增水體 0.88 公頃，緊貼事件前河道",
+         "500 m 內偵測到崩塌 5.09 公頃（SAR 回波變化 ≥ 門檻）",
+         "崩塌延伸至湖底高程（995 m）附近或以下，研判土石堵塞下游河道",
+         "後續 1 期影像同位置水體 IoU 最高 0.39，持續蓄水"
+        ]
+       },
+       {
+        "passTime": "7/19 05:52",
+        "areaHectare": 0.59,
+        "recheck": "not_persistent",
+        "recheckTime": "7/25 05:52",
+        "iou": 0.1,
+        "evidenceImage": null,
+        "reasons": [
+         "新增水體 0.59 公頃，緊貼事件前河道",
+         "500 m 內偵測到崩塌 5.75 公頃（SAR 回波變化 ≥ 門檻）",
+         "崩塌延伸至湖底高程（995 m）附近或以下，研判土石堵塞下游河道",
+         "後續 1 期影像同位置水體 IoU 最高 0.10，未確認持續"
+        ]
+       }
+      ],
+      "priority": "high",
+      "priorityText": "高優先",
+      "action": "建議立即查證",
+      "confidence": "低",
+      "confidenceReasons": [
+       "前後期結果不一致，需人工判斷"
+      ],
+      "persistence": "lost",
+      "persistenceText": "持續性中斷",
+      "grade": "A",
+      "scale": "小",
+      "summary": "E1 需要立即查證：前期已確認蓄水，最新一期未再出現，可能已潰決或排空。",
+      "evidence": [
+       {
+        "kind": "sar",
+        "status": "support",
+        "text": "7/19 05:52 SAR 新增水體 0.59 公頃（證據強度 A 級）"
+       },
+       {
+        "kind": "persistence",
+        "status": "against",
+        "text": "前期已確認蓄水，最新一期同位置未再偵測到或複核未持續"
+       },
+       {
+        "kind": "river",
+        "status": "support",
+        "text": "緊貼事件前河道（DEM 填窪後 D8 河網）"
+       },
+       {
+        "kind": "landslide",
+        "status": "support",
+        "text": "500 m 內有 SAR 崩塌訊號 5.8 公頃"
+       },
+       {
+        "kind": "terrain",
+        "status": "support",
+        "text": "崩塌延伸到水體下游、湖底高程（995 m）以下，符合堵塞型態"
+       },
+       {
+        "kind": "history",
+        "status": "context",
+        "text": "10 km 內清冊另有 3 筆堰塞湖：2016 萬里溪（8.4 km）、2024 花蓮萬里溪（8.7 km）、2025 花蓮馬太鞍溪（0.5 km）"
+       }
+      ],
+      "gaps": [
+       {
+        "kind": "rain",
+        "text": "形成期間雨量：尚未取得測站資料（CWA 歷史雨量待補）"
+       },
+       {
+        "kind": "optical",
+        "text": "光學影像：尚未調閱（颱風期間多雲，雲散後可調 Sentinel-2）"
+       },
+       {
+        "kind": "exposure",
+        "text": "下游保全對象：尚未串接（可接 BigGIS、內政部道路與聚落圖層）"
+       },
+       {
+        "kind": "field",
+        "text": "人工查證：尚未進行"
+       }
+      ],
+      "conflicts": [
+       "前期多期一致，最新一期卻未見：可能是潰決、排空，也可能是陰影遮罩擋掉湖面，需人工判斷。"
+      ],
+      "tasks": [
+       {
+        "label": "立即查證是否潰決或排空",
+        "reason": "前期已確認蓄水，最新一期未見；潰決會直接影響下游"
+       },
+       {
+        "label": "調閱最新光學影像",
+        "reason": "確認湖面是否仍在，排除 SAR 遮罩造成的漏偵"
+       },
+       {
+        "label": "通報主管機關（農村水保署）",
+        "reason": "下游保全對象尚未串接，需由主管機關評估"
+       },
+       {
+        "label": "補查形成期間雨量",
+        "reason": "確認觸發條件；目前觀測表此欄空白"
+       }
+      ],
+      "rulesFired": [
+       "persistence.lost",
+       "spatial.on_river",
+       "spatial.landslide",
+       "spatial.blockage",
+       "history.nearby",
+       "gap.rain",
+       "gap.optical",
+       "gap.exposure",
+       "priority.high.lost"
+      ]
+     }
+    ]
+   },
+   {
+    "asOf": "2026-08-11T21:52:00+00:00",
+    "label": "8/12 05:52",
+    "what": "新一期 SAR 全幅偵測＋複核 7/31 的候選",
+    "since": "",
+    "nextPass": "8/18",
+    "counts": {
+     "high": 1,
+     "medium": 0,
+     "low": 0
+    },
+    "newCount": 0,
+    "events": [
+     {
+      "id": "E1",
+      "firstSeen": "6/7 05:52",
+      "lastSeen": "8/12 05:52",
+      "isNew": false,
+      "lonLat": [
+       121.30247,
+       23.699845
+      ],
+      "distanceFromReferenceM": null,
+      "areaHectare": 0.93,
+      "areaNote": "SAR 陡坡與陰影遮罩會擋掉部分湖面，面積偏低，視為下限",
+      "lakeFloorM": 971.0,
+      "polygonLonLat": [
+       [
+        121.30265691815342,
+        23.699533488698037
+       ],
+       [
+        121.30283658121024,
+        23.6992639941128
+       ],
+       [
+        121.302567086625,
+        23.69908433105598
+       ],
+       [
+        121.30265691815342,
+        23.699533488698037
+       ]
+      ],
+      "detections": [
+       {
+        "passTime": "6/7 05:52",
+        "areaHectare": 0.56,
+        "recheck": "not_persistent",
+        "recheckTime": "6/12 05:52",
+        "iou": 0.17,
+        "evidenceImage": null,
+        "reasons": [
+         "新增水體 0.56 公頃，緊貼事件前河道",
+         "500 m 內偵測到崩塌 1.33 公頃（SAR 回波變化 ≥ 門檻）",
+         "崩塌延伸至湖底高程（998 m）附近或以下，研判土石堵塞下游河道",
+         "後續 1 期影像同位置水體 IoU 最高 0.17，未確認持續"
+        ]
+       },
+       {
+        "passTime": "6/19 05:52",
+        "areaHectare": 0.57,
+        "recheck": "persistent",
+        "recheckTime": "6/24 05:52",
+        "iou": 0.38,
+        "evidenceImage": null,
+        "reasons": [
+         "新增水體 0.57 公頃，緊貼事件前河道",
+         "500 m 內偵測到崩塌 3.84 公頃（SAR 回波變化 ≥ 門檻）",
+         "崩塌延伸至湖底高程（1005 m）附近或以下，研判土石堵塞下游河道",
+         "後續 1 期影像同位置水體 IoU 最高 0.38，持續蓄水"
+        ]
+       },
+       {
+        "passTime": "6/24 05:52",
+        "areaHectare": 0.63,
+        "recheck": "persistent",
+        "recheckTime": "6/25 05:52",
+        "iou": 0.4,
+        "evidenceImage": null,
+        "reasons": [
+         "新增水體 0.63 公頃，緊貼事件前河道",
+         "500 m 內偵測到崩塌 7.89 公頃（SAR 回波變化 ≥ 門檻）",
+         "崩塌延伸至湖底高程（995 m）附近或以下，研判土石堵塞下游河道",
+         "後續 1 期影像同位置水體 IoU 最高 0.40，持續蓄水"
+        ]
+       },
+       {
+        "passTime": "6/25 05:52",
+        "areaHectare": 0.69,
+        "recheck": "persistent",
+        "recheckTime": "7/1 05:52",
+        "iou": 0.36,
+        "evidenceImage": null,
+        "reasons": [
+         "新增水體 0.69 公頃，緊貼事件前河道",
+         "500 m 內偵測到崩塌 7.73 公頃（SAR 回波變化 ≥ 門檻）",
+         "崩塌延伸至湖底高程（997 m）附近或以下，研判土石堵塞下游河道",
+         "後續 1 期影像同位置水體 IoU 最高 0.36，持續蓄水"
+        ]
+       },
+       {
+        "passTime": "7/1 05:52",
+        "areaHectare": 0.81,
+        "recheck": "persistent",
+        "recheckTime": "7/7 05:52",
+        "iou": 0.32,
+        "evidenceImage": null,
+        "reasons": [
+         "新增水體 0.81 公頃，緊貼事件前河道",
+         "500 m 內偵測到崩塌 6.69 公頃（SAR 回波變化 ≥ 門檻）",
+         "崩塌延伸至湖底高程（915 m）附近或以下，研判土石堵塞下游河道",
+         "後續 1 期影像同位置水體 IoU 最高 0.32，持續蓄水"
+        ]
+       },
+       {
+        "passTime": "7/7 05:52",
+        "areaHectare": 0.96,
+        "recheck": "persistent",
+        "recheckTime": "7/13 05:52",
+        "iou": 0.37,
+        "evidenceImage": null,
+        "reasons": [
+         "新增水體 0.96 公頃，緊貼事件前河道",
+         "500 m 內偵測到崩塌 8.50 公頃（SAR 回波變化 ≥ 門檻）",
+         "崩塌延伸至湖底高程（1001 m）附近或以下，研判土石堵塞下游河道",
+         "後續 1 期影像同位置水體 IoU 最高 0.37，持續蓄水"
+        ]
+       },
+       {
+        "passTime": "7/13 05:52",
+        "areaHectare": 0.88,
+        "recheck": "persistent",
+        "recheckTime": "7/19 05:52",
+        "iou": 0.39,
+        "evidenceImage": null,
+        "reasons": [
+         "新增水體 0.88 公頃，緊貼事件前河道",
+         "500 m 內偵測到崩塌 5.09 公頃（SAR 回波變化 ≥ 門檻）",
+         "崩塌延伸至湖底高程（995 m）附近或以下，研判土石堵塞下游河道",
+         "後續 1 期影像同位置水體 IoU 最高 0.39，持續蓄水"
+        ]
+       },
+       {
+        "passTime": "7/19 05:52",
+        "areaHectare": 0.59,
+        "recheck": "not_persistent",
+        "recheckTime": "7/25 05:52",
+        "iou": 0.1,
+        "evidenceImage": null,
+        "reasons": [
+         "新增水體 0.59 公頃，緊貼事件前河道",
+         "500 m 內偵測到崩塌 5.75 公頃（SAR 回波變化 ≥ 門檻）",
+         "崩塌延伸至湖底高程（995 m）附近或以下，研判土石堵塞下游河道",
+         "後續 1 期影像同位置水體 IoU 最高 0.10，未確認持續"
+        ]
+       },
+       {
+        "passTime": "8/12 05:52",
+        "areaHectare": 0.93,
+        "recheck": "pending",
+        "recheckTime": "8/24 05:52",
+        "iou": null,
+        "evidenceImage": null,
+        "reasons": [
+         "新增水體 0.93 公頃，緊貼事件前河道",
+         "500 m 內偵測到崩塌 8.59 公頃（SAR 回波變化 ≥ 門檻）",
+         "崩塌延伸至湖底高程（971 m）附近或以下，研判土石堵塞下游河道"
+        ]
+       }
+      ],
+      "priority": "high",
+      "priorityText": "高優先",
+      "action": "建議立即查證",
+      "confidence": "中",
+      "confidenceReasons": [
+       "SAR 9 期一致",
+       "證據只有 SAR 一種來源，最高到「中」；需光學或現地證據才能到「高」"
+      ],
+      "persistence": "confirmed",
+      "persistenceText": "已確認持續",
+      "grade": "A",
+      "scale": "小",
+      "summary": "E1 值得優先查證：6 項證據一致（SAR 新增水體、跨期持續、貼河道、附近崩塌、堵塞型態、面積擴大）；目前缺少光學影像與現地證據，建議下一步 UAV 現地查證並調閱光學影像。",
+      "evidence": [
+       {
+        "kind": "sar",
+        "status": "support",
+        "text": "8/12 05:52 SAR 新增水體 0.93 公頃（證據強度 A 級）"
+       },
+       {
+        "kind": "persistence",
+        "status": "support",
+        "text": "7/19 複核同位置仍有水體（IoU 0.39），共 9 期偵測到"
+       },
+       {
+        "kind": "river",
+        "status": "support",
+        "text": "緊貼事件前河道（DEM 填窪後 D8 河網）"
+       },
+       {
+        "kind": "landslide",
+        "status": "support",
+        "text": "500 m 內有 SAR 崩塌訊號 8.6 公頃"
+       },
+       {
+        "kind": "terrain",
+        "status": "support",
+        "text": "崩塌延伸到水體下游、湖底高程（971 m）以下，符合堵塞型態"
+       },
+       {
+        "kind": "trend",
+        "status": "support",
+        "text": "面積 0.6 → 0.9 公頃，擴大中"
+       },
+       {
+        "kind": "history",
+        "status": "context",
+        "text": "10 km 內清冊另有 3 筆堰塞湖：2016 萬里溪（8.4 km）、2024 花蓮萬里溪（8.7 km）、2025 花蓮馬太鞍溪（0.5 km）"
+       }
+      ],
+      "gaps": [
+       {
+        "kind": "rain",
+        "text": "形成期間雨量：尚未取得測站資料（CWA 歷史雨量待補）"
+       },
+       {
+        "kind": "optical",
+        "text": "光學影像：尚未調閱（颱風期間多雲，雲散後可調 Sentinel-2）"
+       },
+       {
+        "kind": "exposure",
+        "text": "下游保全對象：尚未串接（可接 BigGIS、內政部道路與聚落圖層）"
+       },
+       {
+        "kind": "field",
+        "text": "人工查證：尚未進行"
+       }
+      ],
+      "conflicts": [],
+      "tasks": [
+       {
+        "label": "UAV／現地查證壩體與湖面",
+        "reason": "SAR 只能看到水面，壩體高度、材料與溢流風險要現地確認"
+       },
+       {
+        "label": "調閱最新光學影像",
+        "reason": "SAR 陡坡遮罩會擋掉約四成湖面，面積偏低，需光學影像確認範圍"
+       },
+       {
+        "label": "通報主管機關（農村水保署）並評估下游保全對象",
+        "reason": "下游聚落、道路圖層尚未串接"
+       },
+       {
+        "label": "持續 SAR 監測（下一期 8/18）",
+        "reason": "追蹤湖面變化；目前面積擴大中"
+       },
+       {
+        "label": "補查形成期間雨量",
+        "reason": "確認觸發條件；目前觀測表此欄空白"
+       }
+      ],
+      "rulesFired": [
+       "persistence.confirmed",
+       "spatial.on_river",
+       "spatial.landslide",
+       "spatial.blockage",
+       "trend.growing",
+       "history.nearby",
+       "gap.rain",
+       "gap.optical",
+       "gap.exposure",
+       "priority.high.confirmed"
+      ]
+     }
+    ]
+   },
+   {
+    "asOf": "2026-08-23T21:52:00+00:00",
+    "label": "8/24 05:52",
+    "what": "新一期 SAR 全幅偵測＋複核 8/12 的候選",
+    "since": "",
+    "nextPass": "8/30",
+    "counts": {
+     "high": 1,
+     "medium": 0,
+     "low": 0
+    },
+    "newCount": 0,
+    "events": [
+     {
+      "id": "E1",
+      "firstSeen": "6/7 05:52",
+      "lastSeen": "8/12 05:52",
+      "isNew": false,
+      "lonLat": [
+       121.30247,
+       23.699845
+      ],
+      "distanceFromReferenceM": null,
+      "areaHectare": 0.93,
+      "areaNote": "SAR 陡坡與陰影遮罩會擋掉部分湖面，面積偏低，視為下限",
+      "lakeFloorM": 971.0,
+      "polygonLonLat": [
+       [
+        121.30265691815342,
+        23.699533488698037
+       ],
+       [
+        121.30283658121024,
+        23.6992639941128
+       ],
+       [
+        121.302567086625,
+        23.69908433105598
+       ],
+       [
+        121.30265691815342,
+        23.699533488698037
+       ]
+      ],
+      "detections": [
+       {
+        "passTime": "6/7 05:52",
+        "areaHectare": 0.56,
+        "recheck": "not_persistent",
+        "recheckTime": "6/12 05:52",
+        "iou": 0.17,
+        "evidenceImage": null,
+        "reasons": [
+         "新增水體 0.56 公頃，緊貼事件前河道",
+         "500 m 內偵測到崩塌 1.33 公頃（SAR 回波變化 ≥ 門檻）",
+         "崩塌延伸至湖底高程（998 m）附近或以下，研判土石堵塞下游河道",
+         "後續 1 期影像同位置水體 IoU 最高 0.17，未確認持續"
+        ]
+       },
+       {
+        "passTime": "6/19 05:52",
+        "areaHectare": 0.57,
+        "recheck": "persistent",
+        "recheckTime": "6/24 05:52",
+        "iou": 0.38,
+        "evidenceImage": null,
+        "reasons": [
+         "新增水體 0.57 公頃，緊貼事件前河道",
+         "500 m 內偵測到崩塌 3.84 公頃（SAR 回波變化 ≥ 門檻）",
+         "崩塌延伸至湖底高程（1005 m）附近或以下，研判土石堵塞下游河道",
+         "後續 1 期影像同位置水體 IoU 最高 0.38，持續蓄水"
+        ]
+       },
+       {
+        "passTime": "6/24 05:52",
+        "areaHectare": 0.63,
+        "recheck": "persistent",
+        "recheckTime": "6/25 05:52",
+        "iou": 0.4,
+        "evidenceImage": null,
+        "reasons": [
+         "新增水體 0.63 公頃，緊貼事件前河道",
+         "500 m 內偵測到崩塌 7.89 公頃（SAR 回波變化 ≥ 門檻）",
+         "崩塌延伸至湖底高程（995 m）附近或以下，研判土石堵塞下游河道",
+         "後續 1 期影像同位置水體 IoU 最高 0.40，持續蓄水"
+        ]
+       },
+       {
+        "passTime": "6/25 05:52",
+        "areaHectare": 0.69,
+        "recheck": "persistent",
+        "recheckTime": "7/1 05:52",
+        "iou": 0.36,
+        "evidenceImage": null,
+        "reasons": [
+         "新增水體 0.69 公頃，緊貼事件前河道",
+         "500 m 內偵測到崩塌 7.73 公頃（SAR 回波變化 ≥ 門檻）",
+         "崩塌延伸至湖底高程（997 m）附近或以下，研判土石堵塞下游河道",
+         "後續 1 期影像同位置水體 IoU 最高 0.36，持續蓄水"
+        ]
+       },
+       {
+        "passTime": "7/1 05:52",
+        "areaHectare": 0.81,
+        "recheck": "persistent",
+        "recheckTime": "7/7 05:52",
+        "iou": 0.32,
+        "evidenceImage": null,
+        "reasons": [
+         "新增水體 0.81 公頃，緊貼事件前河道",
+         "500 m 內偵測到崩塌 6.69 公頃（SAR 回波變化 ≥ 門檻）",
+         "崩塌延伸至湖底高程（915 m）附近或以下，研判土石堵塞下游河道",
+         "後續 1 期影像同位置水體 IoU 最高 0.32，持續蓄水"
+        ]
+       },
+       {
+        "passTime": "7/7 05:52",
+        "areaHectare": 0.96,
+        "recheck": "persistent",
+        "recheckTime": "7/13 05:52",
+        "iou": 0.37,
+        "evidenceImage": null,
+        "reasons": [
+         "新增水體 0.96 公頃，緊貼事件前河道",
+         "500 m 內偵測到崩塌 8.50 公頃（SAR 回波變化 ≥ 門檻）",
+         "崩塌延伸至湖底高程（1001 m）附近或以下，研判土石堵塞下游河道",
+         "後續 1 期影像同位置水體 IoU 最高 0.37，持續蓄水"
+        ]
+       },
+       {
+        "passTime": "7/13 05:52",
+        "areaHectare": 0.88,
+        "recheck": "persistent",
+        "recheckTime": "7/19 05:52",
+        "iou": 0.39,
+        "evidenceImage": null,
+        "reasons": [
+         "新增水體 0.88 公頃，緊貼事件前河道",
+         "500 m 內偵測到崩塌 5.09 公頃（SAR 回波變化 ≥ 門檻）",
+         "崩塌延伸至湖底高程（995 m）附近或以下，研判土石堵塞下游河道",
+         "後續 1 期影像同位置水體 IoU 最高 0.39，持續蓄水"
+        ]
+       },
+       {
+        "passTime": "7/19 05:52",
+        "areaHectare": 0.59,
+        "recheck": "not_persistent",
+        "recheckTime": "7/25 05:52",
+        "iou": 0.1,
+        "evidenceImage": null,
+        "reasons": [
+         "新增水體 0.59 公頃，緊貼事件前河道",
+         "500 m 內偵測到崩塌 5.75 公頃（SAR 回波變化 ≥ 門檻）",
+         "崩塌延伸至湖底高程（995 m）附近或以下，研判土石堵塞下游河道",
+         "後續 1 期影像同位置水體 IoU 最高 0.10，未確認持續"
+        ]
+       },
+       {
+        "passTime": "8/12 05:52",
+        "areaHectare": 0.93,
+        "recheck": "not_persistent",
+        "recheckTime": "8/24 05:52",
+        "iou": 0.0,
+        "evidenceImage": null,
+        "reasons": [
+         "新增水體 0.93 公頃，緊貼事件前河道",
+         "500 m 內偵測到崩塌 8.59 公頃（SAR 回波變化 ≥ 門檻）",
+         "崩塌延伸至湖底高程（971 m）附近或以下，研判土石堵塞下游河道",
+         "後續 1 期影像同位置水體 IoU 最高 0.00，未確認持續"
+        ]
+       }
+      ],
+      "priority": "high",
+      "priorityText": "高優先",
+      "action": "建議立即查證",
+      "confidence": "低",
+      "confidenceReasons": [
+       "前後期結果不一致，需人工判斷"
+      ],
+      "persistence": "lost",
+      "persistenceText": "持續性中斷",
+      "grade": "A",
+      "scale": "小",
+      "summary": "E1 需要立即查證：前期已確認蓄水，最新一期未再出現，可能已潰決或排空。",
+      "evidence": [
+       {
+        "kind": "sar",
+        "status": "support",
+        "text": "8/12 05:52 SAR 新增水體 0.93 公頃（證據強度 A 級）"
+       },
+       {
+        "kind": "persistence",
+        "status": "against",
+        "text": "前期已確認蓄水，最新一期同位置未再偵測到或複核未持續"
+       },
+       {
+        "kind": "river",
+        "status": "support",
+        "text": "緊貼事件前河道（DEM 填窪後 D8 河網）"
+       },
+       {
+        "kind": "landslide",
+        "status": "support",
+        "text": "500 m 內有 SAR 崩塌訊號 8.6 公頃"
+       },
+       {
+        "kind": "terrain",
+        "status": "support",
+        "text": "崩塌延伸到水體下游、湖底高程（971 m）以下，符合堵塞型態"
+       },
+       {
+        "kind": "trend",
+        "status": "support",
+        "text": "面積 0.6 → 0.9 公頃，擴大中"
+       },
+       {
+        "kind": "history",
+        "status": "context",
+        "text": "10 km 內清冊另有 3 筆堰塞湖：2016 萬里溪（8.4 km）、2024 花蓮萬里溪（8.7 km）、2025 花蓮馬太鞍溪（0.5 km）"
+       }
+      ],
+      "gaps": [
+       {
+        "kind": "rain",
+        "text": "形成期間雨量：尚未取得測站資料（CWA 歷史雨量待補）"
+       },
+       {
+        "kind": "optical",
+        "text": "光學影像：尚未調閱（颱風期間多雲，雲散後可調 Sentinel-2）"
+       },
+       {
+        "kind": "exposure",
+        "text": "下游保全對象：尚未串接（可接 BigGIS、內政部道路與聚落圖層）"
+       },
+       {
+        "kind": "field",
+        "text": "人工查證：尚未進行"
+       }
+      ],
+      "conflicts": [
+       "前期多期一致，最新一期卻未見：可能是潰決、排空，也可能是陰影遮罩擋掉湖面，需人工判斷。"
+      ],
+      "tasks": [
+       {
+        "label": "立即查證是否潰決或排空",
+        "reason": "前期已確認蓄水，最新一期未見；潰決會直接影響下游"
+       },
+       {
+        "label": "調閱最新光學影像",
+        "reason": "確認湖面是否仍在，排除 SAR 遮罩造成的漏偵"
+       },
+       {
+        "label": "通報主管機關（農村水保署）",
+        "reason": "下游保全對象尚未串接，需由主管機關評估"
+       },
+       {
+        "label": "補查形成期間雨量",
+        "reason": "確認觸發條件；目前觀測表此欄空白"
+       }
+      ],
+      "rulesFired": [
+       "persistence.lost",
+       "spatial.on_river",
+       "spatial.landslide",
+       "spatial.blockage",
+       "trend.growing",
+       "history.nearby",
+       "gap.rain",
+       "gap.optical",
+       "gap.exposure",
+       "priority.high.lost"
+      ]
+     }
+    ]
+   },
+   {
+    "asOf": "2026-09-04T21:52:00+00:00",
+    "label": "9/5 05:52",
+    "what": "新一期 SAR 全幅偵測＋複核 8/24 的候選",
+    "since": "",
+    "nextPass": "9/11",
+    "counts": {
+     "high": 1,
+     "medium": 0,
+     "low": 0
+    },
+    "newCount": 0,
+    "events": [
+     {
+      "id": "E1",
+      "firstSeen": "6/7 05:52",
+      "lastSeen": "9/5 05:52",
+      "isNew": false,
+      "lonLat": [
+       121.302412,
+       23.70058
+      ],
+      "distanceFromReferenceM": null,
+      "areaHectare": 0.68,
+      "areaNote": "SAR 陡坡與陰影遮罩會擋掉部分湖面，面積偏低，視為下限",
+      "lakeFloorM": 1012.0,
+      "polygonLonLat": [
+       [
+        121.30166877134089,
+        23.701240287737864
+       ],
+       [
+        121.30238742356818,
+        23.70106062468104
+       ],
+       [
+        121.30148910828406,
+        23.70070129856739
+       ],
+       [
+        121.30166877134089,
+        23.701240287737864
+       ]
+      ],
+      "detections": [
+       {
+        "passTime": "6/7 05:52",
+        "areaHectare": 0.56,
+        "recheck": "not_persistent",
+        "recheckTime": "6/12 05:52",
+        "iou": 0.17,
+        "evidenceImage": null,
+        "reasons": [
+         "新增水體 0.56 公頃，緊貼事件前河道",
+         "500 m 內偵測到崩塌 1.33 公頃（SAR 回波變化 ≥ 門檻）",
+         "崩塌延伸至湖底高程（998 m）附近或以下，研判土石堵塞下游河道",
+         "後續 1 期影像同位置水體 IoU 最高 0.17，未確認持續"
+        ]
+       },
+       {
+        "passTime": "6/19 05:52",
+        "areaHectare": 0.57,
+        "recheck": "persistent",
+        "recheckTime": "6/24 05:52",
+        "iou": 0.38,
+        "evidenceImage": null,
+        "reasons": [
+         "新增水體 0.57 公頃，緊貼事件前河道",
+         "500 m 內偵測到崩塌 3.84 公頃（SAR 回波變化 ≥ 門檻）",
+         "崩塌延伸至湖底高程（1005 m）附近或以下，研判土石堵塞下游河道",
+         "後續 1 期影像同位置水體 IoU 最高 0.38，持續蓄水"
+        ]
+       },
+       {
+        "passTime": "6/24 05:52",
+        "areaHectare": 0.63,
+        "recheck": "persistent",
+        "recheckTime": "6/25 05:52",
+        "iou": 0.4,
+        "evidenceImage": null,
+        "reasons": [
+         "新增水體 0.63 公頃，緊貼事件前河道",
+         "500 m 內偵測到崩塌 7.89 公頃（SAR 回波變化 ≥ 門檻）",
+         "崩塌延伸至湖底高程（995 m）附近或以下，研判土石堵塞下游河道",
+         "後續 1 期影像同位置水體 IoU 最高 0.40，持續蓄水"
+        ]
+       },
+       {
+        "passTime": "6/25 05:52",
+        "areaHectare": 0.69,
+        "recheck": "persistent",
+        "recheckTime": "7/1 05:52",
+        "iou": 0.36,
+        "evidenceImage": null,
+        "reasons": [
+         "新增水體 0.69 公頃，緊貼事件前河道",
+         "500 m 內偵測到崩塌 7.73 公頃（SAR 回波變化 ≥ 門檻）",
+         "崩塌延伸至湖底高程（997 m）附近或以下，研判土石堵塞下游河道",
+         "後續 1 期影像同位置水體 IoU 最高 0.36，持續蓄水"
+        ]
+       },
+       {
+        "passTime": "7/1 05:52",
+        "areaHectare": 0.81,
+        "recheck": "persistent",
+        "recheckTime": "7/7 05:52",
+        "iou": 0.32,
+        "evidenceImage": null,
+        "reasons": [
+         "新增水體 0.81 公頃，緊貼事件前河道",
+         "500 m 內偵測到崩塌 6.69 公頃（SAR 回波變化 ≥ 門檻）",
+         "崩塌延伸至湖底高程（915 m）附近或以下，研判土石堵塞下游河道",
+         "後續 1 期影像同位置水體 IoU 最高 0.32，持續蓄水"
+        ]
+       },
+       {
+        "passTime": "7/7 05:52",
+        "areaHectare": 0.96,
+        "recheck": "persistent",
+        "recheckTime": "7/13 05:52",
+        "iou": 0.37,
+        "evidenceImage": null,
+        "reasons": [
+         "新增水體 0.96 公頃，緊貼事件前河道",
+         "500 m 內偵測到崩塌 8.50 公頃（SAR 回波變化 ≥ 門檻）",
+         "崩塌延伸至湖底高程（1001 m）附近或以下，研判土石堵塞下游河道",
+         "後續 1 期影像同位置水體 IoU 最高 0.37，持續蓄水"
+        ]
+       },
+       {
+        "passTime": "7/13 05:52",
+        "areaHectare": 0.88,
+        "recheck": "persistent",
+        "recheckTime": "7/19 05:52",
+        "iou": 0.39,
+        "evidenceImage": null,
+        "reasons": [
+         "新增水體 0.88 公頃，緊貼事件前河道",
+         "500 m 內偵測到崩塌 5.09 公頃（SAR 回波變化 ≥ 門檻）",
+         "崩塌延伸至湖底高程（995 m）附近或以下，研判土石堵塞下游河道",
+         "後續 1 期影像同位置水體 IoU 最高 0.39，持續蓄水"
+        ]
+       },
+       {
+        "passTime": "7/19 05:52",
+        "areaHectare": 0.59,
+        "recheck": "not_persistent",
+        "recheckTime": "7/25 05:52",
+        "iou": 0.1,
+        "evidenceImage": null,
+        "reasons": [
+         "新增水體 0.59 公頃，緊貼事件前河道",
+         "500 m 內偵測到崩塌 5.75 公頃（SAR 回波變化 ≥ 門檻）",
+         "崩塌延伸至湖底高程（995 m）附近或以下，研判土石堵塞下游河道",
+         "後續 1 期影像同位置水體 IoU 最高 0.10，未確認持續"
+        ]
+       },
+       {
+        "passTime": "8/12 05:52",
+        "areaHectare": 0.93,
+        "recheck": "not_persistent",
+        "recheckTime": "8/24 05:52",
+        "iou": 0.0,
+        "evidenceImage": null,
+        "reasons": [
+         "新增水體 0.93 公頃，緊貼事件前河道",
+         "500 m 內偵測到崩塌 8.59 公頃（SAR 回波變化 ≥ 門檻）",
+         "崩塌延伸至湖底高程（971 m）附近或以下，研判土石堵塞下游河道",
+         "後續 1 期影像同位置水體 IoU 最高 0.00，未確認持續"
+        ]
+       },
+       {
+        "passTime": "9/5 05:52",
+        "areaHectare": 0.68,
+        "recheck": "pending",
+        "recheckTime": "9/17 05:52",
+        "iou": null,
+        "evidenceImage": null,
+        "reasons": [
+         "新增水體 0.68 公頃，緊貼事件前河道",
+         "500 m 內偵測到崩塌 10.66 公頃（SAR 回波變化 ≥ 門檻）",
+         "崩塌延伸至湖底高程（1012 m）附近或以下，研判土石堵塞下游河道"
+        ]
+       }
+      ],
+      "priority": "high",
+      "priorityText": "高優先",
+      "action": "建議立即查證",
+      "confidence": "中",
+      "confidenceReasons": [
+       "SAR 10 期一致",
+       "證據只有 SAR 一種來源，最高到「中」；需光學或現地證據才能到「高」"
+      ],
+      "persistence": "confirmed",
+      "persistenceText": "已確認持續",
+      "grade": "A",
+      "scale": "小",
+      "summary": "E1 值得優先查證：5 項證據一致（SAR 新增水體、跨期持續、貼河道、附近崩塌、堵塞型態）；目前缺少光學影像與現地證據，建議下一步 UAV 現地查證並調閱光學影像。",
+      "evidence": [
+       {
+        "kind": "sar",
+        "status": "support",
+        "text": "9/5 05:52 SAR 新增水體 0.68 公頃（證據強度 A 級）"
+       },
+       {
+        "kind": "persistence",
+        "status": "support",
+        "text": "7/19 複核同位置仍有水體（IoU 0.39），共 10 期偵測到"
+       },
+       {
+        "kind": "river",
+        "status": "support",
+        "text": "緊貼事件前河道（DEM 填窪後 D8 河網）"
+       },
+       {
+        "kind": "landslide",
+        "status": "support",
+        "text": "500 m 內有 SAR 崩塌訊號 10.7 公頃"
+       },
+       {
+        "kind": "terrain",
+        "status": "support",
+        "text": "崩塌延伸到水體下游、湖底高程（1012 m）以下，符合堵塞型態"
+       },
+       {
+        "kind": "history",
+        "status": "context",
+        "text": "10 km 內清冊另有 3 筆堰塞湖：2016 萬里溪（8.3 km）、2024 花蓮萬里溪（8.6 km）、2025 花蓮馬太鞍溪（0.5 km）"
+       }
+      ],
+      "gaps": [
+       {
+        "kind": "rain",
+        "text": "形成期間雨量：尚未取得測站資料（CWA 歷史雨量待補）"
+       },
+       {
+        "kind": "optical",
+        "text": "光學影像：尚未調閱（颱風期間多雲，雲散後可調 Sentinel-2）"
+       },
+       {
+        "kind": "exposure",
+        "text": "下游保全對象：尚未串接（可接 BigGIS、內政部道路與聚落圖層）"
+       },
+       {
+        "kind": "field",
+        "text": "人工查證：尚未進行"
+       }
+      ],
+      "conflicts": [],
+      "tasks": [
+       {
+        "label": "UAV／現地查證壩體與湖面",
+        "reason": "SAR 只能看到水面，壩體高度、材料與溢流風險要現地確認"
+       },
+       {
+        "label": "調閱最新光學影像",
+        "reason": "SAR 陡坡遮罩會擋掉約四成湖面，面積偏低，需光學影像確認範圍"
+       },
+       {
+        "label": "通報主管機關（農村水保署）並評估下游保全對象",
+        "reason": "下游聚落、道路圖層尚未串接"
+       },
+       {
+        "label": "持續 SAR 監測（下一期 9/11）",
+        "reason": "追蹤湖面變化"
+       },
+       {
+        "label": "補查形成期間雨量",
+        "reason": "確認觸發條件；目前觀測表此欄空白"
+       }
+      ],
+      "rulesFired": [
+       "persistence.confirmed",
+       "spatial.on_river",
+       "spatial.landslide",
+       "spatial.blockage",
+       "history.nearby",
+       "gap.rain",
+       "gap.optical",
+       "gap.exposure",
+       "priority.high.confirmed"
+      ]
+     }
+    ]
+   },
+   {
+    "asOf": "2026-09-16T21:52:00+00:00",
+    "label": "9/17 05:52",
+    "what": "新一期 SAR 全幅偵測＋複核 9/5 的候選",
+    "since": "",
+    "nextPass": "9/23",
+    "counts": {
+     "high": 1,
+     "medium": 0,
+     "low": 0
+    },
+    "newCount": 0,
+    "events": [
+     {
+      "id": "E1",
+      "firstSeen": "6/7 05:52",
+      "lastSeen": "9/17 05:52",
+      "isNew": false,
+      "lonLat": [
+       121.30185,
+       23.700617
+      ],
+      "distanceFromReferenceM": null,
+      "areaHectare": 1.21,
+      "areaNote": "SAR 陡坡與陰影遮罩會擋掉部分湖面，面積偏低，視為下限",
+      "lakeFloorM": 912.0,
+      "polygonLonLat": [
+       [
+        121.30220776051135,
+        23.70106062468104
+       ],
+       [
+        121.3017586028693,
+        23.700970793152628
+       ],
+       [
+        121.30148910828406,
+        23.700611467038982
+       ],
+       [
+        121.30148910828406,
+        23.70106062468104
+       ],
+       [
+        121.30220776051135,
+        23.70106062468104
+       ]
+      ],
+      "detections": [
+       {
+        "passTime": "6/7 05:52",
+        "areaHectare": 0.56,
+        "recheck": "not_persistent",
+        "recheckTime": "6/12 05:52",
+        "iou": 0.17,
+        "evidenceImage": null,
+        "reasons": [
+         "新增水體 0.56 公頃，緊貼事件前河道",
+         "500 m 內偵測到崩塌 1.33 公頃（SAR 回波變化 ≥ 門檻）",
+         "崩塌延伸至湖底高程（998 m）附近或以下，研判土石堵塞下游河道",
+         "後續 1 期影像同位置水體 IoU 最高 0.17，未確認持續"
+        ]
+       },
+       {
+        "passTime": "6/19 05:52",
+        "areaHectare": 0.57,
+        "recheck": "persistent",
+        "recheckTime": "6/24 05:52",
+        "iou": 0.38,
+        "evidenceImage": null,
+        "reasons": [
+         "新增水體 0.57 公頃，緊貼事件前河道",
+         "500 m 內偵測到崩塌 3.84 公頃（SAR 回波變化 ≥ 門檻）",
+         "崩塌延伸至湖底高程（1005 m）附近或以下，研判土石堵塞下游河道",
+         "後續 1 期影像同位置水體 IoU 最高 0.38，持續蓄水"
+        ]
+       },
+       {
+        "passTime": "6/24 05:52",
+        "areaHectare": 0.63,
+        "recheck": "persistent",
+        "recheckTime": "6/25 05:52",
+        "iou": 0.4,
+        "evidenceImage": null,
+        "reasons": [
+         "新增水體 0.63 公頃，緊貼事件前河道",
+         "500 m 內偵測到崩塌 7.89 公頃（SAR 回波變化 ≥ 門檻）",
+         "崩塌延伸至湖底高程（995 m）附近或以下，研判土石堵塞下游河道",
+         "後續 1 期影像同位置水體 IoU 最高 0.40，持續蓄水"
+        ]
+       },
+       {
+        "passTime": "6/25 05:52",
+        "areaHectare": 0.69,
+        "recheck": "persistent",
+        "recheckTime": "7/1 05:52",
+        "iou": 0.36,
+        "evidenceImage": null,
+        "reasons": [
+         "新增水體 0.69 公頃，緊貼事件前河道",
+         "500 m 內偵測到崩塌 7.73 公頃（SAR 回波變化 ≥ 門檻）",
+         "崩塌延伸至湖底高程（997 m）附近或以下，研判土石堵塞下游河道",
+         "後續 1 期影像同位置水體 IoU 最高 0.36，持續蓄水"
+        ]
+       },
+       {
+        "passTime": "7/1 05:52",
+        "areaHectare": 0.81,
+        "recheck": "persistent",
+        "recheckTime": "7/7 05:52",
+        "iou": 0.32,
+        "evidenceImage": null,
+        "reasons": [
+         "新增水體 0.81 公頃，緊貼事件前河道",
+         "500 m 內偵測到崩塌 6.69 公頃（SAR 回波變化 ≥ 門檻）",
+         "崩塌延伸至湖底高程（915 m）附近或以下，研判土石堵塞下游河道",
+         "後續 1 期影像同位置水體 IoU 最高 0.32，持續蓄水"
+        ]
+       },
+       {
+        "passTime": "7/7 05:52",
+        "areaHectare": 0.96,
+        "recheck": "persistent",
+        "recheckTime": "7/13 05:52",
+        "iou": 0.37,
+        "evidenceImage": null,
+        "reasons": [
+         "新增水體 0.96 公頃，緊貼事件前河道",
+         "500 m 內偵測到崩塌 8.50 公頃（SAR 回波變化 ≥ 門檻）",
+         "崩塌延伸至湖底高程（1001 m）附近或以下，研判土石堵塞下游河道",
+         "後續 1 期影像同位置水體 IoU 最高 0.37，持續蓄水"
+        ]
+       },
+       {
+        "passTime": "7/13 05:52",
+        "areaHectare": 0.88,
+        "recheck": "persistent",
+        "recheckTime": "7/19 05:52",
+        "iou": 0.39,
+        "evidenceImage": null,
+        "reasons": [
+         "新增水體 0.88 公頃，緊貼事件前河道",
+         "500 m 內偵測到崩塌 5.09 公頃（SAR 回波變化 ≥ 門檻）",
+         "崩塌延伸至湖底高程（995 m）附近或以下，研判土石堵塞下游河道",
+         "後續 1 期影像同位置水體 IoU 最高 0.39，持續蓄水"
+        ]
+       },
+       {
+        "passTime": "7/19 05:52",
+        "areaHectare": 0.59,
+        "recheck": "not_persistent",
+        "recheckTime": "7/25 05:52",
+        "iou": 0.1,
+        "evidenceImage": null,
+        "reasons": [
+         "新增水體 0.59 公頃，緊貼事件前河道",
+         "500 m 內偵測到崩塌 5.75 公頃（SAR 回波變化 ≥ 門檻）",
+         "崩塌延伸至湖底高程（995 m）附近或以下，研判土石堵塞下游河道",
+         "後續 1 期影像同位置水體 IoU 最高 0.10，未確認持續"
+        ]
+       },
+       {
+        "passTime": "8/12 05:52",
+        "areaHectare": 0.93,
+        "recheck": "not_persistent",
+        "recheckTime": "8/24 05:52",
+        "iou": 0.0,
+        "evidenceImage": null,
+        "reasons": [
+         "新增水體 0.93 公頃，緊貼事件前河道",
+         "500 m 內偵測到崩塌 8.59 公頃（SAR 回波變化 ≥ 門檻）",
+         "崩塌延伸至湖底高程（971 m）附近或以下，研判土石堵塞下游河道",
+         "後續 1 期影像同位置水體 IoU 最高 0.00，未確認持續"
+        ]
+       },
+       {
+        "passTime": "9/5 05:52",
+        "areaHectare": 0.68,
+        "recheck": "persistent",
+        "recheckTime": "9/17 05:52",
+        "iou": 0.45,
+        "evidenceImage": null,
+        "reasons": [
+         "新增水體 0.68 公頃，緊貼事件前河道",
+         "500 m 內偵測到崩塌 10.66 公頃（SAR 回波變化 ≥ 門檻）",
+         "崩塌延伸至湖底高程（1012 m）附近或以下，研判土石堵塞下游河道",
+         "後續 1 期影像同位置水體 IoU 最高 0.45，持續蓄水"
+        ]
+       },
+       {
+        "passTime": "9/17 05:52",
+        "areaHectare": 1.21,
+        "recheck": "pending",
+        "recheckTime": "9/29 05:52",
+        "iou": null,
+        "evidenceImage": null,
+        "reasons": [
+         "新增水體 1.21 公頃，緊貼事件前河道",
+         "500 m 內偵測到崩塌 19.26 公頃（SAR 回波變化 ≥ 門檻）",
+         "崩塌延伸至湖底高程（912 m）附近或以下，研判土石堵塞下游河道"
+        ]
+       }
+      ],
+      "priority": "high",
+      "priorityText": "高優先",
+      "action": "建議立即查證",
+      "confidence": "中",
+      "confidenceReasons": [
+       "SAR 11 期一致",
+       "證據只有 SAR 一種來源，最高到「中」；需光學或現地證據才能到「高」"
+      ],
+      "persistence": "confirmed",
+      "persistenceText": "已確認持續",
+      "grade": "A",
+      "scale": "中",
+      "summary": "E1 值得優先查證：6 項證據一致（SAR 新增水體、跨期持續、貼河道、附近崩塌、堵塞型態、面積擴大）；目前缺少光學影像與現地證據，建議下一步 UAV 現地查證並調閱光學影像。",
+      "evidence": [
+       {
+        "kind": "sar",
+        "status": "support",
+        "text": "9/17 05:52 SAR 新增水體 1.21 公頃（證據強度 A 級）"
+       },
+       {
+        "kind": "persistence",
+        "status": "support",
+        "text": "9/17 複核同位置仍有水體（IoU 0.45），共 11 期偵測到"
+       },
+       {
+        "kind": "river",
+        "status": "support",
+        "text": "緊貼事件前河道（DEM 填窪後 D8 河網）"
+       },
+       {
+        "kind": "landslide",
+        "status": "support",
+        "text": "500 m 內有 SAR 崩塌訊號 19.3 公頃"
+       },
+       {
+        "kind": "terrain",
+        "status": "support",
+        "text": "崩塌延伸到水體下游、湖底高程（912 m）以下，符合堵塞型態"
+       },
+       {
+        "kind": "trend",
+        "status": "support",
+        "text": "面積 0.6 → 1.2 公頃，擴大中"
+       },
+       {
+        "kind": "history",
+        "status": "context",
+        "text": "10 km 內清冊另有 3 筆堰塞湖：2016 萬里溪（8.4 km）、2024 花蓮萬里溪（8.6 km）、2025 花蓮馬太鞍溪（0.4 km）"
+       }
+      ],
+      "gaps": [
+       {
+        "kind": "rain",
+        "text": "形成期間雨量：尚未取得測站資料（CWA 歷史雨量待補）"
+       },
+       {
+        "kind": "optical",
+        "text": "光學影像：尚未調閱（颱風期間多雲，雲散後可調 Sentinel-2）"
+       },
+       {
+        "kind": "exposure",
+        "text": "下游保全對象：尚未串接（可接 BigGIS、內政部道路與聚落圖層）"
+       },
+       {
+        "kind": "field",
+        "text": "人工查證：尚未進行"
+       }
+      ],
+      "conflicts": [],
+      "tasks": [
+       {
+        "label": "UAV／現地查證壩體與湖面",
+        "reason": "SAR 只能看到水面，壩體高度、材料與溢流風險要現地確認"
+       },
+       {
+        "label": "調閱最新光學影像",
+        "reason": "SAR 陡坡遮罩會擋掉約四成湖面，面積偏低，需光學影像確認範圍"
+       },
+       {
+        "label": "通報主管機關（農村水保署）並評估下游保全對象",
+        "reason": "下游聚落、道路圖層尚未串接"
+       },
+       {
+        "label": "持續 SAR 監測（下一期 9/23）",
+        "reason": "追蹤湖面變化；目前面積擴大中"
+       },
+       {
+        "label": "補查形成期間雨量",
+        "reason": "確認觸發條件；目前觀測表此欄空白"
+       }
+      ],
+      "rulesFired": [
+       "persistence.confirmed",
+       "spatial.on_river",
+       "spatial.landslide",
+       "spatial.blockage",
+       "trend.growing",
+       "history.nearby",
+       "gap.rain",
+       "gap.optical",
+       "gap.exposure",
+       "priority.high.confirmed"
+      ]
+     }
+    ]
+   },
+   {
+    "asOf": "2026-09-28T21:52:00+00:00",
+    "label": "9/29 05:52",
+    "what": "新一期 SAR 全幅偵測＋複核 9/17 的候選",
+    "since": "",
+    "nextPass": "10/5",
+    "counts": {
+     "high": 1,
+     "medium": 0,
+     "low": 0
+    },
+    "newCount": 0,
+    "events": [
+     {
+      "id": "E1",
+      "firstSeen": "6/7 05:52",
+      "lastSeen": "9/29 05:52",
+      "isNew": false,
+      "lonLat": [
+       121.301896,
+       23.700515
+      ],
+      "distanceFromReferenceM": null,
+      "areaHectare": 1.44,
+      "areaNote": "SAR 陡坡與陰影遮罩會擋掉部分湖面，面積偏低，視為下限",
+      "lakeFloorM": 914.0,
+      "polygonLonLat": [
+       [
+        121.30130944522723,
+        23.70115045620945
+       ],
+       [
+        121.30220776051135,
+        23.700970793152628
+       ],
+       [
+        121.30139927675565,
+        23.700611467038982
+       ],
+       [
+        121.30130944522723,
+        23.70115045620945
+       ]
+      ],
+      "detections": [
+       {
+        "passTime": "6/7 05:52",
+        "areaHectare": 0.56,
+        "recheck": "not_persistent",
+        "recheckTime": "6/12 05:52",
+        "iou": 0.17,
+        "evidenceImage": null,
+        "reasons": [
+         "新增水體 0.56 公頃，緊貼事件前河道",
+         "500 m 內偵測到崩塌 1.33 公頃（SAR 回波變化 ≥ 門檻）",
+         "崩塌延伸至湖底高程（998 m）附近或以下，研判土石堵塞下游河道",
+         "後續 1 期影像同位置水體 IoU 最高 0.17，未確認持續"
+        ]
+       },
+       {
+        "passTime": "6/19 05:52",
+        "areaHectare": 0.57,
+        "recheck": "persistent",
+        "recheckTime": "6/24 05:52",
+        "iou": 0.38,
+        "evidenceImage": null,
+        "reasons": [
+         "新增水體 0.57 公頃，緊貼事件前河道",
+         "500 m 內偵測到崩塌 3.84 公頃（SAR 回波變化 ≥ 門檻）",
+         "崩塌延伸至湖底高程（1005 m）附近或以下，研判土石堵塞下游河道",
+         "後續 1 期影像同位置水體 IoU 最高 0.38，持續蓄水"
+        ]
+       },
+       {
+        "passTime": "6/24 05:52",
+        "areaHectare": 0.63,
+        "recheck": "persistent",
+        "recheckTime": "6/25 05:52",
+        "iou": 0.4,
+        "evidenceImage": null,
+        "reasons": [
+         "新增水體 0.63 公頃，緊貼事件前河道",
+         "500 m 內偵測到崩塌 7.89 公頃（SAR 回波變化 ≥ 門檻）",
+         "崩塌延伸至湖底高程（995 m）附近或以下，研判土石堵塞下游河道",
+         "後續 1 期影像同位置水體 IoU 最高 0.40，持續蓄水"
+        ]
+       },
+       {
+        "passTime": "6/25 05:52",
+        "areaHectare": 0.69,
+        "recheck": "persistent",
+        "recheckTime": "7/1 05:52",
+        "iou": 0.36,
+        "evidenceImage": null,
+        "reasons": [
+         "新增水體 0.69 公頃，緊貼事件前河道",
+         "500 m 內偵測到崩塌 7.73 公頃（SAR 回波變化 ≥ 門檻）",
+         "崩塌延伸至湖底高程（997 m）附近或以下，研判土石堵塞下游河道",
+         "後續 1 期影像同位置水體 IoU 最高 0.36，持續蓄水"
+        ]
+       },
+       {
+        "passTime": "7/1 05:52",
+        "areaHectare": 0.81,
+        "recheck": "persistent",
+        "recheckTime": "7/7 05:52",
+        "iou": 0.32,
+        "evidenceImage": null,
+        "reasons": [
+         "新增水體 0.81 公頃，緊貼事件前河道",
+         "500 m 內偵測到崩塌 6.69 公頃（SAR 回波變化 ≥ 門檻）",
+         "崩塌延伸至湖底高程（915 m）附近或以下，研判土石堵塞下游河道",
+         "後續 1 期影像同位置水體 IoU 最高 0.32，持續蓄水"
+        ]
+       },
+       {
+        "passTime": "7/7 05:52",
+        "areaHectare": 0.96,
+        "recheck": "persistent",
+        "recheckTime": "7/13 05:52",
+        "iou": 0.37,
+        "evidenceImage": null,
+        "reasons": [
+         "新增水體 0.96 公頃，緊貼事件前河道",
+         "500 m 內偵測到崩塌 8.50 公頃（SAR 回波變化 ≥ 門檻）",
+         "崩塌延伸至湖底高程（1001 m）附近或以下，研判土石堵塞下游河道",
+         "後續 1 期影像同位置水體 IoU 最高 0.37，持續蓄水"
+        ]
+       },
+       {
+        "passTime": "7/13 05:52",
+        "areaHectare": 0.88,
+        "recheck": "persistent",
+        "recheckTime": "7/19 05:52",
+        "iou": 0.39,
+        "evidenceImage": null,
+        "reasons": [
+         "新增水體 0.88 公頃，緊貼事件前河道",
+         "500 m 內偵測到崩塌 5.09 公頃（SAR 回波變化 ≥ 門檻）",
+         "崩塌延伸至湖底高程（995 m）附近或以下，研判土石堵塞下游河道",
+         "後續 1 期影像同位置水體 IoU 最高 0.39，持續蓄水"
+        ]
+       },
+       {
+        "passTime": "7/19 05:52",
+        "areaHectare": 0.59,
+        "recheck": "not_persistent",
+        "recheckTime": "7/25 05:52",
+        "iou": 0.1,
+        "evidenceImage": null,
+        "reasons": [
+         "新增水體 0.59 公頃，緊貼事件前河道",
+         "500 m 內偵測到崩塌 5.75 公頃（SAR 回波變化 ≥ 門檻）",
+         "崩塌延伸至湖底高程（995 m）附近或以下，研判土石堵塞下游河道",
+         "後續 1 期影像同位置水體 IoU 最高 0.10，未確認持續"
+        ]
+       },
+       {
+        "passTime": "8/12 05:52",
+        "areaHectare": 0.93,
+        "recheck": "not_persistent",
+        "recheckTime": "8/24 05:52",
+        "iou": 0.0,
+        "evidenceImage": null,
+        "reasons": [
+         "新增水體 0.93 公頃，緊貼事件前河道",
+         "500 m 內偵測到崩塌 8.59 公頃（SAR 回波變化 ≥ 門檻）",
+         "崩塌延伸至湖底高程（971 m）附近或以下，研判土石堵塞下游河道",
+         "後續 1 期影像同位置水體 IoU 最高 0.00，未確認持續"
+        ]
+       },
+       {
+        "passTime": "9/5 05:52",
+        "areaHectare": 0.68,
+        "recheck": "persistent",
+        "recheckTime": "9/17 05:52",
+        "iou": 0.45,
+        "evidenceImage": null,
+        "reasons": [
+         "新增水體 0.68 公頃，緊貼事件前河道",
+         "500 m 內偵測到崩塌 10.66 公頃（SAR 回波變化 ≥ 門檻）",
+         "崩塌延伸至湖底高程（1012 m）附近或以下，研判土石堵塞下游河道",
+         "後續 1 期影像同位置水體 IoU 最高 0.45，持續蓄水"
+        ]
+       },
+       {
+        "passTime": "9/17 05:52",
+        "areaHectare": 1.21,
+        "recheck": "persistent",
+        "recheckTime": "9/29 05:52",
+        "iou": 0.51,
+        "evidenceImage": null,
+        "reasons": [
+         "新增水體 1.21 公頃，緊貼事件前河道",
+         "500 m 內偵測到崩塌 19.26 公頃（SAR 回波變化 ≥ 門檻）",
+         "崩塌延伸至湖底高程（912 m）附近或以下，研判土石堵塞下游河道",
+         "後續 1 期影像同位置水體 IoU 最高 0.51，持續蓄水"
+        ]
+       },
+       {
+        "passTime": "9/29 05:52",
+        "areaHectare": 1.44,
+        "recheck": "pending",
+        "recheckTime": null,
+        "iou": null,
+        "evidenceImage": null,
+        "reasons": [
+         "新增水體 1.44 公頃，緊貼事件前河道",
+         "500 m 內偵測到崩塌 14.99 公頃（SAR 回波變化 ≥ 門檻）",
+         "崩塌延伸至湖底高程（914 m）附近或以下，研判土石堵塞下游河道",
+         "僅單期影像，尚未確認多時相持續性"
+        ]
+       }
+      ],
+      "priority": "high",
+      "priorityText": "高優先",
+      "action": "建議立即查證",
+      "confidence": "中",
+      "confidenceReasons": [
+       "SAR 12 期一致",
+       "證據只有 SAR 一種來源，最高到「中」；需光學或現地證據才能到「高」"
+      ],
+      "persistence": "confirmed",
+      "persistenceText": "已確認持續",
+      "grade": "A",
+      "scale": "中",
+      "summary": "E1 值得優先查證：6 項證據一致（SAR 新增水體、跨期持續、貼河道、附近崩塌、堵塞型態、面積擴大）；目前缺少光學影像與現地證據，建議下一步 UAV 現地查證並調閱光學影像。",
+      "evidence": [
+       {
+        "kind": "sar",
+        "status": "support",
+        "text": "9/29 05:52 SAR 新增水體 1.44 公頃（證據強度 A 級）"
+       },
+       {
+        "kind": "persistence",
+        "status": "support",
+        "text": "9/29 複核同位置仍有水體（IoU 0.51），共 12 期偵測到"
+       },
+       {
+        "kind": "river",
+        "status": "support",
+        "text": "緊貼事件前河道（DEM 填窪後 D8 河網）"
+       },
+       {
+        "kind": "landslide",
+        "status": "support",
+        "text": "500 m 內有 SAR 崩塌訊號 15.0 公頃"
+       },
+       {
+        "kind": "terrain",
+        "status": "support",
+        "text": "崩塌延伸到水體下游、湖底高程（914 m）以下，符合堵塞型態"
+       },
+       {
+        "kind": "trend",
+        "status": "support",
+        "text": "面積 0.6 → 1.4 公頃，擴大中"
+       },
+       {
+        "kind": "history",
+        "status": "context",
+        "text": "10 km 內清冊另有 3 筆堰塞湖：2016 萬里溪（8.4 km）、2024 花蓮萬里溪（8.6 km）、2025 花蓮馬太鞍溪（0.4 km）"
+       }
+      ],
+      "gaps": [
+       {
+        "kind": "rain",
+        "text": "形成期間雨量：尚未取得測站資料（CWA 歷史雨量待補）"
+       },
+       {
+        "kind": "optical",
+        "text": "光學影像：尚未調閱（颱風期間多雲，雲散後可調 Sentinel-2）"
+       },
+       {
+        "kind": "exposure",
+        "text": "下游保全對象：尚未串接（可接 BigGIS、內政部道路與聚落圖層）"
+       },
+       {
+        "kind": "field",
+        "text": "人工查證：尚未進行"
+       }
+      ],
+      "conflicts": [],
+      "tasks": [
+       {
+        "label": "UAV／現地查證壩體與湖面",
+        "reason": "SAR 只能看到水面，壩體高度、材料與溢流風險要現地確認"
+       },
+       {
+        "label": "調閱最新光學影像",
+        "reason": "SAR 陡坡遮罩會擋掉約四成湖面，面積偏低，需光學影像確認範圍"
+       },
+       {
+        "label": "通報主管機關（農村水保署）並評估下游保全對象",
+        "reason": "下游聚落、道路圖層尚未串接"
+       },
+       {
+        "label": "持續 SAR 監測（下一期 10/5）",
+        "reason": "追蹤湖面變化；目前面積擴大中"
+       },
+       {
+        "label": "補查形成期間雨量",
+        "reason": "確認觸發條件；目前觀測表此欄空白"
+       }
+      ],
+      "rulesFired": [
+       "persistence.confirmed",
+       "spatial.on_river",
+       "spatial.landslide",
+       "spatial.blockage",
+       "trend.growing",
+       "history.nearby",
+       "gap.rain",
+       "gap.optical",
+       "gap.exposure",
+       "priority.high.confirmed"
+      ]
+     }
+    ]
+   }
+  ]
  }
 ];

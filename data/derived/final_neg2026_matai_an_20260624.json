@@ -1,0 +1,110 @@
+{
+  "lakeId": "neg2026_matai_an",
+  "synthetic": false,
+  "source": "Sentinel-1 GRD σ⁰ VV（Google Earth Engine 匯出），非合成資料",
+  "orbit": "DESCENDING",
+  "analysisWindowKm": 4.0,
+  "cellSizeM": [
+    9.16,
+    10.0
+  ],
+  "pre": {
+    "date": "事件前中位數",
+    "method": "sar_otsu_fallback",
+    "threshold": -18.0,
+    "pixel_count": 768,
+    "area_m2": 70323.2,
+    "area_hectare": 7.032
+  },
+  "post": {
+    "date": "post 2026-06-24 21:52 UTC",
+    "method": "sar_otsu_fallback",
+    "threshold": -18.0,
+    "pixel_count": 1195,
+    "area_m2": 109422.2,
+    "area_hectare": 10.942
+  },
+  "newWaterTotalAreaHectare": 5.494,
+  "landslide": {
+    "date": "post 2026-06-24 21:52 UTC",
+    "method": "sar_log_ratio",
+    "threshold_db": 3.0,
+    "pixel_count": 2974,
+    "increase_pixels": 894,
+    "decrease_pixels": 2080,
+    "components": 95,
+    "area_m2": 272319.3,
+    "area_hectare": 27.232
+  },
+  "geometryMask": {
+    "layoverHectare": 220.5,
+    "shadowHectare": 4.92,
+    "excludedForWaterPct": 44.8,
+    "slopeOnlyExcludedHectare": 491.9,
+    "maxWaterSlopeDeg": 35.0
+  },
+  "darkNewPixelsDiagnostic": {
+    "note": "事件後比門檻暗、事件前不暗的像元（遮罩前）；maskedPct 高代表湖面被遮罩擋掉",
+    "thresholdDb": -18.0,
+    "darkNewHectareBeforeMask": 11.51,
+    "maskedHectare": 6.02,
+    "maskedPct": 52.3
+  },
+  "laterScenes": 1,
+  "candidates": [
+    {
+      "id": "cand1",
+      "grade": "A",
+      "areaHectare": 0.687,
+      "centroidRowCol": [
+        204.3,
+        277.3
+      ],
+      "centroidXY": [
+        121.30281442276656,
+        23.70017728131832
+      ],
+      "onRiver": true,
+      "landslideNearby": true,
+      "damDownstream": true,
+      "persistent": true,
+      "laterScenesChecked": 1,
+      "landslideAreaHectare": 7.728,
+      "lakeFloorM": 997.0,
+      "waterLevelM": 1112.0,
+      "reasons": [
+        "新增水體 0.69 公頃，緊貼事件前河道",
+        "500 m 內偵測到崩塌 7.73 公頃（SAR 回波變化 ≥ 門檻）",
+        "崩塌延伸至湖底高程（997 m）附近或以下，研判土石堵塞下游河道",
+        "後續 1 期影像同位置水體 IoU 最高 0.36，持續蓄水"
+      ],
+      "centroidLonLat": [
+        121.302814,
+        23.700177
+      ],
+      "distanceFromDamM": 541.8,
+      "polygonLonLat": [
+        [
+          121.30373489649436,
+          23.70007247786851
+        ],
+        [
+          121.30310607579547,
+          23.700341972453746
+        ],
+        [
+          121.30337557038071,
+          23.700970793152628
+        ],
+        [
+          121.30355523343754,
+          23.700970793152628
+        ],
+        [
+          121.30373489649436,
+          23.70007247786851
+        ]
+      ]
+    }
+  ]
+}

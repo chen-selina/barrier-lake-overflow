@@ -89,7 +89,10 @@ package-lock.json
 
 # 馬太鞍溪 SAR 驗證：影像與結果一起進版控，方便直接取用
 !data/raw/sentinel1/
-!data/raw/sentinel1/*.tif".claude/" 
+!data/raw/sentinel1/*.tif
+!data/raw/sentinel2/
+!data/raw/sentinel2/*.tif
+!data/raw/sentinel2/*.csv
 
 # disclosure
 docs/disclosure.md

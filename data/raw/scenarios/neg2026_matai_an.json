@@ -1,0 +1,119 @@
+{
+  "id": "neg2026_matai_an",
+  "name": "馬太鞍溪 · 2026 汛期（負案例）",
+  "kind": "negative",
+  "description": "17 期 Sentinel-1（DESCENDING），參數與正案例相同。",
+  "center": [
+    121.29752,
+    23.70061
+  ],
+  "windowKm": 4.0,
+  "revisitDays": 6,
+  "context": [],
+  "observationsLakeId": null,
+  "referenceLakeId": null,
+  "passes": [
+    {
+      "file": "final_neg2026_matai_an_20260605.json",
+      "time": "2026-06-05T21:52:00+00:00",
+      "recheckTime": "2026-06-06T21:52:00+00:00",
+      "evidenceImage": null
+    },
+    {
+      "file": "final_neg2026_matai_an_20260606.json",
+      "time": "2026-06-06T21:52:00+00:00",
+      "recheckTime": "2026-06-11T21:52:00+00:00",
+      "evidenceImage": null
+    },
+    {
+      "file": "final_neg2026_matai_an_20260611.json",
+      "time": "2026-06-11T21:52:00+00:00",
+      "recheckTime": "2026-06-18T21:52:00+00:00",
+      "evidenceImage": null
+    },
+    {
+      "file": "final_neg2026_matai_an_20260618.json",
+      "time": "2026-06-18T21:52:00+00:00",
+      "recheckTime": "2026-06-23T21:52:00+00:00",
+      "evidenceImage": null
+    },
+    {
+      "file": "final_neg2026_matai_an_20260623.json",
+      "time": "2026-06-23T21:52:00+00:00",
+      "recheckTime": "2026-06-24T21:52:00+00:00",
+      "evidenceImage": null
+    },
+    {
+      "file": "final_neg2026_matai_an_20260624.json",
+      "time": "2026-06-24T21:52:00+00:00",
+      "recheckTime": "2026-06-30T21:52:00+00:00",
+      "evidenceImage": null
+    },
+    {
+      "file": "final_neg2026_matai_an_20260630.json",
+      "time": "2026-06-30T21:52:00+00:00",
+      "recheckTime": "2026-07-06T21:52:00+00:00",
+      "evidenceImage": null
+    },
+    {
+      "file": "final_neg2026_matai_an_20260706.json",
+      "time": "2026-07-06T21:52:00+00:00",
+      "recheckTime": "2026-07-12T21:52:00+00:00",
+      "evidenceImage": null
+    },
+    {
+      "file": "final_neg2026_matai_an_20260712.json",
+      "time": "2026-07-12T21:52:00+00:00",
+      "recheckTime": "2026-07-18T21:52:00+00:00",
+      "evidenceImage": null
+    },
+    {
+      "file": "final_neg2026_matai_an_20260718.json",
+      "time": "2026-07-18T21:52:00+00:00",
+      "recheckTime": "2026-07-24T21:52:00+00:00",
+      "evidenceImage": null
+    },
+    {
+      "file": "final_neg2026_matai_an_20260724.json",
+      "time": "2026-07-24T21:52:00+00:00",
+      "recheckTime": "2026-07-30T21:52:00+00:00",
+      "evidenceImage": null
+    },
+    {
+      "file": "final_neg2026_matai_an_20260730.json",
+      "time": "2026-07-30T21:52:00+00:00",
+      "recheckTime": "2026-08-11T21:52:00+00:00",
+      "evidenceImage": null
+    },
+    {
+      "file": "final_neg2026_matai_an_20260811.json",
+      "time": "2026-08-11T21:52:00+00:00",
+      "recheckTime": "2026-08-23T21:52:00+00:00",
+      "evidenceImage": null
+    },
+    {
+      "file": "final_neg2026_matai_an_20260823.json",
+      "time": "2026-08-23T21:52:00+00:00",
+      "recheckTime": "2026-09-04T21:52:00+00:00",
+      "evidenceImage": null
+    },
+    {
+      "file": "final_neg2026_matai_an_20260904.json",
+      "time": "2026-09-04T21:52:00+00:00",
+      "recheckTime": "2026-09-16T21:52:00+00:00",
+      "evidenceImage": null
+    },
+    {
+      "file": "final_neg2026_matai_an_20260916.json",
+      "time": "2026-09-16T21:52:00+00:00",
+      "recheckTime": "2026-09-28T21:52:00+00:00",
+      "evidenceImage": null
+    },
+    {
+      "file": "final_neg2026_matai_an_20260928.json",
+      "time": "2026-09-28T21:52:00+00:00",
+      "recheckTime": null,
+      "evidenceImage": null
+    }
+  ]
+}

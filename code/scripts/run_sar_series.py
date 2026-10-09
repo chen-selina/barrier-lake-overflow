@@ -21,6 +21,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 import subprocess
 import sys
@@ -84,8 +85,11 @@ def main() -> None:
             cmd += ["--post-later", str(later[1])]
         print(f"[{i + 1}/{len(scenes)}] {day}" + (f" + 複核 {later[0]}" if later else "（無複核期）"))
         log = out.with_suffix(".log")
+        # 輸出導到檔案時，Windows 的 Python 預設用 cp950 編碼，印到「σ⁰」這類字元會
+        # UnicodeEncodeError 而回傳失敗（結果檔其實已寫出）。強制子程序用 UTF-8。
+        env = {**os.environ, "PYTHONIOENCODING": "utf-8"}
         with open(log, "w", encoding="utf-8") as f:
-            r = subprocess.run(cmd, cwd=CODE, stdout=f, stderr=subprocess.STDOUT)
+            r = subprocess.run(cmd, cwd=CODE, stdout=f, stderr=subprocess.STDOUT, env=env)
         if r.returncode != 0:
             print(f"  失敗，見 {log}")
             continue
