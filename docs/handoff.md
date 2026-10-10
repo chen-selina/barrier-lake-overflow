@@ -1,6 +1,6 @@
 # 決賽前待辦交接
 
-更新：2026-10-09　｜　程式狀態：已 commit 到 `5b4762c`，工作區乾淨
+更新：2026-10-10　｜　程式狀態：已 commit 到 `3190ebf`，工作區乾淨
 
 ## 先看這裡：系統現在長什麼樣
 
@@ -9,6 +9,8 @@
 
 - 最上方是**值班佇列**：馬太鞍溪 2025 逐期回放（7/23、7/29、8/4、8/22、8/28 五個時點），
   每個疑似事件有證據、證據缺口、優先等級、建議任務、人工查證表單。
+- 值班佇列另有**負案例**分頁（2026 汛期 17 期），E1 事件卡上有「事後查證」框與「事後：誤報」標籤；
+  事後查證只是註記，不改動回放當下的研判。
 - 下方是原本的**全台清冊**與風險模型。CAP 示警已整個移除。
 - 規則說明：`docs/events.md`；整體說明：`README.md`。
 
@@ -32,6 +34,15 @@
 
 **結果**：17 期，崩塌堆積區有一個約 1 公頃的誤報（E1），6/24 起持續列高優先，並 3 次觸發「持續性中斷」。
 Sentinel-2 查證確認不是水；研判信心從未到「高」。詳見 `README.md`「2026 汛期負案例」與 `docs/events.md`。
+
+已完成項目：
+
+- 負案例分頁已出現在值班佇列；結果已補進 `README.md` 與 `docs/events.md`。
+- 查證圖：`docs/evidence/neg2026_e1_optical.png`、`docs/evidence/neg2026_e1_sar.png`；
+  查證腳本：`code/scripts/gee_check_s2_e1.js`、`code/scripts/check_neg_e1.py`。
+- 情境檔新增 `hindsight` 欄位，E1 事件卡顯示「事後查證」框，佇列加「事後：誤報」標籤；不影響研判（規則見 `docs/events.md`「事後查證」）。
+- `run_sar_series.py` 重跑時會保留情境檔裡人工整理的欄位（說明、外部證據、事後查證等）。
+
 是否要修改規則（以崩塌目錄限制堆積區的優先等級、消失需連續兩期）尚待團隊決定。
 
 以下是當初的執行步驟，留作重現參考。
@@ -126,8 +137,8 @@ Sentinel-2 查證確認不是水；研判信心從未到「高」。詳見 `READ
 
 ```bash
 python -m pipeline.events.build           # 重產值班佇列資料 dashboard/data/events.js
-python -m unittest tests.test_events      # 事件規則測試（28 項）
-python -m unittest discover -s tests      # 全部測試（179 項；沒裝 shapely／rasterio 會有 5 項錯誤，屬正常）
+python -m unittest tests.test_events      # 事件規則測試（29 項）
+python -m unittest discover -s tests      # 全部測試（180 項；沒裝 shapely／rasterio 會有 5 項錯誤，屬正常）
 python scripts/vendor_fonts.py            # 資料出現新字時，重新下載本機字型
 ```
 
